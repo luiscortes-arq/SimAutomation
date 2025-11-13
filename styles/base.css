@@ -1,19 +1,11 @@
-/* styles/base.css */
 :root {
-  --bg: #f9fafb;
-  --card-bg: #ffffff;
-  --card-border: #e5e7eb;
-  --accent: #16a34a;
-  --accent-soft: rgba(22, 163, 74, 0.06);
-  --accent-strong: rgba(22, 163, 74, 0.12);
-  --accent-border: #16a34a;
-  --accent-text: #14532d;
-  --fg: #111827;
-  --fg-muted: #6b7280;
-  --danger: #dc2626;
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-    "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "Segoe UI", sans-serif;
+  --orange: #ec6838;
+  --divider-color: #ec6838;
 }
+
+/* RESET */
 
 *,
 *::before,
@@ -25,205 +17,332 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
 }
+
+/* LAYOUT GENERAL */
 
 body {
   font-family: var(--font-body);
-  color: var(--fg);
-  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.4;
 }
-
-/* Layout */
 
 .app {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 20px 14px 26px;
+  min-height: 100vh;
+  padding: 20px 32px 24px;
+  display: flex;
+  flex-direction: column;
 }
+
+/* BRANDING */
 
 .app-header {
-  margin-bottom: 18px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 26px;
 }
 
-.app-header h1 {
-  margin: 0 0 2px;
-  font-size: 1.4rem;
+.app-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
 }
 
-.app-subtitle {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--fg-muted);
+.app-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
+
+.brand-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 18px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.brand-main {
+  font-weight: 600;
+}
+
+.brand-sub {
+  font-weight: 400;
+}
+
+.app-title {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* BOTÓN THEME TOGGLE */
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle {
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border-width: 1px;
+  border-style: solid;
+  background: transparent;
+}
+
+/* MAIN */
 
 .app-main {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+/* CONTENEDORES DE SECCIÓN (SORT / MERGE / LOG) */
+
+.panel {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+/* HEADER DE PANEL */
+
+.panel-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* TÍTULO DE SECCIÓN */
+
+.panel-tag {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* DIVISORES ENTRE SECCIONES */
+
+.panel-sort,
+.panel-pipeline {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1.5px solid var(--divider-color);
+}
+
+/* CUERPO DE CADA MÓDULO */
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+/* FILAS DE CAMPOS */
+
+.field-row {
+  width: 100%;
+  max-width: 540px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-row label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* INPUT + TEXTO "NINGÚN ARCHIVO..." */
+
+.field-inline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.field-filename {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* INPUT FILE */
+
+input[type="file"] {
+  font-family: var(--font-body);
+  font-size: 13px;
+  border-radius: 8px;
+  border-width: 1px;
+  border-style: solid;
+  padding: 6px 8px;
+  outline: none;
+}
+
+input[type="file"]::file-selector-button {
+  font-family: var(--font-body);
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  padding: 4px 10px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+/* BOTONES BASE */
+
+button {
+  font-family: var(--font-body);
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.12s ease,
+    background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+/* BOTÓN IR / LIMPIAR */
+
+.btn-primary {
+  background: var(--orange);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 8px 28px;
+  min-width: 118px;
+  font-size: 14px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* BOTÓN REDONDO + */
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--orange);
+  color: #ffffff;
+}
+
+/* POSICIÓN DEL + EN REPLACE & MERGE */
+
+.panel-actions {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* PIPELINE: CONTENEDOR DE PARES */
+
+.pipeline-jobs {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pipeline-job {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Cards */
-
-.card {
-  background: var(--card-bg);
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-  padding: 12px 12px 14px;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
-}
-
-.card h2 {
-  margin: 0 0 6px;
-  font-size: 1rem;
-}
-
-/* Fields */
-
-.field-row {
+.job-header {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 8px;
-}
-
-.field-row label {
-  font-size: 0.78rem;
-  color: var(--fg-muted);
-}
-
-input[type="file"],
-input[type="text"] {
-  font-family: var(--font-body);
-  font-size: 0.9rem;
-  padding: 5px 7px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: var(--fg);
-  outline: none;
-  transition: border-color 0.12s ease, box-shadow 0.12s ease;
-}
-
-input[type="file"]::file-selector-button {
-  font-family: var(--font-body);
-  font-size: 0.8rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #f3f4f6;
-  color: var(--fg-muted);
-  padding: 2px 8px;
-  margin-right: 8px;
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease,
-    border-color 0.12s ease;
-}
-
-input[type="file"]::file-selector-button:hover {
-  background-color: #e5e7eb;
-  color: var(--fg);
-  border-color: #cbd5e1;
-}
-
-input[type="text"]:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-soft);
-}
-
-/* Buttons */
-
-.actions {
-  margin-top: 4px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-button {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  padding: 5px 12px;
-  cursor: pointer;
-  transition: background-color 0.12s ease, color 0.12s ease,
-    box-shadow 0.12s ease, transform 0.04s ease, border-color 0.12s ease;
-  white-space: nowrap;
-}
-
-.btn-secondary {
-  background: #f3f4f6;
-  border-color: #e5e7eb;
-  color: var(--fg-muted);
-}
-
-.btn-secondary:hover {
-  background: #e5e7eb;
-  border-color: #d1d5db;
-}
-
-/* Log */
-
-.card-log {
-  display: flex;
-  flex-direction: column;
-}
-
-.log-header {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
+  align-items: center;
+}
+
+.job-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* LOG */
+
+.panel-log .panel-body {
+  align-items: center;
 }
 
 #log {
-  margin: 0;
-  padding: 8px 9px;
-  min-height: 120px;
-  max-height: 220px;
-  overflow: auto;
-  border-radius: 8px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 540px;
+  min-height: 80px;
+  margin: 0 auto;
+  padding: 6px 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+  white-space: pre-wrap;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: #111827;
+  font-size: 12px;
 }
 
-#log::-webkit-scrollbar {
-  width: 8px;
+/* FOOTER / BOTÓN LIMPIAR */
+
+.app-footer {
+  margin-top: 24px;
+  text-align: center;
 }
 
-#log::-webkit-scrollbar-track {
-  background: #f9fafb;
+.btn-clear {
+  width: 220px;
+  height: 42px;
 }
 
-#log::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 8px;
-}
+/* RESPONSIVE */
 
-#log::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
+@media (max-width: 768px) {
+  .app {
+    padding: 18px 16px 22px;
+  }
 
-.log-line-info {
-  color: #4b5563;
-}
+  .app-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
 
-.log-line-ok {
-  color: #15803d;
-}
+  .field-inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-.log-line-error {
-  color: var(--danger);
-}
-
-.log-line-muted {
-  color: #6b7280;
+  #log,
+  .pipeline-jobs {
+    max-width: 100%;
+  }
 }

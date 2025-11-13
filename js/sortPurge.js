@@ -24,7 +24,6 @@
     "Revit.DB.FamilyInstance.FaceFlipped."
   ];
 
-  // Nombres que NO quieres ver en el browser de Twinmotion
   const NOMBRES_A_ELIMINAR = new Set(["LEVEL_HEAD", "LEVEL-HEAD", "LEVEL HEAD"]);
 
   function labelDescriptivo(nombreCompleto) {
@@ -51,8 +50,7 @@
       throw new Error("Documento .udatasmith sin raíz.");
     }
 
-    // 0) Borrar meshes/actors molestos (Level_Head) ANTES de tocar labels
-    //    StaticMesh
+    // 0) Borrar meshes/actors molestos (Level_Head)
     Array.from(doc.getElementsByTagName("StaticMesh")).forEach((sm) => {
       const nameNorm = normalizarNombreSimple(sm.getAttribute("name"));
       const labelNorm = normalizarNombreSimple(sm.getAttribute("label"));
@@ -67,7 +65,6 @@
       }
     });
 
-    //    ActorMesh
     Array.from(doc.getElementsByTagName("ActorMesh")).forEach((am) => {
       const nameNorm = normalizarNombreSimple(am.getAttribute("name"));
       const labelNorm = normalizarNombreSimple(am.getAttribute("label"));
@@ -82,7 +79,7 @@
       }
     });
 
-    // 1) Normalizar label en StaticMesh / ActorMesh (solo lo que quedó)
+    // 1) Normalizar label en StaticMesh / ActorMesh
     const staticMeshes = Array.from(doc.getElementsByTagName("StaticMesh"));
     const actorMeshes = Array.from(doc.getElementsByTagName("ActorMesh"));
 
@@ -151,7 +148,6 @@
       }
     });
 
-    // Serializar
     const serializer = new XMLSerializer();
     const xmlBody = serializer.serializeToString(doc);
     const xmlDecl = '<?xml version="1.0" encoding="utf-8"?>\n';

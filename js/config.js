@@ -25,12 +25,14 @@
 
       if (cfg.appTitle) window.AppConfig.appTitle = cfg.appTitle;
       if (cfg.defaultOutputNames) {
-        window.AppConfig.defaultOutputNames =
-          Object.assign({}, window.AppConfig.defaultOutputNames, cfg.defaultOutputNames);
+        window.AppConfig.defaultOutputNames = Object.assign(
+          {},
+          window.AppConfig.defaultOutputNames,
+          cfg.defaultOutputNames
+        );
       }
       if (cfg.ui) {
-        window.AppConfig.ui =
-          Object.assign({}, window.AppConfig.ui, cfg.ui);
+        window.AppConfig.ui = Object.assign({}, window.AppConfig.ui, cfg.ui);
       }
     } catch (e) {
       // ignorar si no existe o se abre como file://

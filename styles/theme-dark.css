@@ -1,31 +1,60 @@
-/* styles/theme-dark.css */
+/* THEME DARK */
+
 body {
-  background: radial-gradient(circle at top, #0f172a 0, #020617 55%, #000 100%);
+  background-color: #0c0c0c;
+  color: #ffffff;
+
+  /* Override de paleta solo para tema oscuro */
+  --orange: #6990ab;
+  --divider-color: #6990ab;
 }
 
-#btnRunSort,
-#btnRunMerge,
-#btnRunAllInOne {
-  background: linear-gradient(135deg, var(--accent-soft), var(--accent-strong));
-  border-color: var(--accent-border);
-  color: var(--accent-text);
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.25),
-    0 10px 32px rgba(34, 197, 94, 0.18);
+/* BRANDING */
+
+.brand-main,
+.brand-sub {
+  color: #ffffff;
 }
 
-#btnRunSort:hover,
-#btnRunMerge:hover,
-#btnRunAllInOne:hover {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.32), var(--accent));
-  color: #022c22;
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4),
-    0 12px 42px rgba(34, 197, 94, 0.28);
-  transform: translateY(-0.5px);
+/* TÍTULOS SECCIÓN */
+
+.panel-tag {
+  color: #ffffff;
 }
 
-#btnRunSort:active,
-#btnRunMerge:active,
-#btnRunAllInOne:active {
-  transform: translateY(0.5px);
-  box-shadow: 0 6px 18px rgba(34, 197, 94, 0.22);
+/* LABELS Y TEXTOS SECUNDARIOS */
+
+.field-row label {
+  color: #c8c8c8;
 }
+
+.field-filename {
+  color: #c8c8c8;
+}
+
+/* INPUT FILE */
+
+input[type="file"] {
+  background-color: #1e1e1e;
+  border-color: #3a3a3a;
+  color: #bebebe;
+}
+
+input[type="file"]::file-selector-button {
+  background-color: #1e1e1e;
+  color: #bebebe;
+}
+
+input[type="file"]:hover::file-selector-button {
+  background-color: #262626;
+}
+
+/* BOTÓN TOGGLE TEMA */
+
+.theme-toggle {
+  background-color: transparent;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* Botones IR / LIMPIAR / + usan var(--orange) redefinido arriba */

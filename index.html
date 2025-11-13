@@ -1,78 +1,203 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Twinmotion Datasmith Pipeline</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="styles/base.css">
-  <link rel="stylesheet" href="styles/theme-light.css">
-</head>
-<body>
-  <div class="app">
-    <header class="app-header">
-      <h1 id="appTitle">Twinmotion Datasmith Pipeline</h1>
-      <p class="app-subtitle">01 Sort · 02 Pipeline</p>
-    </header>
+  <head>
+    <meta charset="utf-8" />
+    <title>Hermosillo – Sim Automation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <main class="app-main">
-      <!-- PASO 01 -->
-      <section class="card">
-        <h2>Paso 01 – Sort &amp; Purge</h2>
-
-        <div class="field-row">
-          <label for="fileSort">NUEVO (.udatasmith)</label>
-          <input type="file" id="fileSort" accept=".udatasmith,application/xml,text/xml">
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/theme-light.css" id="theme-light" />
+    <link rel="stylesheet" href="styles/theme-dark.css" id="theme-dark" disabled />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <div class="app-header-row">
+          <div class="app-header-left">
+            <div class="brand-row">
+              <span class="brand-main">Hermosillo</span>
+              <span class="brand-separator">-</span>
+              <span class="brand-sub">Sim Automation</span>
+            </div>
+            <h1 class="app-title">Twinmotion Datasmith Pipeline (Web)</h1>
+          </div>
+          <div class="app-header-right">
+            <button
+              type="button"
+              id="btnThemeToggle"
+              class="btn-secondary theme-toggle"
+              aria-label="Cambiar tema"
+            >
+              DARK
+            </button>
+          </div>
         </div>
+      </header>
 
-        <div class="field-row">
-          <label for="outBaseSort">Nombre salida</label>
-          <input type="text" id="outBaseSort" value="sorted" autocomplete="off">
+      <main class="app-main">
+        <!-- PANEL 01 · SORT & PURGE -->
+        <section class="panel panel-sort">
+          <div class="panel-header">
+            <div>
+              <div class="panel-tag">S O R T &amp; P U R G E</div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="field-row">
+              <label for="fileSort">ORIGINAL</label>
+              <div class="field-inline">
+                <input
+                  type="file"
+                  id="fileSort"
+                  accept=".udatasmith"
+                  aria-label="Seleccionar archivo ORIGINAL para Sort &amp; Purge"
+                />
+                <span class="field-filename" id="fileSortName">
+                  NINGUN ARCHIVO SELECCIONADO
+                </span>
+              </div>
+            </div>
+
+            <div class="panel-footer">
+              <button
+                type="button"
+                id="btnRunSort"
+                class="btn-primary"
+                aria-label="Ejecutar Sort &amp; Purge"
+              >
+                IR
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANEL 02 · REPLACE & MERGE (PIPELINE) -->
+        <section class="panel panel-pipeline">
+          <div class="panel-header">
+            <div>
+              <div class="panel-tag">R E P L A C E &amp; M E R G E</div>
+            </div>
+
+            <div class="panel-actions">
+              <button
+                type="button"
+                id="btnAddJob"
+                class="btn-icon"
+                title="Agregar par ORIGINAL + NUEVO"
+                aria-label="Agregar par"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <div class="pipeline-jobs" id="pipelineJobs">
+              <!-- Job base que se clona por JS -->
+              <div class="pipeline-job pipeline-job-base">
+                <div class="job-header">
+                  <span class="job-title">Par 01</span>
+                  <button
+                    type="button"
+                    class="btn-icon btn-remove-job"
+                    title="Quitar par"
+                    aria-label="Quitar par"
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div class="job-fields">
+                  <div class="field-row">
+                    <label>ORIGINAL (SORT &amp; PURGE)</label>
+                    <div class="field-inline">
+                      <input
+                        type="file"
+                        class="file-original"
+                        accept=".udatasmith"
+                        aria-label="Seleccionar ORIGINAL para Replace &amp; Merge"
+                      />
+                      <span class="field-filename filename-original">
+                        NINGUN ARCHIVO SELECCIONADO
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="field-row">
+                    <label>NUEVO PROYECTO</label>
+                    <div class="field-inline">
+                      <input
+                        type="file"
+                        class="file-new"
+                        accept=".udatasmith"
+                        aria-label="Seleccionar NUEVO PROYECTO"
+                      />
+                      <span class="field-filename filename-new">
+                        NINGUN ARCHIVO SELECCIONADO
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Fin job base -->
+            </div>
+
+            <div class="panel-footer">
+              <button
+                type="button"
+                id="btnRunPipeline"
+                class="btn-primary"
+                aria-label="Ejecutar Replace &amp; Merge"
+              >
+                IR
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANEL 03 · LOG -->
+        <section class="panel panel-log">
+          <div class="panel-header">
+            <div>
+              <div class="panel-tag">L O G</div>
+            </div>
+          </div>
+
+          <div class="panel-body">
+            <pre id="log"></pre>
+          </div>
+        </section>
+
+        <!-- BOTÓN LIMPIAR -->
+        <div class="app-footer">
+          <button
+            type="button"
+            id="btnClear"
+            class="btn-primary btn-clear"
+            aria-label="Limpiar estado y recargar"
+          >
+            LIMPIAR
+          </button>
         </div>
+      </main>
+    </div>
 
-        <div class="actions">
-          <button id="btnRunSort">Ejecutar 01</button>
-        </div>
-      </section>
+    <!-- Dependencias JS -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-      <!-- PASO 02 (PIPELINE COMPLETO) -->
-      <section class="card">
-        <h2>Paso 02 – Pipeline</h2>
+    <!-- App config -->
+    <script src="js/config.js"></script>
 
-        <div class="field-row">
-          <label for="fileOrigPipeline">ORIGINAL (.udatasmith)</label>
-          <input type="file" id="fileOrigPipeline" accept=".udatasmith,application/xml,text/xml">
-        </div>
-        <div class="field-row">
-          <label for="fileNewPipeline">NUEVO (.udatasmith)</label>
-          <input type="file" id="fileNewPipeline" accept=".udatasmith,application/xml,text/xml">
-        </div>
+    <!-- Utilidades -->
+    <script src="js/log.js"></script>
 
-        <div class="field-row">
-          <label for="outBasePipeline">Nombre salida</label>
-          <input type="text" id="outBasePipeline" value="automation_sim" autocomplete="off">
-        </div>
+    <!-- Backend: Sort & Purge + Merge -->
+    <script src="js/sortPurge.js"></script>
+    <script src="js/mergePipeline.js"></script>
 
-        <div class="actions">
-          <button id="btnRunPipeline">Ejecutar 02</button>
-        </div>
-      </section>
-
-      <!-- LOG -->
-      <section class="card card-log">
-        <div class="log-header">
-          <h2>Log</h2>
-          <button id="btnClearLog" class="btn-secondary">Limpiar</button>
-        </div>
-        <pre id="log"></pre>
-      </section>
-    </main>
-  </div>
-
-  <script src="js/config.js"></script>
-  <script src="js/log.js"></script>
-  <script src="js/sortPurge.js"></script>
-  <script src="js/mergePipeline.js"></script>
-  <script src="js/app.js"></script>
-</body>
+    <!-- App UI + wiring -->
+    <script src="js/app.js"></script>
+  </body>
 </html>
