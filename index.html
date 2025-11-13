@@ -12,7 +12,7 @@
   <div class="app">
     <header class="app-header">
       <h1 id="appTitle">Twinmotion Datasmith Pipeline</h1>
-      <p class="app-subtitle">01 Sort · 02 Merge · 03 Pipeline</p>
+      <p class="app-subtitle">01 Sort · 02 Pipeline</p>
     </header>
 
     <main class="app-main">
@@ -35,49 +35,26 @@
         </div>
       </section>
 
-      <!-- PASO 02 -->
+      <!-- PASO 02 (PIPELINE COMPLETO) -->
       <section class="card">
-        <h2>Paso 02 – Merge</h2>
+        <h2>Paso 02 – Pipeline</h2>
 
         <div class="field-row">
-          <label for="fileOrigStep2">ORIGINAL (.udatasmith)</label>
-          <input type="file" id="fileOrigStep2" accept=".udatasmith,application/xml,text/xml">
+          <label for="fileOrigPipeline">ORIGINAL (.udatasmith)</label>
+          <input type="file" id="fileOrigPipeline" accept=".udatasmith,application/xml,text/xml">
         </div>
         <div class="field-row">
-          <label for="fileNewStep2">NUEVO ordenado (.udatasmith)</label>
-          <input type="file" id="fileNewStep2" accept=".udatasmith,application/xml,text/xml">
+          <label for="fileNewPipeline">NUEVO (.udatasmith)</label>
+          <input type="file" id="fileNewPipeline" accept=".udatasmith,application/xml,text/xml">
         </div>
 
         <div class="field-row">
-          <label for="outBaseMerge">Nombre salida</label>
-          <input type="text" id="outBaseMerge" value="automation_sim" autocomplete="off">
+          <label for="outBasePipeline">Nombre salida</label>
+          <input type="text" id="outBasePipeline" value="automation_sim" autocomplete="off">
         </div>
 
         <div class="actions">
-          <button id="btnRunMerge">Ejecutar 02</button>
-        </div>
-      </section>
-
-      <!-- PASO 03 -->
-      <section class="card">
-        <h2>Paso 03 – Pipeline</h2>
-
-        <div class="field-row">
-          <label for="fileOrigStep3">ORIGINAL (.udatasmith)</label>
-          <input type="file" id="fileOrigStep3" accept=".udatasmith,application/xml,text/xml">
-        </div>
-        <div class="field-row">
-          <label for="fileNewStep3">NUEVO (.udatasmith)</label>
-          <input type="file" id="fileNewStep3" accept=".udatasmith,application/xml,text/xml">
-        </div>
-
-        <div class="field-row">
-          <label for="outBaseAllInOne">Nombre salida</label>
-          <input type="text" id="outBaseAllInOne" value="automation_sim" autocomplete="off">
-        </div>
-
-        <div class="actions">
-          <button id="btnRunAllInOne">Ejecutar 03</button>
+          <button id="btnRunPipeline">Ejecutar 02</button>
         </div>
       </section>
 

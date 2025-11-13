@@ -1,5 +1,5 @@
 // js/app.js
-// UI + integración Sort & Purge + Merge (vertical simple)
+// UI + integración Sort & Purge + Pipeline (vertical simple, sin Paso 02 independiente)
 (function () {
   "use strict";
 
@@ -72,15 +72,15 @@
     }
   }
 
-  async function onRunMerge() {
+  async function onRunPipeline() {
     clearLog();
-    logLine("[02] Procesando…", "info");
+    logLine("[02] Procesando pipeline…", "info");
     try {
-      const fOrig = document.getElementById("fileOrigStep2").files[0];
-      const fNew = document.getElementById("fileNewStep2").files[0];
-      if (!fOrig || !fNew) throw new Error("Selecciona ORIGINAL y NUEVO ordenado.");
+      const fOrig = document.getElementById("fileOrigPipeline").files[0];
+      const fNew = document.getElementById("fileNewPipeline").files[0];
+      if (!fOrig || !fNew) throw new Error("Selecciona ORIGINAL y NUEVO.");
 
-      const outName = buildOutputFilename("outBaseMerge", "mergedBase");
+      const outName = buildOutputFilename("outBasePipeline", "allInOneBase");
 
       logLine(`ORIGINAL: ${fOrig.name}`, "muted");
       logLine(`NUEVO: ${fNew.name}`, "muted");
@@ -90,8 +90,9 @@
         readFileAsText(fNew)
       ]);
 
-      const { xml: mergedXml, usedIds } = runMerge(origXml, newXml);
-      logLine("OK Paso 02.", "ok");
+      const sortedXml = sortAndPurgeUdatasmith(newXml);
+      const { xml: mergedXml, usedIds } = runMerge(origXml, sortedXml);
+      logLine("OK Pipeline.", "ok");
 
       if (AppConfig.ui.showIdSummaryInLog && usedIds.length) {
         logLine("IDs:", "muted");
@@ -106,66 +107,25 @@
     }
   }
 
-  async function onRunAllInOne() {
-    clearLog();
-    logLine("[03] Procesando…", "info");
-    try {
-      const fOrig = document.getElementById("fileOrigStep3").files[0];
-      const fNew = document.getElementById("fileNewStep3").files[0];
-      if (!fOrig || !fNew) throw new Error("Selecciona ORIGINAL y NUEVO.");
-
-      const outName = buildOutputFilename("outBaseAllInOne", "allInOneBase");
-
-      logLine(`ORIGINAL: ${fOrig.name}`, "muted");
-      logLine(`NUEVO: ${fNew.name}`, "muted");
-
-      const [origXml, newXml] = await Promise.all([
-        readFileAsText(fOrig),
-        readFileAsText(fNew)
-      ]);
-
-      const sortedXml = sortAndPurgeUdatasmith(newXml);
-      const { xml: mergedXml, usedIds } = runMerge(origXml, sortedXml);
-      logLine("OK Paso 03.", "ok");
-
-      if (AppConfig.ui.showIdSummaryInLog && usedIds.length) {
-        logLine("IDs:", "muted");
-        logLine(usedIds.join(", "), "muted");
-      }
-
-      downloadText(mergedXml, outName);
-      logLine(`Salida: ${outName}`, "ok");
-    } catch (err) {
-      logLine(`ERROR 03: ${err.message || err}`, "error");
-      console.error(err);
-    }
-  }
-
   function initUI() {
     const h1 = document.getElementById("appTitle");
     if (h1 && AppConfig.appTitle) h1.textContent = AppConfig.appTitle;
 
     const bSort = document.getElementById("outBaseSort");
-    const bMerge = document.getElementById("outBaseMerge");
-    const bAll = document.getElementById("outBaseAllInOne");
+    const bPipe = document.getElementById("outBasePipeline");
     if (bSort && AppConfig.defaultOutputNames.sortedBase) {
       bSort.value = AppConfig.defaultOutputNames.sortedBase;
     }
-    if (bMerge && AppConfig.defaultOutputNames.mergedBase) {
-      bMerge.value = AppConfig.defaultOutputNames.mergedBase;
-    }
-    if (bAll && AppConfig.defaultOutputNames.allInOneBase) {
-      bAll.value = AppConfig.defaultOutputNames.allInOneBase;
+    if (bPipe && AppConfig.defaultOutputNames.allInOneBase) {
+      bPipe.value = AppConfig.defaultOutputNames.allInOneBase;
     }
 
     const btnSortRun = document.getElementById("btnRunSort");
-    const btnMergeRun = document.getElementById("btnRunMerge");
-    const btnAllRun = document.getElementById("btnRunAllInOne");
+    const btnPipeRun = document.getElementById("btnRunPipeline");
     const btnClear = document.getElementById("btnClearLog");
 
     if (btnSortRun) btnSortRun.addEventListener("click", onRunSort);
-    if (btnMergeRun) btnMergeRun.addEventListener("click", onRunMerge);
-    if (btnAllRun) btnAllRun.addEventListener("click", onRunAllInOne);
+    if (btnPipeRun) btnPipeRun.addEventListener("click", onRunPipeline);
     if (btnClear) btnClear.addEventListener("click", () => clearLog());
   }
 
