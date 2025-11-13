@@ -1,0 +1,11 @@
+{
+  "appTitle": "Twinmotion Datasmith Pipeline (Web)",
+  "defaultOutputNames": {
+    "sortedBase": "sorted",
+    "mergedBase": "automation_sim",
+    "allInOneBase": "automation_sim"
+  },
+  "ui": {
+    "showIdSummaryInLog": true
+  }
+}

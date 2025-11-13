@@ -1,0 +1,31 @@
+/* styles/theme-light.css */
+body {
+  background: radial-gradient(circle at top, #ffffff 0, #f3f4f6 45%, #e5e7eb 100%);
+}
+
+#btnRunSort,
+#btnRunMerge,
+#btnRunAllInOne {
+  background: linear-gradient(135deg, var(--accent-soft), var(--accent-strong));
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+  box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.18),
+    0 6px 18px rgba(22, 163, 74, 0.18);
+}
+
+#btnRunSort:hover,
+#btnRunMerge:hover,
+#btnRunAllInOne:hover {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.24), var(--accent));
+  color: #f9fafb;
+  box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.25),
+    0 9px 26px rgba(22, 163, 74, 0.24);
+  transform: translateY(-0.5px);
+}
+
+#btnRunSort:active,
+#btnRunMerge:active,
+#btnRunAllInOne:active {
+  transform: translateY(0.5px);
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.2);
+}
