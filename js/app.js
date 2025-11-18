@@ -1,17 +1,19 @@
 // js/app.js
 // Sort & Purge + Pipeline con lista de pares y ZIP, theme toggle
 (function () {
-  "use strict";
+  "use strict"; // Modo estricto para evitar errores silenciosos
 
+  // Importa configuraciones y funciones del entorno global
   const { AppConfig, loadAppConfig } = window;
   const { line: logLine, clear: clearLog } = window.Log;
   const { sortAndPurgeUdatasmith } = window.DatasmithSort;
   const { runMerge } = window.DatasmithMerge;
 
-  const THEME_KEY = "simautomation-theme";
+  const THEME_KEY = "simautomation-theme"; // Clave para guardar el tema en localStorage
 
   /* === Helpers generales === */
 
+  // Lee archivo como texto usando Promesa
   function readFileAsText(file) {
     return new Promise((resolve, reject) => {
       if (!file) {
@@ -22,36 +24,40 @@
       reader.onload = () => resolve(String(reader.result || ""));
       reader.onerror = () =>
         reject(reader.error || new Error("Error al leer archivo."));
-      reader.readAsText(file, "utf-8");
+      reader.readAsText(file, "utf-8"); // Leer como texto UTF-8
     });
   }
 
+  // Descarga un blob como archivo
   function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob); // Crear URL temporal
     const a = document.createElement("a");
     a.href = url;
     a.download = filename || "output.udatasmith";
     document.body.appendChild(a);
-    a.click();
+    a.click(); // Simula click
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    URL.revokeObjectURL(url); // Limpia URL
   }
 
+  // Descarga un texto como archivo XML
   function downloadText(text, filename) {
     const blob = new Blob([text], { type: "application/xml;charset=utf-8" });
     downloadBlob(blob, filename);
   }
 
+  // Elimina extensión y caracteres inválidos del nombre
   function sanitizeBaseName(name) {
     if (!name) return "";
     let s = name.trim();
-    s = s.replace(/\.[^/.]+$/i, "");
-    s = s.replace(/[\\/:"*?<>|]/g, "");
+    s = s.replace(/\.[^/.]+$/i, ""); // Elimina la extensión
+    s = s.replace(/[\\\/:"*?<>|]/g, ""); // Elimina caracteres prohibidos
     return s || "";
   }
 
   /* === Theme toggle === */
 
+  // Aplica tema claro u oscuro
   function setTheme(theme) {
     const light = document.getElementById("theme-light");
     const dark = document.getElementById("theme-dark");
@@ -71,31 +77,35 @@
     }
 
     try {
-      localStorage.setItem(THEME_KEY, theme);
+      localStorage.setItem(THEME_KEY, theme); // Guarda el tema
     } catch (e) {
-      // ignore
+      // Ignorar error
     }
   }
 
+  // Inicializa tema guardado
   function initThemeFromStorage() {
     let theme = "light";
     try {
       const stored = localStorage.getItem(THEME_KEY);
       if (stored === "dark" || stored === "light") theme = stored;
     } catch (e) {
-      // ignore
+      // Ignorar error
     }
     setTheme(theme);
   }
 
+  // Alterna entre temas claro y oscuro
   function toggleTheme() {
-    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const current =
+      document.documentElement.getAttribute("data-theme") || "light";
     const next = current === "dark" ? "light" : "dark";
     setTheme(next);
   }
 
   /* === Paso 01: Sort & Purge (multi-archivo, prefijo TSP_) === */
 
+  // Ejecuta operación de orden y limpieza sobre múltiples archivos
   async function onRunSort() {
     clearLog();
     logLine("[01] Sort & Purge (multi-archivo)…", "info");
@@ -107,9 +117,10 @@
 
       const prefix = "TSP_";
 
+      // Procesa cada archivo
       const tasks = files.map(async (file) => {
-        const xml = await readFileAsText(file);
-        const result = sortAndPurgeUdatasmith(xml);
+        const xml = await readFileAsText(file); // Leer contenido
+        const result = sortAndPurgeUdatasmith(xml); // Ordenar + limpiar XML
 
         const baseName = sanitizeBaseName(file.name) || "file";
         const outName = `${prefix}${baseName}.udatasmith`;
@@ -118,8 +129,9 @@
         return { filename: outName, xml: result };
       });
 
-      const results = await Promise.all(tasks);
+      const results = await Promise.all(tasks); // Espera todos los resultados
 
+      // Descarga uno solo o todos en ZIP
       if (results.length === 1) {
         const r = results[0];
         downloadText(r.xml, r.filename);
@@ -129,7 +141,10 @@
         results.forEach((r) => zip.file(r.filename, r.xml));
         const blob = await zip.generateAsync({ type: "blob" });
         downloadBlob(blob, "TSP_Files.zip");
-        logLine(`ZIP generado (TSP_Files.zip) con ${results.length} archivos.`, "ok");
+        logLine(
+          `ZIP generado (TSP_Files.zip) con ${results.length} archivos.`,
+          "ok"
+        );
       } else {
         results.forEach((r) => downloadText(r.xml, r.filename));
         logLine(
@@ -145,6 +160,7 @@
 
   /* === Pipeline (Replace & Merge de varios pares, prefijo TRM_) === */
 
+  // Clona el bloque de carga de par de archivos
   function createJobClone(index) {
     const container = document.getElementById("pipelineJobs");
     const base = container.querySelector(".pipeline-job-base");
@@ -162,13 +178,14 @@
       removeBtn.style.visibility = "visible";
       removeBtn.addEventListener("click", () => {
         clone.remove();
-        renumberJobs();
+        renumberJobs(); // Recalcula numeración
       });
     }
 
-    container.appendChild(clone);
+    container.appendChild(clone); // Agrega nuevo par
   }
 
+  // Recalcula número de pares
   function renumberJobs() {
     const jobs = document.querySelectorAll(".pipeline-job");
     let idx = 1;
@@ -178,6 +195,7 @@
     });
   }
 
+  // Oculta botón de eliminar del bloque base
   function ensureBaseJob() {
     const baseJob = document.querySelector(".pipeline-job-base");
     if (!baseJob) return;
@@ -188,12 +206,13 @@
     }
   }
 
+  // Recolecta todos los pares válidos (ambos archivos cargados)
   function collectPipelineJobs() {
     const jobs = Array.from(document.querySelectorAll(".pipeline-job"));
     const valid = [];
 
     jobs.forEach((job) => {
-      const fOrig = job.querySelector(".file-orig");
+      const fOrig = job.querySelector(".file-original");
       const fNew = job.querySelector(".file-new");
 
       const origFile = fOrig && fOrig.files[0];
@@ -207,6 +226,7 @@
     return valid;
   }
 
+  // Ejecuta merge sobre pares cargados
   async function onRunPipeline() {
     clearLog();
     logLine("[02] Pipeline Replace & Merge…", "info");
@@ -215,8 +235,9 @@
       if (!jobs.length)
         throw new Error("Agrega al menos un par ORIGINAL + NUEVO.");
 
-      const usedNames = {};
+      const usedNames = {}; // Evita nombres duplicados
 
+      // Genera nombre de salida único
       function buildOutName(job, index) {
         const baseFile =
           sanitizeBaseName(job.origFile && job.origFile.name) ||
@@ -231,10 +252,11 @@
         return `${candidate}.udatasmith`;
       }
 
+      // Procesa cada par
       const tasks = jobs.map(async (job, idx) => {
         const [origXml, newXml] = await Promise.all([
           readFileAsText(job.origFile),
-          readFileAsText(job.newFile)
+          readFileAsText(job.newFile),
         ]);
 
         const sortedXml = sortAndPurgeUdatasmith(newXml);
@@ -275,6 +297,7 @@
 
   /* === Init === */
 
+  // Inicializa interfaz y eventos
   function initUI() {
     const h1 = document.querySelector(".app-title");
     if (h1 && AppConfig.appTitle) h1.textContent = AppConfig.appTitle;
@@ -283,7 +306,7 @@
 
     const btnSortRun = document.getElementById("btnRunSort");
     const btnPipeRun = document.getElementById("btnRunPipeline");
-    const btnClear = document.getElementById("btnClearLog");
+    const btnClear = document.getElementById("btnClear");
     const btnAddJob = document.getElementById("btnAddJob");
     const btnThemeToggle = document.getElementById("btnThemeToggle");
 
@@ -303,11 +326,12 @@
     initThemeFromStorage();
   }
 
+  // Ejecuta al cargar DOM
   document.addEventListener("DOMContentLoaded", () => {
     if (typeof loadAppConfig === "function") {
-      loadAppConfig().finally(initUI);
+      loadAppConfig().finally(initUI); // Carga configuración y luego UI
     } else {
-      initUI();
+      initUI(); // Si no hay config, inicializa igual
     }
   });
 })();

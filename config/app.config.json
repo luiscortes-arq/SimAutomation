@@ -1,11 +1,20 @@
 {
+  "_comment1": "Nombre de la app",
   "appTitle": "Twinmotion Datasmith Pipeline (Web)",
+
+  "_comment2": "Nombres por defecto para distintos tipos de salida",
   "defaultOutputNames": {
+    "_comment2.1": "Para archivos ordenados",
     "sortedBase": "sorted",
+    "_comment2.2": "Para archivos fusionados",
     "mergedBase": "automation_sim",
+    "_comment2.3": "Para archivos todo en uno",
     "allInOneBase": "automation_sim"
   },
+
+  "_comment3": "Configuración de la UI",
   "ui": {
+    "_comment3.1": "Muestra resumen de IDs en los logs",
     "showIdSummaryInLog": true
   }
 }

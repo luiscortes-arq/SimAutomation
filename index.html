@@ -5,23 +5,34 @@
     <title>Hermosillo – Sim Automation</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Estilos -->
+    <!-- Estilos base y temas -->
     <link rel="stylesheet" href="styles/base.css" />
     <link rel="stylesheet" href="styles/theme-light.css" id="theme-light" />
-    <link rel="stylesheet" href="styles/theme-dark.css" id="theme-dark" disabled />
+    <link
+      rel="stylesheet"
+      href="styles/theme-dark.css"
+      id="theme-dark"
+      disabled
+    />
   </head>
+
   <body>
     <div class="app">
+      <!-- Encabezado de la aplicación -->
       <header class="app-header">
         <div class="app-header-row">
+          <!-- Branding -->
           <div class="app-header-left">
             <div class="brand-row">
               <span class="brand-main">Hermosillo</span>
               <span class="brand-separator">-</span>
               <span class="brand-sub">Sim Automation</span>
             </div>
+            <!-- Título configurable -->
             <h1 class="app-title">Twinmotion Datasmith Pipeline (Web)</h1>
           </div>
+
+          <!-- Botón de cambio de tema -->
           <div class="app-header-right">
             <button
               type="button"
@@ -45,6 +56,7 @@
           </div>
 
           <div class="panel-body">
+            <!-- Campo de selección de archivo -->
             <div class="field-row">
               <label for="fileSort">ORIGINAL</label>
               <div class="field-inline">
@@ -60,6 +72,7 @@
               </div>
             </div>
 
+            <!-- Botón de ejecución -->
             <div class="panel-footer">
               <button
                 type="button"
@@ -80,6 +93,7 @@
               <div class="panel-tag">R E P L A C E &amp; M E R G E</div>
             </div>
 
+            <!-- Botón + para añadir pares -->
             <div class="panel-actions">
               <button
                 type="button"
@@ -94,8 +108,9 @@
           </div>
 
           <div class="panel-body">
+            <!-- Contenedor de todos los pares -->
             <div class="pipeline-jobs" id="pipelineJobs">
-              <!-- Job base que se clona por JS -->
+              <!-- Job base que se clona dinámicamente -->
               <div class="pipeline-job pipeline-job-base">
                 <div class="job-header">
                   <span class="job-title">Par 01</span>
@@ -110,6 +125,7 @@
                 </div>
 
                 <div class="job-fields">
+                  <!-- Archivo original -->
                   <div class="field-row">
                     <label>ORIGINAL (SORT &amp; PURGE)</label>
                     <div class="field-inline">
@@ -125,6 +141,7 @@
                     </div>
                   </div>
 
+                  <!-- Archivo nuevo -->
                   <div class="field-row">
                     <label>NUEVO PROYECTO</label>
                     <div class="field-inline">
@@ -144,6 +161,7 @@
               <!-- Fin job base -->
             </div>
 
+            <!-- Botón de ejecución -->
             <div class="panel-footer">
               <button
                 type="button"
@@ -166,11 +184,12 @@
           </div>
 
           <div class="panel-body">
+            <!-- Log en formato texto con monospace -->
             <pre id="log"></pre>
           </div>
         </section>
 
-        <!-- BOTÓN LIMPIAR -->
+        <!-- BOTÓN LIMPIAR ESTADO -->
         <div class="app-footer">
           <button
             type="button"
@@ -184,20 +203,20 @@
       </main>
     </div>
 
-    <!-- Dependencias JS -->
+    <!-- LIBRERÍAS Y APP JS -->
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-    <!-- App config -->
+    <!-- Configuración -->
     <script src="js/config.js"></script>
 
-    <!-- Utilidades -->
+    <!-- Módulo de log -->
     <script src="js/log.js"></script>
 
-    <!-- Backend: Sort & Purge + Merge -->
+    <!-- Backend: procesamiento y merge -->
     <script src="js/sortPurge.js"></script>
     <script src="js/mergePipeline.js"></script>
 
-    <!-- App UI + wiring -->
+    <!-- UI principal -->
     <script src="js/app.js"></script>
   </body>
 </html>

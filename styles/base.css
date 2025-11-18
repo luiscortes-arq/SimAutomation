@@ -1,16 +1,16 @@
 :root {
+  /* Fuentes y colores base (se usan como variables) */
   --font-body: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
     "SF Pro Text", "Segoe UI", sans-serif;
-  --orange: #ec6838;
-  --divider-color: #ec6838;
+  --orange: #ec6838; /* Color principal (botones, separadores) */
+  --divider-color: #ec6838; /* Color de línea divisoria */
 }
 
-/* RESET */
-
+/* RESET BÁSICO */
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
+  box-sizing: border-box; /* Modelo de caja consistente */
 }
 
 html,
@@ -19,10 +19,9 @@ body {
   padding: 0;
 }
 
-/* LAYOUT GENERAL */
-
+/* ESTILO GLOBAL DEL BODY */
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-body); /* Fuente general */
   font-size: 14px;
   line-height: 1.4;
 }
@@ -34,8 +33,7 @@ body {
   flex-direction: column;
 }
 
-/* BRANDING */
-
+/* CABECERA Y BRANDING */
 .app-header {
   margin-bottom: 26px;
 }
@@ -78,8 +76,7 @@ body {
   text-transform: uppercase;
 }
 
-/* BOTÓN THEME TOGGLE */
-
+/* BOTÓN DE CAMBIO DE TEMA */
 .app-header-right {
   display: flex;
   align-items: center;
@@ -97,32 +94,27 @@ body {
   background: transparent;
 }
 
-/* MAIN */
-
+/* CONTENIDO PRINCIPAL */
 .app-main {
   width: 100%;
   max-width: 780px;
   margin: 0 auto;
 }
 
-/* CONTENEDORES DE SECCIÓN (SORT / MERGE / LOG) */
-
+/* PANELES DE SECCIÓN */
 .panel {
   text-align: center;
   padding: 0;
   margin: 0;
 }
 
-/* HEADER DE PANEL */
-
+/* TÍTULOS Y ETIQUETAS */
 .panel-header {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
-/* TÍTULO DE SECCIÓN */
 
 .panel-tag {
   display: inline-block;
@@ -133,8 +125,7 @@ body {
   margin-bottom: 16px;
 }
 
-/* DIVISORES ENTRE SECCIONES */
-
+/* DIVISORES ENTRE PANELES */
 .panel-sort,
 .panel-pipeline {
   padding-bottom: 20px;
@@ -142,8 +133,7 @@ body {
   border-bottom: 1.5px solid var(--divider-color);
 }
 
-/* CUERPO DE CADA MÓDULO */
-
+/* CONTENIDO DE CADA PANEL */
 .panel-body {
   display: flex;
   flex-direction: column;
@@ -151,8 +141,7 @@ body {
   gap: 14px;
 }
 
-/* FILAS DE CAMPOS */
-
+/* FILAS DE CAMPOS DE FORMULARIO */
 .field-row {
   width: 100%;
   max-width: 540px;
@@ -169,8 +158,7 @@ body {
   text-transform: uppercase;
 }
 
-/* INPUT + TEXTO "NINGÚN ARCHIVO..." */
-
+/* CAMPOS INLINE (input + texto de nombre de archivo) */
 .field-inline {
   display: flex;
   align-items: center;
@@ -183,8 +171,7 @@ body {
   letter-spacing: 0.1em;
 }
 
-/* INPUT FILE */
-
+/* INPUT FILE ESTILO */
 input[type="file"] {
   font-family: var(--font-body);
   font-size: 13px;
@@ -206,7 +193,6 @@ input[type="file"]::file-selector-button {
 }
 
 /* BOTONES BASE */
-
 button {
   font-family: var(--font-body);
   border-radius: 999px;
@@ -216,8 +202,7 @@ button {
     background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 
-/* BOTÓN IR / LIMPIAR */
-
+/* BOTÓN PRINCIPAL */
 .btn-primary {
   background: var(--orange);
   color: #ffffff;
@@ -237,8 +222,7 @@ button {
   transform: translateY(1px);
 }
 
-/* BOTÓN REDONDO + */
-
+/* BOTÓN CIRCULAR (+) */
 .btn-icon {
   width: 30px;
   height: 30px;
@@ -252,8 +236,7 @@ button {
   color: #ffffff;
 }
 
-/* POSICIÓN DEL + EN REPLACE & MERGE */
-
+/* POSICIÓN DEL BOTÓN + */
 .panel-actions {
   position: absolute;
   right: 0;
@@ -261,8 +244,7 @@ button {
   transform: translateY(-50%);
 }
 
-/* PIPELINE: CONTENEDOR DE PARES */
-
+/* CONTENEDOR DE PARES (PIPELINE) */
 .pipeline-jobs {
   width: 100%;
   max-width: 540px;
@@ -290,8 +272,7 @@ button {
   text-transform: uppercase;
 }
 
-/* LOG */
-
+/* SECCIÓN DE LOG */
 .panel-log .panel-body {
   align-items: center;
 }
@@ -311,8 +292,7 @@ button {
   font-size: 12px;
 }
 
-/* FOOTER / BOTÓN LIMPIAR */
-
+/* FOOTER */
 .app-footer {
   margin-top: 24px;
   text-align: center;
@@ -323,8 +303,7 @@ button {
   height: 42px;
 }
 
-/* RESPONSIVE */
-
+/* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .app {
     padding: 18px 16px 22px;

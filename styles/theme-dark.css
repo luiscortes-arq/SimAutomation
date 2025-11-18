@@ -1,60 +1,63 @@
 /* THEME DARK */
 
 body {
-  background-color: #0c0c0c;
-  color: #ffffff;
+  background-color: #0c0c0c; /* Fondo principal oscuro */
+  color: #ffffff; /* Texto base claro */
 
-  /* Override de paleta solo para tema oscuro */
-  --orange: #6990ab;
-  --divider-color: #6990ab;
+  /* Override de variables CSS para tema oscuro */
+  --orange: #6990ab; /* Color principal en botones en modo oscuro */
+  --divider-color: #6990ab; /* Color de divisores entre secciones */
 }
 
 /* BRANDING */
 
 .brand-main,
 .brand-sub {
-  color: #ffffff;
+  color: #ffffff; /* Textos de branding en blanco */
 }
 
-/* TÍTULOS SECCIÓN */
+/* TÍTULOS DE SECCIÓN */
 
 .panel-tag {
-  color: #ffffff;
+  color: #ffffff; /* Etiquetas de secciones en blanco */
 }
 
 /* LABELS Y TEXTOS SECUNDARIOS */
 
 .field-row label {
-  color: #c8c8c8;
+  color: #c8c8c8; /* Etiquetas de campos gris claro */
 }
 
 .field-filename {
-  color: #c8c8c8;
+  color: #c8c8c8; /* Texto del nombre de archivo seleccionado */
 }
 
 /* INPUT FILE */
 
 input[type="file"] {
-  background-color: #1e1e1e;
-  border-color: #3a3a3a;
-  color: #bebebe;
+  background-color: #1e1e1e; /* Fondo del input */
+  border-color: #3a3a3a; /* Borde tenue */
+  color: #bebebe; /* Texto del input */
 }
 
 input[type="file"]::file-selector-button {
-  background-color: #1e1e1e;
-  color: #bebebe;
+  background-color: #1e1e1e; /* Botón de selección oscuro */
+  color: #bebebe; /* Texto del botón */
 }
 
 input[type="file"]:hover::file-selector-button {
-  background-color: #262626;
+  background-color: #262626; /* Hover un poco más claro */
 }
 
-/* BOTÓN TOGGLE TEMA */
+/* BOTÓN TOGGLE DE TEMA */
 
 .theme-toggle {
-  background-color: transparent;
-  border-color: #ffffff;
-  color: #ffffff;
+  background-color: transparent; /* Transparente para mantener fondo */
+  border-color: #ffffff; /* Borde blanco */
+  color: #ffffff; /* Texto blanco */
 }
 
-/* Botones IR / LIMPIAR / + usan var(--orange) redefinido arriba */
+/* NOTA:
+   Los botones como .btn-primary y .btn-icon usan var(--orange),
+   que ya se redefinió arriba como #6990ab para tema oscuro.
+*/

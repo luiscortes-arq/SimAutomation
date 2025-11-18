@@ -1,54 +1,54 @@
 /* THEME LIGHT */
 
 body {
-  background-color: #fafafa;
-  color: #111111;
+  background-color: #fafafa; /* Fondo general claro */
+  color: #111111; /* Texto principal oscuro */
 }
 
 /* BRANDING */
 
 .brand-main,
 .brand-sub {
-  color: #1a1a1a;
+  color: #1a1a1a; /* Colores del logo/marca en tono oscuro */
 }
 
-/* TÍTULOS SECCIÓN */
+/* TÍTULOS DE SECCIÓN */
 
 .panel-tag {
-  color: #111111;
+  color: #111111; /* Títulos de secciones en tono fuerte */
 }
 
 /* LABELS Y TEXTOS SECUNDARIOS */
 
 .field-row label {
-  color: #464646;
+  color: #464646; /* Etiquetas en formularios */
 }
 
 .field-filename {
-  color: #707070;
+  color: #707070; /* Texto del nombre de archivo */
 }
 
 /* INPUT FILE */
 
 input[type="file"] {
-  background-color: #ebebeb;
-  border-color: #d0d0d0;
-  color: #505050;
+  background-color: #ebebeb; /* Fondo gris claro */
+  border-color: #d0d0d0; /* Borde gris medio */
+  color: #505050; /* Texto gris oscuro */
 }
 
 input[type="file"]::file-selector-button {
-  background-color: #e2e2e2;
-  color: #505050;
+  background-color: #e2e2e2; /* Fondo del botón */
+  color: #505050; /* Texto del botón */
 }
 
 input[type="file"]:hover::file-selector-button {
-  background-color: #d8d8d8;
+  background-color: #d8d8d8; /* Hover del botón más oscuro */
 }
 
-/* BOTÓN TOGGLE TEMA */
+/* BOTÓN TOGGLE DE TEMA */
 
 .theme-toggle {
-  background-color: transparent;
-  border-color: #1a1a1a;
-  color: #1a1a1a;
+  background-color: transparent; /* Fondo sin color para botón */
+  border-color: #1a1a1a; /* Borde oscuro */
+  color: #1a1a1a; /* Texto oscuro */
 }
