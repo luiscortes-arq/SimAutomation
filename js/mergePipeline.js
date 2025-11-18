@@ -1,34 +1,30 @@
 // js/mergePipeline.js
 // Paso 02 – Replace & Merge (mantener IDs / Timeline)
 (function () {
-  "use strict"; // Modo estricto
+  "use strict";
 
-  // Expresiones Regulares clave para buscar estructuras dentro de XML .udatasmith
-  const RE_ACTOR_BLOCK = /<Actor\b[^>]*>[\s\S]*?<\/Actor>/gi; // Bloques <Actor>...</Actor>
-  const RE_ACTOR_NAME = /\bname=(?:"([^"]+)"|'([^']+)')/i; // Atributo name de un actor
-  const RE_NAME_ATTR = /\bname=(?:"([^"]+)"|'([^']+)')/i; // Atributo name genérico
-  const RE_LABEL_ATTR = /\blabel=(?:"([^"]+)"|'([^']+)')/i; // Atributo label
-  const RE_CHILDREN = /<children\b[^>]*>[\s\S]*?<\/children>/gi; // Bloques <children>...</children>
+  const RE_ACTOR_BLOCK = /<Actor\b[^>]*>[\s\S]*?<\/Actor>/gi;
+  const RE_ACTOR_NAME = /\bname=(?:"([^"]+)"|'([^']+)')/i;
+  const RE_NAME_ATTR = /\bname=(?:"([^"]+)"|'([^']+)')/i;
+  const RE_LABEL_ATTR = /\blabel=(?:"([^"]+)"|'([^']+)')/i;
+  const RE_CHILDREN = /<children\b[^>]*>[\s\S]*?<\/children>/gi;
   const RE_ACTORMESH_GLOBAL =
-    /<ActorMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/ActorMesh>)/gi; // Bloques ActorMesh (auto o con cierre)
+    /<ActorMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/ActorMesh>)/gi;
 
-  const RE_ID = /\b([A-Za-z0-9]+)-(\d+)\b/i; // ID tipo ABC-01
+  const RE_ID = /\b([A-Za-z0-9]+)-(\d+)\b/i;
 
-  const RE_METADATA_BLOCK = /<MetaData\b[^>]*?(?:\/>|>[\s\S]*?<\/MetaData>)/gi; // Bloques de metadata
-
-  const RE_METADATA_REF = /\breference=(?:"([^"]+)"|'([^']+)')/i; // Atributo reference en metadata
+  const RE_METADATA_BLOCK = /<MetaData\b[^>]*?(?:\/>|>[\s\S]*?<\/MetaData>)/gi;
+  const RE_METADATA_REF = /\breference=(?:"([^"]+)"|'([^']+)')/i;
 
   const RE_KVP_TYPE_TAG_GLOBAL =
-    /<KeyValueProperty\b(?=[^>]*\bname\s*=\s*(?:"Element\*Type"|'Element\*Type'))[^>]*?(?:\/>|>[\s\S]*?<\/KeyValueProperty\s*>)/gi; // Tag tipo Element*Type
+    /<KeyValueProperty\b(?=[^>]*\bname\s*=\s*(?:"Element\*Type"|'Element\*Type'))[^>]*?(?:\/>|>[\s\S]*?<\/KeyValueProperty\s*>)/gi;
 
-  const RE_ATTR_VAL = /\bval\s*=\s*(?:"([^"]+)"|'([^']+)')/i; // Atributo val="..."
+  const RE_ATTR_VAL = /\bval\s*=\s*(?:"([^"]+)"|'([^']+)')/i;
 
-  // Devuelve el primer grupo no vacío (por comillas simples o dobles)
   function firstGroup(m, idx1 = 1, idx2 = 2) {
     return m[idx1] != null ? m[idx1] : m[idx2];
   }
 
-  // Extrae y normaliza ID tipo "X-1" a "X-01"
   function parseIdFromText(t) {
     if (!t) return null;
     const m = RE_ID.exec(t);
@@ -39,7 +35,6 @@
     return `${prefix}-${numNorm}`;
   }
 
-  // Busca label o name y extrae ID dentro de un bloque <ActorMesh>
   function extractActorMeshId(block) {
     let lab = RE_LABEL_ATTR.exec(block);
     if (lab) {
@@ -54,7 +49,6 @@
     return null;
   }
 
-  // Crea mapas de ID → actorId y actorMeshId desde XML original
   function buildOriginalMaps(origXml) {
     const idToActorId = {};
     const idToActorMeshId = {};
@@ -88,7 +82,6 @@
     return { idToActorId, idToActorMeshId };
   }
 
-  // Reemplaza los names de ActorMesh en XML nuevo con los del original
   function replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId) {
     return newXml.replace(RE_ACTORMESH_GLOBAL, (block) => {
       const nid = extractActorMeshId(block);
@@ -103,7 +96,6 @@
     });
   }
 
-  // Busca el ID dentro de un bloque de MetaData (por KeyValueProperty)
   function idFromMetadataBlock(block) {
     let m;
     RE_KVP_TYPE_TAG_GLOBAL.lastIndex = 0;
@@ -119,7 +111,6 @@
     return null;
   }
 
-  // Inserta o reemplaza reference="Actor.X" en bloques de MetaData
   function injectOrReplaceReference(block, actorId) {
     const target = `Actor.${actorId}`;
 
@@ -144,7 +135,6 @@
     );
   }
 
-  // Reemplaza referencias en MetaData con los actorId del original
   function replaceMetadataReferenceWithOriginal(newXml, idToActorId) {
     return newXml.replace(RE_METADATA_BLOCK, (block) => {
       const nid = idFromMetadataBlock(block);
@@ -155,7 +145,6 @@
     });
   }
 
-  // Ordena IDs por prefijo y número
   function sortIds(ids) {
     const parse = (s) => {
       const idx = s.indexOf("-");
@@ -180,11 +169,10 @@
     });
   }
 
-  // Función principal: aplica reemplazos y devuelve XML final + IDs usados
   function runMerge(origXml, newXml) {
-    const { idToActorId, idToActorMeshId } = buildOriginalMaps(origXml); // Extrae mapas
-    const step1 = replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId); // Reemplaza <ActorMesh>
-    const step2 = replaceMetadataReferenceWithOriginal(step1, idToActorId); // Reemplaza referencias
+    const { idToActorId, idToActorMeshId } = buildOriginalMaps(origXml);
+    const step1 = replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId);
+    const step2 = replaceMetadataReferenceWithOriginal(step1, idToActorId);
     const usedIdsSet = new Set([
       ...Object.keys(idToActorId),
       ...Object.keys(idToActorMeshId),
@@ -193,6 +181,5 @@
     return { xml: step2, usedIds };
   }
 
-  // Expone la función merge en el entorno global
   window.DatasmithMerge = { runMerge };
 })();

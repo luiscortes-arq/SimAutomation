@@ -4,7 +4,7 @@
 
   // Devuelve el elemento DOM donde se muestra el log
   function getLogElement() {
-    return document.getElementById("log"); // Espera un <div id="log"> en HTML
+    return document.getElementById("log"); // Espera un <pre id="log"> en HTML
   }
 
   // Agrega una línea al log visual

@@ -90,7 +90,7 @@
       }
     });
 
-    // 1) Simplificar labels en StaticMesh y ActorMesh
+    // 1) Normalizar labels de StaticMesh y ActorMesh a partir de su label actual
     const staticMeshes = Array.from(doc.getElementsByTagName("StaticMesh"));
     const actorMeshes = Array.from(doc.getElementsByTagName("ActorMesh"));
 
