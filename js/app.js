@@ -1,10 +1,15 @@
 // js/app.js
-// Sort & Purge + Pipeline con lista de pares y ZIP, theme toggle
+// Sort & Purge + Pipeline con lista de pares y ZIP, theme toggle + log detallado
 (function () {
   "use strict";
 
   const { AppConfig, loadAppConfig } = window;
-  const { line: logLine, clear: clearLog } = window.Log;
+  const {
+    line: logLine,
+    clear: clearLog,
+    showSortDiff,
+    showMergeDiff,
+  } = window.Log;
   const { sortAndPurgeUdatasmith } = window.DatasmithSort;
   const { runMerge } = window.DatasmithMerge;
 
@@ -89,7 +94,7 @@
 
   async function onRunSort() {
     clearLog();
-    logLine("[01] Sort & Purge (multi-archivo)…", "info");
+
     try {
       const input = document.getElementById("fileSort");
       const files = input ? Array.from(input.files || []) : [];
@@ -99,12 +104,16 @@
       const prefix = "TSP_";
 
       const tasks = files.map(async (file) => {
-        const xml = await readFileAsText(file);
-        const result = sortAndPurgeUdatasmith(xml);
+        const originalXml = await readFileAsText(file);
+        const processedXml = sortAndPurgeUdatasmith(originalXml);
+
+        // sección de log para este archivo
+        showSortDiff(file.name, originalXml, processedXml);
+
         const baseName = sanitizeBaseName(file.name) || "file";
         const outName = `${prefix}${baseName}.udatasmith`;
-        logLine(`OK Sort & Purge: ${file.name} → ${outName}`, "ok");
-        return { filename: outName, xml: result };
+
+        return { filename: outName, xml: processedXml };
       });
 
       const results = await Promise.all(tasks);
@@ -112,25 +121,18 @@
       if (results.length === 1) {
         const r = results[0];
         downloadText(r.xml, r.filename);
-        logLine(`Salida única: ${r.filename}`, "ok");
       } else if (window.JSZip) {
         const zip = new JSZip();
         results.forEach((r) => zip.file(r.filename, r.xml));
         const blob = await zip.generateAsync({ type: "blob" });
         downloadBlob(blob, "TSP_Files.zip");
-        logLine(
-          `ZIP generado (TSP_Files.zip) con ${results.length} archivos.`,
-          "ok"
-        );
       } else {
         results.forEach((r) => downloadText(r.xml, r.filename));
-        logLine(
-          `Descargados ${results.length} archivos (sin ZIP, JSZip no disponible).`,
-          "info"
-        );
       }
+
+      logLine(`Sort & Purge · archivos procesados: ${results.length}`, "muted");
     } catch (err) {
-      logLine(`ERROR 01: ${err.message || err}`, "error");
+      logLine(`ERROR Sort & Purge: ${err.message || err}`, "error");
       console.error(err);
     }
   }
@@ -199,7 +201,7 @@
 
   async function onRunPipeline() {
     clearLog();
-    logLine("[02] Pipeline Replace & Merge…", "info");
+
     try {
       const jobs = collectPipelineJobs();
       if (!jobs.length)
@@ -231,7 +233,16 @@
         const { xml: mergedXml } = runMerge(origXml, sortedXml);
         const filename = buildOutName(job, idx);
 
-        logLine(`OK Par ${idx + 1}: ${filename}`, "ok");
+        // sección de log para este par
+        const jobLabel = `Par ${idx + 1}`;
+        showMergeDiff(
+          jobLabel,
+          job.origFile.name,
+          job.newFile.name,
+          newXml,
+          mergedXml
+        );
+
         return { filename, xml: mergedXml };
       });
 
@@ -240,25 +251,18 @@
       if (results.length === 1) {
         const r = results[0];
         downloadText(r.xml, r.filename);
-        logLine(`Salida única: ${r.filename}`, "ok");
       } else if (window.JSZip) {
         const zip = new JSZip();
         results.forEach((r) => zip.file(r.filename, r.xml));
         const blob = await zip.generateAsync({ type: "blob" });
         downloadBlob(blob, "TRM_Files.zip");
-        logLine(
-          `ZIP generado (TRM_Files.zip) con ${results.length} archivos.`,
-          "ok"
-        );
       } else {
         results.forEach((r) => downloadText(r.xml, r.filename));
-        logLine(
-          `Descargados ${results.length} archivos (sin ZIP, JSZip no disponible).`,
-          "info"
-        );
       }
+
+      logLine(`Replace & Merge · pares procesados: ${results.length}`, "muted");
     } catch (err) {
-      logLine(`ERROR 02: ${err.message || err}`, "error");
+      logLine(`ERROR Replace & Merge: ${err.message || err}`, "error");
       console.error(err);
     }
   }

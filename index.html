@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -185,8 +186,8 @@
           </div>
 
           <div class="panel-body">
-            <!-- Log en formato texto con monospace -->
-            <pre id="log"></pre>
+            <!-- Contenedor raíz del log (JS construye tabs + vistas dentro) -->
+            <div id="log" class="log-container"></div>
           </div>
         </section>
 
@@ -217,7 +218,7 @@
     <script src="js/sortPurge.js"></script>
     <script src="js/mergePipeline.js"></script>
 
-    <!-- UI principal (versión compacta buena) -->
+    <!-- UI principal -->
     <script src="js/app.js"></script>
   </body>
 </html>
