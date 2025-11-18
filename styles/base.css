@@ -101,7 +101,7 @@ body {
   margin: 0 auto;
 }
 
-/* PANELES */
+/* PANELES GENERALES */
 .panel {
   text-align: center;
   padding: 0;
@@ -136,6 +136,19 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 14px;
+}
+
+/* PANEL LOG: solo alineación, sin fondo fijo (lo dan los temas) */
+.panel-log {
+  text-align: left;
+}
+
+.panel-log .panel-header {
+  justify-content: flex-start;
+}
+
+.panel-log .panel-body {
+  align-items: stretch;
 }
 
 /* CAMPOS */
@@ -266,10 +279,6 @@ button {
 }
 
 /* LOG CONTAINER ROOT */
-.panel-log .panel-body {
-  align-items: stretch;
-}
-
 #log.log-container {
   width: 100%;
   max-width: 100%;
@@ -281,7 +290,7 @@ button {
   border-radius: 999px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   overflow: hidden;
-  margin: 0 auto 10px auto;
+  margin: 0 0 10px 0;
 }
 
 .log-tab {
@@ -323,6 +332,7 @@ button {
   border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
+/* Header de cada entrada */
 .log-entry-header {
   font-size: 11px;
   letter-spacing: 0.12em;
@@ -353,33 +363,31 @@ button {
   margin-bottom: 4px;
 }
 
-/* Bloques de código en columnas */
+/* Bloques de código: estilo tipo editor, el fondo / color base lo ponen los temas */
 .log-code-block {
   flex: 1;
-  background-color: rgba(0, 0, 0, 0.04);
   border-radius: 4px;
   padding: 6px 8px;
   margin: 0;
   overflow: auto;
   white-space: pre;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  line-height: 1.3;
+  font-family: Consolas, "Courier New", ui-monospace, SFMono-Regular, Menlo,
+    Monaco, "Liberation Mono", monospace;
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: left;
 }
 
-/* Diferencias dentro de los bloques de código */
-
-/* Líneas eliminadas → strikethrough rojo */
+/* Líneas eliminadas → rojo (en la IZQUIERDA) */
 .log-code-block s {
   text-decoration: line-through;
-  color: #ff6b6b !important; /* rojo visible */
+  color: #ff4b4b !important;
 }
 
-/* Texto nuevo / modificado → highlight amarillo */
+/* Texto nuevo / modificado → highlight amarillo (en la DERECHA) */
 .log-code-block mark {
-  background-color: #fff3b0 !important; /* amarillo fuerte */
-  color: #000000 !important; /* texto negro para contraste */
+  background-color: #fff59d !important;
+  color: inherit;
   padding: 0 1px;
 }
 
@@ -387,22 +395,26 @@ button {
 .log-line-info {
   font-size: 12px;
   opacity: 0.8;
+  text-align: left;
 }
 
 .log-line-muted {
   font-size: 12px;
   opacity: 0.6;
   font-style: italic;
+  text-align: left;
 }
 
 .log-line-error {
   font-size: 12px;
   color: #c62828;
+  text-align: left;
 }
 
 .log-line-ok {
   font-size: 12px;
   color: #2e7d32;
+  text-align: left;
 }
 
 /* FOOTER */
@@ -445,4 +457,8 @@ button {
   .log-column {
     max-height: 200px;
   }
+}
+/* Texto sin cambios (destacado en cyan) */
+.log-code-block .cyan {
+  color: cyan;
 }

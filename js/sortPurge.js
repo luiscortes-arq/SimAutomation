@@ -1,9 +1,8 @@
 // js/sortPurge.js
 // Paso 01 – Sort & Purge (.udatasmith)
 (function () {
-  "use strict"; // Activa modo estricto para mayor seguridad
+  "use strict";
 
-  // Lista de atributos permitidos que deben conservarse en <KeyValue>
   const ALLOWED_KV_NAMES = new Set([
     "Label",
     "Actor.Name",
@@ -13,41 +12,51 @@
     "Actor.Layer",
   ]);
 
-  // Atributos en <KeyValueProperty> que deben eliminarse del XML
-  const REMOVE_KVPROP_NAMES = new Set([
-    "Element*Category",
-    "Element*Family",
-    "Element*Type",
-  ]);
-
-  // Prefijos de tags de Revit FamilyInstance a eliminar
   const TAG_REMIT_FAMILY_PREFIXES = [
     "Revit.DB.FamilyInstance.Mirrored.",
     "Revit.DB.FamilyInstance.HandFlipped.",
     "Revit.DB.FamilyInstance.FaceFlipped.",
   ];
 
-  // Nombres de elementos estáticos o actores que deben eliminarse
   const NOMBRES_A_ELIMINAR = new Set([
     "LEVEL_HEAD",
     "LEVEL-HEAD",
     "LEVEL HEAD",
   ]);
 
-  // Extrae la última parte del nombre como label descriptivo
-  function labelDescriptivo(nombreCompleto) {
-    if (!nombreCompleto) return "";
-    const partes = String(nombreCompleto).split("_");
-    return partes.length ? partes[partes.length - 1] : "";
-  }
-
-  // Convierte nombre a mayúsculas y sin espacios
-  function normalizarNombreSimple(s) {
+  // Quita rutas tipo carpeta/proyecto, pero NO toca los "_"
+  const getRootPart = (s) => {
     if (!s) return "";
-    return String(s).trim().toUpperCase();
-  }
+    const trimmed = String(s).trim();
+    const parts = trimmed.split(/[\\/|]+/); // separadores de ruta
+    return parts[parts.length - 1] || "";
+  };
 
-  // Función principal: recibe XML como texto y devuelve nuevo XML purgado y ordenado
+  // Para StaticMesh / Actor (name/label): queremos CO_01, etc.
+  // Ej.: Structural_Columns_UC-Universal_Column-Column_CO_01 -> CO_01
+  const getMeshSuffix = (s) => {
+    if (!s) return "";
+    const base = getRootPart(s); // quitamos rutas si las hay
+    const parts = base.split("_");
+
+    if (parts.length >= 2) {
+      const last = parts[parts.length - 1].trim();
+      const prev = parts[parts.length - 2].trim();
+      // Si el último fragmento es numérico, usamos prev + "_" + last
+      if (/^\d+$/.test(last) && prev) {
+        return `${prev}_${last}`;
+      }
+    }
+
+    // Fallback: último fragmento no vacío o base completa
+    const nonEmpty = parts.filter((p) => p.trim());
+    const lastNonEmpty = nonEmpty[nonEmpty.length - 1];
+    return (lastNonEmpty || base).trim();
+  };
+
+  const normalizarNombreSimple = (s) =>
+    s ? String(s).trim().toUpperCase() : "";
+
   function sortAndPurgeUdatasmith(xmlText) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, "application/xml");
@@ -61,75 +70,74 @@
       throw new Error("Documento .udatasmith sin raíz.");
     }
 
+    const byTag = (tag) => Array.from(doc.getElementsByTagName(tag));
+
     // 0) Eliminar elementos no deseados como LEVEL_HEAD en StaticMesh y ActorMesh
-    Array.from(doc.getElementsByTagName("StaticMesh")).forEach((sm) => {
-      const nameNorm = normalizarNombreSimple(sm.getAttribute("name"));
-      const labelNorm = normalizarNombreSimple(sm.getAttribute("label"));
-      if (
-        NOMBRES_A_ELIMINAR.has(nameNorm) ||
-        NOMBRES_A_ELIMINAR.has(labelNorm) ||
-        nameNorm.startsWith("LEVEL_HEAD") ||
-        labelNorm.startsWith("LEVEL_HEAD")
-      ) {
-        const parent = sm.parentNode;
-        if (parent) parent.removeChild(sm);
+    const eliminarPorNombre = (tag) => {
+      byTag(tag).forEach((el) => {
+        const nameNorm = normalizarNombreSimple(el.getAttribute("name"));
+        const labelNorm = normalizarNombreSimple(el.getAttribute("label"));
+        if (
+          NOMBRES_A_ELIMINAR.has(nameNorm) ||
+          NOMBRES_A_ELIMINAR.has(labelNorm) ||
+          nameNorm.startsWith("LEVEL_HEAD") ||
+          labelNorm.startsWith("LEVEL_HEAD")
+        ) {
+          const p = el.parentNode;
+          if (p) p.removeChild(el);
+        }
+      });
+    };
+
+    eliminarPorNombre("StaticMesh");
+    eliminarPorNombre("ActorMesh");
+
+    // 1) Normalizar LABEL de StaticMesh (queremos CO_01, etc.)
+    byTag("StaticMesh").forEach((el) => {
+      const lbl = el.getAttribute("label");
+      if (lbl) {
+        const finalLabel = getMeshSuffix(lbl);
+        if (finalLabel) el.setAttribute("label", finalLabel);
       }
     });
 
-    Array.from(doc.getElementsByTagName("ActorMesh")).forEach((am) => {
-      const nameNorm = normalizarNombreSimple(am.getAttribute("name"));
-      const labelNorm = normalizarNombreSimple(am.getAttribute("label"));
-      if (
-        NOMBRES_A_ELIMINAR.has(nameNorm) ||
-        NOMBRES_A_ELIMINAR.has(labelNorm) ||
-        nameNorm.startsWith("LEVEL_HEAD") ||
-        labelNorm.startsWith("LEVEL_HEAD")
-      ) {
-        const parent = am.parentNode;
-        if (parent) parent.removeChild(am);
+    // 1b) Normalizar NAME y LABEL de cualquier nodo "Actor*" (ActorMesh, Actor, StaticMeshActor, etc.)
+    Array.from(doc.getElementsByTagName("*")).forEach((el) => {
+      if (!/Actor/i.test(el.tagName)) return;
+
+      const nm = el.getAttribute("name");
+      if (nm) {
+        const baseName = getMeshSuffix(nm);
+        if (baseName) el.setAttribute("name", baseName);
       }
-    });
 
-    // 1) Normalizar labels de StaticMesh y ActorMesh a partir de su label actual
-    const staticMeshes = Array.from(doc.getElementsByTagName("StaticMesh"));
-    const actorMeshes = Array.from(doc.getElementsByTagName("ActorMesh"));
-
-    staticMeshes.forEach((sm) => {
-      const label = sm.getAttribute("label");
-      if (label) {
-        const base = labelDescriptivo(label);
-        if (base) sm.setAttribute("label", base);
-      }
-    });
-
-    actorMeshes.forEach((am) => {
-      const label = am.getAttribute("label");
-      if (label) {
-        const base = labelDescriptivo(label);
-        if (base) am.setAttribute("label", base);
+      const lbl = el.getAttribute("label");
+      if (lbl) {
+        const baseLabel = getMeshSuffix(lbl);
+        if (baseLabel) el.setAttribute("label", baseLabel);
       }
     });
 
     // 2) Limpiar MetaData y sus hijos <KeyValue> según reglas
-    const metas = Array.from(doc.getElementsByTagName("MetaData"));
-    metas.forEach((md) => {
-      const children = Array.from(md.childNodes);
-      children.forEach((ch) => {
-        if (ch.nodeType !== Node.ELEMENT_NODE) return;
-        const tagName = ch.tagName;
-        if (tagName !== "KeyValue") return;
+    byTag("MetaData").forEach((md) => {
+      Array.from(md.children).forEach((ch) => {
+        if (ch.tagName !== "KeyValue") return;
 
         const name = ch.getAttribute("name");
         if (!name || !ALLOWED_KV_NAMES.has(name)) {
-          md.removeChild(ch); // Elimina el nodo si no está permitido
+          md.removeChild(ch);
           return;
         }
 
-        // Si es Label o Actor.Label, simplifica el value
-        if (name === "Label" || name === "Actor.Label") {
+        // Normalizamos valores de Label / Actor.Label / Actor.Name (limpia rutas, NO corta "_" interno)
+        if (
+          name === "Label" ||
+          name === "Actor.Label" ||
+          name === "Actor.Name"
+        ) {
           const val = ch.getAttribute("value");
           if (val) {
-            const nuevo = labelDescriptivo(val);
+            const nuevo = getRootPart(val);
             if (nuevo) ch.setAttribute("value", nuevo);
           }
         }
@@ -137,26 +145,24 @@
     });
 
     // 3) Eliminar <tag> hijos de cualquier nodo que tengan prefijo Revit Family
-    const allElems = doc.getElementsByTagName("*");
-    Array.from(allElems).forEach((elem) => {
-      const hijos = Array.from(elem.childNodes);
-      hijos.forEach((h) => {
-        if (h.nodeType !== Node.ELEMENT_NODE) return;
+    Array.from(doc.getElementsByTagName("*")).forEach((elem) => {
+      Array.from(elem.children).forEach((h) => {
         if (h.tagName !== "tag") return;
         const val = h.getAttribute("value") || "";
         if (TAG_REMIT_FAMILY_PREFIXES.some((pref) => val.startsWith(pref))) {
-          elem.removeChild(h); // Elimina tag con prefijo sospechoso
+          elem.removeChild(h);
         }
       });
     });
 
-    // 4) Eliminar <KeyValueProperty> con nombres de Revit no deseados
-    const kvProps = Array.from(doc.getElementsByTagName("KeyValueProperty"));
-    kvProps.forEach((kvp) => {
-      const name = kvp.getAttribute("name") || "";
-      if (REMOVE_KVPROP_NAMES.has(name)) {
-        const parent = kvp.parentNode;
-        if (parent) parent.removeChild(kvp);
+    // 4) Eliminar <KeyValueProperty> con nombres no deseados:
+    //    - Element*
+    //    - Type*
+    byTag("KeyValueProperty").forEach((kvp) => {
+      const name = (kvp.getAttribute("name") || "").trim();
+      if (name.startsWith("Element*") || name.startsWith("Type*")) {
+        const p = kvp.parentNode;
+        if (p) p.removeChild(kvp);
       }
     });
 
@@ -164,12 +170,16 @@
     const serializer = new XMLSerializer();
     const xmlBody = serializer.serializeToString(doc);
     const xmlDecl = '<?xml version="1.0" encoding="utf-8"?>\n';
-    if (/^\s*<\?xml\b/i.test(xmlBody)) {
-      return xmlBody; // Ya contiene encabezado XML
-    }
-    return xmlDecl + xmlBody;
+    let finalXml = /^\s*<\?xml\b/i.test(xmlBody) ? xmlBody : xmlDecl + xmlBody;
+
+    // Quitar líneas completamente en blanco (solo espacios/tabs), sin modificar sintaxis
+    finalXml = finalXml
+      .split(/\r?\n/)
+      .filter((line) => !/^\s*$/.test(line))
+      .join("\n");
+
+    return finalXml;
   }
 
-  // Expone función principal en window
   window.DatasmithSort = { sortAndPurgeUdatasmith };
 })();
