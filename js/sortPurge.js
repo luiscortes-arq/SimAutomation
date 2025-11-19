@@ -1,8 +1,9 @@
-// js/sortPurge.js
-// Paso 01 – Sort & Purge (.udatasmith)
 (function () {
   "use strict";
 
+  // ============================================================
+  // CONFIG
+  // ============================================================
   const ALLOWED_KV_NAMES = new Set([
     "Label",
     "Actor.Name",
@@ -18,45 +19,35 @@
     "Revit.DB.FamilyInstance.FaceFlipped.",
   ];
 
+  const TAG_FALSE_VALUES = new Set(
+    TAG_REMIT_FAMILY_PREFIXES.map((p) => p + "False")
+  );
+
   const NOMBRES_A_ELIMINAR = new Set([
     "LEVEL_HEAD",
     "LEVEL-HEAD",
     "LEVEL HEAD",
   ]);
 
-  // Quita rutas tipo carpeta/proyecto, pero NO toca los "_"
-  const getRootPart = (s) => {
-    if (!s) return "";
-    const trimmed = String(s).trim();
-    const parts = trimmed.split(/[\\/|]+/); // separadores de ruta
-    return parts[parts.length - 1] || "";
-  };
+  const getRootPart = (s) =>
+    String(s || "")
+      .trim()
+      .split(/[\\/|]+/)
+      .pop() || "";
 
-  // Para StaticMesh / Actor (name/label): queremos CO_01, etc.
-  // Ej.: Structural_Columns_UC-Universal_Column-Column_CO_01 -> CO_01
   const getMeshSuffix = (s) => {
     if (!s) return "";
-    const base = getRootPart(s); // quitamos rutas si las hay
-    const parts = base.split("_");
-
-    if (parts.length >= 2) {
-      const last = parts[parts.length - 1].trim();
-      const prev = parts[parts.length - 2].trim();
-      // Si el último fragmento es numérico, usamos prev + "_" + last
-      if (/^\d+$/.test(last) && prev) {
-        return `${prev}_${last}`;
-      }
-    }
-
-    // Fallback: último fragmento no vacío o base completa
-    const nonEmpty = parts.filter((p) => p.trim());
-    const lastNonEmpty = nonEmpty[nonEmpty.length - 1];
-    return (lastNonEmpty || base).trim();
+    const parts = getRootPart(s).split("_").filter(Boolean);
+    const [prev, last] = parts.slice(-2);
+    return /^\d+$/.test(last) && prev ? `${prev}_${last}` : parts.pop() || "";
   };
 
   const normalizarNombreSimple = (s) =>
     s ? String(s).trim().toUpperCase() : "";
 
+  // ============================================================
+  // MAIN
+  // ============================================================
   function sortAndPurgeUdatasmith(xmlText) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(xmlText, "application/xml");
@@ -72,19 +63,23 @@
 
     const byTag = (tag) => Array.from(doc.getElementsByTagName(tag));
 
-    // 0) Eliminar elementos no deseados como LEVEL_HEAD en StaticMesh y ActorMesh
+    // ------------------------------------------------------------
+    // 1) Eliminar StaticMesh / ActorMesh con nombres tipo LEVEL_HEAD
+    // ------------------------------------------------------------
     const eliminarPorNombre = (tag) => {
       byTag(tag).forEach((el) => {
         const nameNorm = normalizarNombreSimple(el.getAttribute("name"));
         const labelNorm = normalizarNombreSimple(el.getAttribute("label"));
+
         if (
           NOMBRES_A_ELIMINAR.has(nameNorm) ||
           NOMBRES_A_ELIMINAR.has(labelNorm) ||
           nameNorm.startsWith("LEVEL_HEAD") ||
           labelNorm.startsWith("LEVEL_HEAD")
         ) {
-          const p = el.parentNode;
-          if (p) p.removeChild(el);
+          if (el.parentNode) {
+            el.parentNode.removeChild(el);
+          }
         }
       });
     };
@@ -92,93 +87,197 @@
     eliminarPorNombre("StaticMesh");
     eliminarPorNombre("ActorMesh");
 
-    // 1) Normalizar LABEL de StaticMesh (queremos CO_01, etc.)
-    byTag("StaticMesh").forEach((el) => {
-      const lbl = el.getAttribute("label");
-      if (lbl) {
-        const finalLabel = getMeshSuffix(lbl);
-        if (finalLabel) el.setAttribute("label", finalLabel);
-      }
+    // ------------------------------------------------------------
+    // 2) Normalizar label de StaticMesh -> sufijo corto
+    // ------------------------------------------------------------
+    byTag("StaticMesh").forEach((mesh) => {
+      const lbl = mesh.getAttribute("label");
+      if (lbl) mesh.setAttribute("label", getMeshSuffix(lbl));
     });
 
-    // 1b) Normalizar NAME y LABEL de cualquier nodo "Actor*" (ActorMesh, Actor, StaticMeshActor, etc.)
+    // ------------------------------------------------------------
+    // 3) Normalizar Actors (Actor, ActorMesh, etc.)
+    // ------------------------------------------------------------
     Array.from(doc.getElementsByTagName("*")).forEach((el) => {
       if (!/Actor/i.test(el.tagName)) return;
 
+      const layer = el.getAttribute("layer") || "";
       const nm = el.getAttribute("name");
-      if (nm) {
-        const baseName = getMeshSuffix(nm);
-        if (baseName) el.setAttribute("name", baseName);
+      const lbl = el.getAttribute("label");
+
+      // name: solo acortamos si NO es Levels
+      if (nm && layer !== "Levels") {
+        el.setAttribute("name", getMeshSuffix(nm));
       }
 
-      const lbl = el.getAttribute("label");
-      if (lbl) {
-        const baseLabel = getMeshSuffix(lbl);
-        if (baseLabel) el.setAttribute("label", baseLabel);
+      // label: Levels tiene un label fijo, lo demás se acorta
+      if (layer === "Levels") {
+        el.setAttribute("label", "VDC MTY - 4D");
+      } else if (lbl) {
+        el.setAttribute("label", getMeshSuffix(lbl));
       }
     });
 
-    // 2) Limpiar MetaData y sus hijos <KeyValue> según reglas
+    // ------------------------------------------------------------
+    // 4) MaterialInstance label = layer (AUTOMÁTICO)
+    //    Relación: MaterialInstance <- StaticMesh <- ActorMesh.layer
+    // ------------------------------------------------------------
+
+    // 4.1) Indexar todos los MaterialInstance por name
+    const allMaterialInstances = Array.from(
+      doc.getElementsByTagName("MaterialInstance")
+    );
+    const materialByName = new Map();
+    allMaterialInstances.forEach((mi) => {
+      const name = mi.getAttribute("name");
+      if (name) materialByName.set(name, mi);
+    });
+
+    // 4.2) StaticMesh: staticMeshName -> [materialName...]
+    const staticToMaterials = new Map(); // StaticMesh.name -> [Material.name...]
+    byTag("StaticMesh").forEach((sm) => {
+      const smName = sm.getAttribute("name");
+      if (!smName) return;
+
+      const mats = Array.from(sm.getElementsByTagName("Material"));
+      if (!mats.length) return;
+
+      const matNames = [];
+      mats.forEach((m) => {
+        const matName = m.getAttribute("name");
+        if (matName) matNames.push(matName);
+      });
+
+      if (matNames.length) {
+        staticToMaterials.set(smName, matNames);
+      }
+    });
+
+    // 4.3) ActorMesh: layer + <mesh name="staticMeshName">
+    //      -> materialName -> layer
+    const materialLayerMap = new Map(); // materialName -> layer
+
+    byTag("ActorMesh").forEach((actorMesh) => {
+      const layer = actorMesh.getAttribute("layer");
+      if (!layer) return;
+
+      const meshRefs = Array.from(actorMesh.getElementsByTagName("mesh"));
+      meshRefs.forEach((meshRef) => {
+        const smName = meshRef.getAttribute("name");
+        if (!smName) return;
+
+        const matNames = staticToMaterials.get(smName);
+        if (!matNames) return;
+
+        matNames.forEach((matName) => {
+          // Si un material aparece en varias capas, se quedará con la primera que encuentre
+          if (!materialLayerMap.has(matName)) {
+            materialLayerMap.set(matName, layer);
+          }
+        });
+      });
+    });
+
+    // 4.4) Extra: si algún MaterialInstance está anidado dentro de ActorMesh
+    //      leemos su layer directo como fallback
+    allMaterialInstances.forEach((mi) => {
+      const matName = mi.getAttribute("name");
+      if (!matName || materialLayerMap.has(matName)) return;
+
+      let parent = mi.parentNode;
+      while (
+        parent &&
+        parent.nodeType === 1 &&
+        parent.tagName !== "ActorMesh"
+      ) {
+        parent = parent.parentNode;
+      }
+
+      if (parent && parent.nodeType === 1 && parent.tagName === "ActorMesh") {
+        const layer = parent.getAttribute("layer");
+        if (layer) materialLayerMap.set(matName, layer);
+      }
+    });
+
+    // 4.5) Aplicar label = layer a cada MaterialInstance que tenga layer mapeado
+    allMaterialInstances.forEach((mi) => {
+      const matName = mi.getAttribute("name");
+      if (!matName) return;
+
+      const layer = materialLayerMap.get(matName);
+      if (layer) {
+        mi.setAttribute("label", layer);
+      }
+      // Si no hay layer, NO tocamos el label original
+    });
+
+    // ------------------------------------------------------------
+    // 5) Limpieza de <MetaData> / <KeyValue>
+    // ------------------------------------------------------------
     byTag("MetaData").forEach((md) => {
       Array.from(md.children).forEach((ch) => {
         if (ch.tagName !== "KeyValue") return;
 
-        const name = ch.getAttribute("name");
-        if (!name || !ALLOWED_KV_NAMES.has(name)) {
+        const kvName = ch.getAttribute("name");
+        if (!kvName || !ALLOWED_KV_NAMES.has(kvName)) {
           md.removeChild(ch);
           return;
         }
 
-        // Normalizamos valores de Label / Actor.Label / Actor.Name (limpia rutas, NO corta "_" interno)
-        if (
-          name === "Label" ||
-          name === "Actor.Label" ||
-          name === "Actor.Name"
-        ) {
+        if (/Label$|Name$/.test(kvName)) {
           const val = ch.getAttribute("value");
           if (val) {
-            const nuevo = getRootPart(val);
-            if (nuevo) ch.setAttribute("value", nuevo);
+            ch.setAttribute("value", getRootPart(val));
           }
         }
       });
     });
 
-    // 3) Eliminar <tag> hijos de cualquier nodo que tengan prefijo Revit Family
+    // ------------------------------------------------------------
+    // 6) Eliminar <tag> de Mirrored / HandFlipped / FaceFlipped
+    // ------------------------------------------------------------
     Array.from(doc.getElementsByTagName("*")).forEach((elem) => {
       Array.from(elem.children).forEach((h) => {
         if (h.tagName !== "tag") return;
+
         const val = h.getAttribute("value") || "";
-        if (TAG_REMIT_FAMILY_PREFIXES.some((pref) => val.startsWith(pref))) {
+        const tienePrefijo = TAG_REMIT_FAMILY_PREFIXES.some((pref) =>
+          val.startsWith(pref)
+        );
+        const esFalseExacto = TAG_FALSE_VALUES.has(val);
+
+        if (tienePrefijo || esFalseExacto) {
           elem.removeChild(h);
         }
       });
     });
 
-    // 4) Eliminar <KeyValueProperty> con nombres no deseados:
-    //    - Element*
-    //    - Type*
+    // ------------------------------------------------------------
+    // 7) Eliminar KeyValueProperty no deseados (Element*, Type*)
+    // ------------------------------------------------------------
     byTag("KeyValueProperty").forEach((kvp) => {
       const name = (kvp.getAttribute("name") || "").trim();
       if (name.startsWith("Element*") || name.startsWith("Type*")) {
-        const p = kvp.parentNode;
-        if (p) p.removeChild(kvp);
+        if (kvp.parentNode) {
+          kvp.parentNode.removeChild(kvp);
+        }
       }
     });
 
-    // Serializar de vuelta a XML string
+    // ------------------------------------------------------------
+    // 8) Serializar XML final
+    // ------------------------------------------------------------
     const serializer = new XMLSerializer();
     const xmlBody = serializer.serializeToString(doc);
     const xmlDecl = '<?xml version="1.0" encoding="utf-8"?>\n';
-    let finalXml = /^\s*<\?xml\b/i.test(xmlBody) ? xmlBody : xmlDecl + xmlBody;
 
-    // Quitar líneas completamente en blanco (solo espacios/tabs), sin modificar sintaxis
-    finalXml = finalXml
-      .split(/\r?\n/)
-      .filter((line) => !/^\s*$/.test(line))
-      .join("\n");
-
-    return finalXml;
+    return (
+      xmlDecl +
+      xmlBody
+        .split(/\r?\n/)
+        .filter((line) => !/^\s*$/.test(line))
+        .join("\n")
+    );
   }
 
   window.DatasmithSort = { sortAndPurgeUdatasmith };
