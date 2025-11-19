@@ -32,10 +32,7 @@
     if (built) return;
 
     root = getRoot();
-    if (!root) {
-      dbg("No se encontró #log en el DOM.");
-      return;
-    }
+    if (!root) return;
 
     root.className = "log-container";
     root.innerHTML = "";
@@ -101,7 +98,9 @@
 
   const clear = () => {
     buildShellIfNeeded();
-    Object.values(views).forEach((v) => (v.innerHTML = ""));
+    Object.values(views).forEach((v) => {
+      v.innerHTML = "";
+    });
   };
 
   // ============================================================
@@ -109,7 +108,9 @@
   // ============================================================
   const contarLineas = (arr) => {
     const map = {};
-    arr.forEach((l) => (map[l] = (map[l] || 0) + 1));
+    arr.forEach((l) => {
+      map[l] = (map[l] || 0) + 1;
+    });
     return map;
   };
 
@@ -151,8 +152,15 @@
       return [obj, order];
     };
 
-    const [oldAttrs, oldKeys] = extractAttrs(attrs1);
-    const [newAttrs, newKeys] = extractAttrs(attrs2);
+    const [oldAttrsObj, oldKeys] = extractAttrs(attrs1);
+    const [newAttrsObj, newKeys] = extractAttrs(attrs2);
+
+    const layerVal = oldAttrsObj.layer || newAttrsObj.layer || "";
+    const skipLabelHighlight =
+      tagName === "Actor" &&
+      (layerVal === "Location Data" ||
+        layerVal === "Survey Point" ||
+        layerVal === "Project Base Point");
 
     const buildAttrsHtml = (selfAttrs, selfKeys, otherAttrs, side) => {
       const pieces = [];
@@ -165,7 +173,14 @@
         );
         let seg;
 
-        if (isTagTag && k === "value") {
+        const skipThisLabel = skipLabelHighlight && k === "label";
+
+        if (skipThisLabel) {
+          // Para estos ACTOR especiales, el label nunca se subraya ni se marca
+          seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
+            val
+          )}"</span>`;
+        } else if (isTagTag && k === "value") {
           seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
             val
           )}"</span>`;
@@ -236,17 +251,14 @@
       return pieces.join("");
     };
 
-    const oldAttrsHtml = buildAttrsHtml(oldAttrs, oldKeys, newAttrs, "old");
-    const newAttrsHtml = buildAttrsHtml(newAttrs, newKeys, oldAttrs, "new");
-
     const oldHtml =
       `<span class="cyan">${escapeHtml(h1)}</span>` +
-      oldAttrsHtml +
+      buildAttrsHtml(oldAttrsObj, oldKeys, newAttrsObj, "old") +
       `<span class="cyan">${escapeHtml(t1)}</span>`;
 
     const newHtml =
       `<span class="cyan">${escapeHtml(h2)}</span>` +
-      newAttrsHtml +
+      buildAttrsHtml(newAttrsObj, newKeys, oldAttrsObj, "new") +
       `<span class="cyan">${escapeHtml(t2)}</span>`;
 
     return { oldHtml, newHtml };
@@ -294,9 +306,10 @@
     );
 
     const tagLines = (lines, used, commonMap) =>
-      lines.map((l) =>
-        (used[l] = (used[l] || 0) + 1) <= commonMap[l] ? "common" : "only"
-      );
+      lines.map((l) => {
+        used[l] = (used[l] || 0) + 1;
+        return used[l] <= commonMap[l] ? "common" : "only";
+      });
 
     const stateO = tagLines(oLines, {}, common);
     const stateN = tagLines(nLines, {}, common);
@@ -338,59 +351,28 @@
         .map((l, i) => {
           const lineText = l || " ";
 
-          // Fuerza diff por índice si el estado dice "common"
-          // pero la línea en el otro lado es distinta.
-          if (state[i] === "common") {
-            if (!isProcessedSide && nLines[i] !== undefined) {
-              const other = nLines[i];
-              if (other !== lineText) {
-                const { oldHtml } = diffLineFragments(lineText, other);
-                return oldHtml;
-              }
-            }
-            if (isProcessedSide && oLines[i] !== undefined) {
-              const other = oLines[i];
-              if (other !== lineText) {
-                const { newHtml } = diffLineFragments(other, lineText);
-                return newHtml;
-              }
-            }
-          }
-
-          // <tag value="..."> siempre cyan
           if (/^\s*<tag value="/.test(lineText)) {
             return `<span class="cyan">${escapeHtml(lineText)}</span>`;
           }
 
-          // Comunes sin cambios -> cyan
           if (state[i] === "common") {
             return `<span class="cyan">${escapeHtml(lineText)}</span>`;
           }
 
-          // Diff fino por pares (StaticMesh / ActorMesh / Actor / mesh / MaterialInstance)
           if (mods[i]) {
             return mods[i];
           }
 
-          // PROCESADO: resaltar solo valor de label=
-          if (isProcessedSide) {
+          if (isProcessedSide && state[i] === "only") {
             const tagMatch = lineText.match(
               /^\s*<(StaticMesh|ActorMesh|Actor|MaterialInstance)\b/
             );
             if (tagMatch) {
-              const m = lineText.match(/^(\s*<[^>]*\slabel=")([^"]*)(".*)$/);
-              if (m) {
-                const [, pre, val, post] = m;
-                return (
-                  `<span class="cyan">${escapeHtml(pre)}</span>` +
-                  `<mark>${escapeHtml(val)}</mark>` +
-                  `<span class="cyan">${escapeHtml(post)}</span>`
-                );
-              }
+              // Ya no resalta en amarillo, solo muestra la línea en cyan
+              return `<span class="cyan">${escapeHtml(lineText)}</span>`;
             }
           }
 
-          // Resto: línea completa tachada (original) o amarilla (procesado)
           return `<${tag}>${escapeHtml(lineText)}</${tag}>`;
         })
         .join("\n");
