@@ -11,7 +11,7 @@
 
     <!-- Estilos globales -->
     <!-- NOTE FOR DUMMIES: Nada de aquí afecta la lógica. Todo es UI. -->
-    <link rel="stylesheet" href="../recursos/estilos/variables.css" />
+    <link rel="stylesheet" href="../recursos/estilos/tokens.css" />
     <link rel="stylesheet" href="../recursos/estilos/base.css" />
     <link
       rel="stylesheet"
@@ -31,34 +31,43 @@
     <!-- ************************************************************************************************ -->
     <div class="contenedor-opciones">
       <!-- ********************************************************************************************** -->
-      <!-- PREGUNTA INICIAL -->
+      <!-- CHECKBOX: ¿YA SE PURGÓ? -->
       <!-- ********************************************************************************************** -->
-      <!-- NOTE FOR DUMMIES:
-             Si el usuario dice que "sí viene ordenado", le mostramos inputs para PLANTILLA + NUEVO.
-             Si dice "no viene ordenado", lo mandamos a PURGA.
-        -->
       <div class="checkbox-container anim-fade-in-up">
-        <label class="checkbox-label">¿El archivo viene ya sorteado?</label>
         <input
           type="checkbox"
           id="chkSorteado"
-          style="width: 20px; height: 20px; accent-color: var(--color-azul)"
+          style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--color-acento-actual);"
           onchange="toggleOpciones()"
         />
+        <label for="chkSorteado" class="checkbox-label">
+          ¿Ya se purgó la plantilla?
+        </label>
+      </div>
+
+      <!-- ********************************************************************************************** -->
+      <!-- BOTÓN: IR A PURGA (Si no está sorteado) -->
+      <!-- ********************************************************************************************** -->
+      <div id="areaIrPurga" class="anim-fade-in-up" style="text-align: center;">
+        <p style="margin-bottom: 1rem; color: var(--texto-secundario); font-size: var(--font-size-md);">
+          Si no has purgado la plantilla, ve a la sección de Purga primero.
+        </p>
+        <button class="btn btn-verde btn-grande" onclick="irAPurga()">
+          <span>IR A PURGA</span>
+          <div class="btn-icono-circulo">
+            <i data-lucide="arrow-right"></i>
+          </div>
+        </button>
       </div>
 
       <!-- ********************************************************************************************** -->
       <!-- ZONA DE INPUTS (PLANTILLA + NUEVO) -->
       <!-- ********************************************************************************************** -->
       <!-- NOTE FOR DUMMIES:
-             Inicialmente está OCULTO hasta que se active el checkbox.
-             Aquí se cargan los archivos necesarios para el Merge.
+             Oculto por defecto hasta que se marque el checkbox.
         -->
-      <div id="areaInputs" class="fila-inputs oculto anim-fade-in-up delay-100">
+      <div id="areaInputs" class="fila-inputs anim-fade-in-up oculto">
         <!-- INPUT OCULTO (PLANTILLA) -->
-        <!-- NOTE FOR DUMMIES:
-                 El input está oculto. Se abre al presionar "EXAMINAR".
-            -->
         <input
           type="file"
           id="fileTemplate"
@@ -85,9 +94,6 @@
             <span class="texto-titulo">PLANTILLA</span>
           </div>
 
-          <!-- NOTE FOR DUMMIES:
-                     Al hacer clic, abrimos el input oculto.
-                -->
           <button
             class="btn btn-azul btn-grande"
             style="width: 220px"
@@ -146,38 +152,18 @@
       </div>
 
       <!-- ********************************************************************************************** -->
-      <!-- BOTÓN PROCESAR (SOLO SI EL ARCHIVO YA ESTÁ ORDENADO) -->
+      <!-- BOTÓN PROCESAR -->
       <!-- ********************************************************************************************** -->
-      <!-- NOTE FOR DUMMIES:
-             Este botón aparece solo si el checkbox está activado.
-        -->
       <div
         id="areaProcesar"
         class="anim-fade-in-up delay-200"
-        style="display: none"
+        style="display: none; margin-top: 2rem;"
       >
         <button class="btn btn-azul btn-grande" onclick="procesarReemplazo()">
           <span>PROCESAR</span>
           <div class="btn-icono-circulo">
             <i data-lucide="play"></i>
           </div>
-        </button>
-      </div>
-
-      <!-- ********************************************************************************************** -->
-      <!-- SI NO ESTÁ ORDENADO, ENVIAR A PURGA -->
-      <!-- ********************************************************************************************** -->
-      <div id="areaIrPurga" class="anim-fade-in-up delay-100">
-        <p style="color: var(--texto-secundario); margin-bottom: 1rem">
-          Si no tienes una plantilla ordenada, debes ir a Purga primero.
-        </p>
-
-        <button class="btn btn-outline btn-ir-purga" onclick="irAPurga()">
-          Ir a Purga
-          <i
-            data-lucide="arrow-right"
-            style="width: 16px; margin-left: 5px"
-          ></i>
         </button>
       </div>
     </div>
@@ -187,62 +173,18 @@
     <!-- ************************************************************************************************ -->
 
     <!-- NOTE FOR DUMMIES:
-         - sort-purge.js = mismo motor que Purga, por si lo necesitas.
-         - sorting.js = ordenamiento por plantilla.
-         - merge-pipeline.js = hacer merge del XML nuevo con la plantilla.
+         - purga.js: Contiene window.Purga.run (Sort & Purge)
+         - Reemplazar.js: Contiene window.Reemplazar.run (llama a Purga y luego Merge)
     -->
-    <script src="../recursos/scripts/logica/sort-purge.js"></script>
-    <script src="../recursos/scripts/logica/sorting.js"></script>
-    <script src="../recursos/scripts/logica/merge-pipeline.js"></script>
+    <script src="../recursos/scripts/logica/purga.js"></script>
+    <script src="../recursos/scripts/logica/Reemplazar.js"></script>
 
     <script>
       lucide.createIcons();
 
-      /* NOTE FOR DUMMIES:
-           Aquí almacenamos temporalmente los archivos seleccionados.
-        */
       let fileTemplate = null;
       let fileNew = null;
 
-      /* **********************************************************************************************
-       * toggleOpciones()
-       * **********************************************************************************************
-       * NOTE FOR DUMMIES:
-       * Si el checkbox está activado:
-       *   -> mostramos los inputs y el botón de procesar
-       * Si no:
-       *   -> mostramos "Ir a purga" y ocultamos todo lo demás
-       */
-      function toggleOpciones() {
-        const isChecked = document.getElementById("chkSorteado").checked;
-        const areaInputs = document.getElementById("areaInputs");
-        const areaIrPurga = document.getElementById("areaIrPurga");
-        const areaProcesar = document.getElementById("areaProcesar");
-
-        if (isChecked) {
-          areaInputs.classList.remove("oculto");
-          areaIrPurga.style.display = "none";
-          areaProcesar.style.display = "block";
-        } else {
-          areaInputs.classList.add("oculto");
-          areaIrPurga.style.display = "block";
-          areaProcesar.style.display = "none";
-
-          // NOTE FOR DUMMIES: Reinicio de estado
-          fileTemplate = null;
-          fileNew = null;
-          document.getElementById("lblTemplate").textContent = "Ningún archivo";
-          document.getElementById("lblNew").textContent = "Ningún archivo";
-        }
-      }
-
-      /* **********************************************************************************************
-       * handleFileSelect()
-       * **********************************************************************************************
-       * NOTE FOR DUMMIES:
-       * Guarda el archivo seleccionado en la variable correcta
-       * y actualiza el label que muestra su nombre.
-       */
       function handleFileSelect(type, input) {
         if (input.files && input.files.length > 0) {
           if (type === "template") {
@@ -256,13 +198,6 @@
         }
       }
 
-      /* **********************************************************************************************
-       * readFileAsText()
-       * **********************************************************************************************
-       * NOTE FOR DUMMIES:
-       * Este helper convierte un archivo cargado en texto.
-       * Es necesario para poder parsearlo a XML.
-       */
       function readFileAsText(file) {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -272,12 +207,6 @@
         });
       }
 
-      /* **********************************************************************************************
-       * downloadText()
-       * **********************************************************************************************
-       * NOTE FOR DUMMIES:
-       * Crea un archivo descargable desde el texto XML final.
-       */
       function downloadText(text, filename) {
         const blob = new Blob([text], {
           type: "application/xml;charset=utf-8",
@@ -296,15 +225,11 @@
        * procesarReemplazo()
        * **********************************************************************************************
        * NOTE FOR DUMMIES:
-       * PROCESO COMPLETO:
-       *
-       * 1. Revisa que existan PLANTILLA + NUEVO.
-       * 2. Lee ambos como cadenas.
-       * 3. Ordena el archivo nuevo usando sortNewBasedOnTemplate().
-       * 4. Hace MERGE usando runMerge().
-       * 5. Guarda ORIGINAL/UNSORTED/PROCESSED en sessionStorage para el LOG.
-       * 6. Descarga archivo final.
-       * 7. Abre la vista LOG.
+       * Flujo actualizado:
+       * 1. Lee archivos.
+       * 2. Llama a window.Reemplazar.run(xmlTemplate, xmlNew).
+       *    (Internamente hace Sort -> Purge -> Merge).
+       * 3. Descarga y muestra Log.
        */
       async function procesarReemplazo() {
         if (!fileTemplate || !fileNew) {
@@ -319,17 +244,8 @@
             readFileAsText(fileNew),
           ]);
 
-          // 1) Ordenar el archivo nuevo basado en la plantilla
-          const xmlNewSorted = window.DatasmithSorter.sortNewBasedOnTemplate(
-            xmlTemplate,
-            xmlNew
-          );
-
-          // 2) Merge final
-          const result = window.DatasmithMerge.runMerge(
-            xmlTemplate,
-            xmlNewSorted
-          );
+          // API Global nueva
+          const result = window.Reemplazar.run(xmlTemplate, xmlNew);
           const finalXml = result.xml;
 
           // Guardar datos para LOG
@@ -349,28 +265,6 @@
         }
       }
 
-      /* **********************************************************************************************
-       * irAPurga()
-       * **********************************************************************************************
-       * NOTE FOR DUMMIES:
-       * Navega a la pantalla Purga.
-       */
-      function irAPurga() {
-        window.parent.postMessage(
-          {
-            tipo: "NAVEGAR",
-            ruta: "purga.html",
-          },
-          "*"
-        );
-      }
-
-      /* **********************************************************************************************
-       * irALog()
-       * **********************************************************************************************
-       * NOTE FOR DUMMIES:
-       * Manda a la pantalla LOG e incluye el origen "reemplazar".
-       */
       function irALog() {
         window.parent.postMessage(
           {
@@ -381,10 +275,32 @@
         );
       }
 
-      // **********************************************************************************************
-      // Inicializar estado al cargar pantalla
-      // **********************************************************************************************
-      toggleOpciones();
+      function irAPurga() {
+        window.parent.postMessage(
+          {
+            tipo: "NAVEGAR",
+            ruta: "purga.html",
+          },
+          "*"
+        );
+      }
+
+      function toggleOpciones() {
+        const chk = document.getElementById("chkSorteado");
+        const areaInputs = document.getElementById("areaInputs");
+        const areaProcesar = document.getElementById("areaProcesar");
+        const areaIrPurga = document.getElementById("areaIrPurga");
+
+        if (chk.checked) {
+          areaInputs.classList.remove("oculto");
+          areaProcesar.style.display = "block";
+          areaIrPurga.style.display = "none";
+        } else {
+          areaInputs.classList.add("oculto");
+          areaProcesar.style.display = "none";
+          areaIrPurga.style.display = "block";
+        }
+      }
 
       // **********************************************************************************************
       // EVENTO: Cambio de tema desde el index

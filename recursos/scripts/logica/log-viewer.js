@@ -120,6 +120,9 @@
     // ==================================================================
     // DETECTAR MODIFICADOS / ELIMINADOS
     // ==================================================================
+    // ==================================================================
+    // DETECTAR MODIFICADOS / ELIMINADOS
+    // ==================================================================
     Object.keys(oBy).forEach((name) => {
       const os = oBy[name];
       const ns = nBy[name];
@@ -158,6 +161,8 @@
             tag,
             type: "MODIFICADO",
             desc: labelChange,
+            line: ns[0].i, // Line in New
+            lineOrig: os[0].i // Line in Old
           });
         } else {
           details.push({
@@ -165,6 +170,8 @@
             tag,
             type: "MODIFICADO",
             desc: "Atributos modificados",
+            line: ns[0].i,
+            lineOrig: os[0].i
           });
         }
       } else {
@@ -176,6 +183,7 @@
           tag,
           type: "ELIMINADO",
           desc: "Elemento eliminado completamente",
+          lineOrig: os[0].i // Line in Old
         });
         os.forEach(() => removedLinesCount++);
       }
@@ -192,6 +200,7 @@
           tag,
           type: "AGREGADO",
           desc: "Elemento nuevo",
+          line: nBy[name][0].i // Line in New
         });
       }
     });
@@ -203,14 +212,15 @@
       lines
         .map((l, i) => {
           const lineText = l || " ";
+          const lineId = isProcessedSide ? `proc-${i}` : `orig-${i}`;
 
           // Color gris para líneas comunes
           if (state[i] === "common") {
-            return `<span class="cyan">${escapeHtml(lineText)}</span>`;
+            return `<div id="${lineId}" class="linea-log"><span class="cyan">${escapeHtml(lineText)}</span></div>`;
           }
 
           // Línea modificada → usar HTML generado por diffLineFragments
-          if (mods[i]) return mods[i];
+          if (mods[i]) return `<div id="${lineId}" class="linea-log">${mods[i]}</div>`;
 
           // En PROCESADO, si es un tag complejo y "only", NO lo marques como agregado
           if (isProcessedSide && state[i] === "only") {
@@ -218,19 +228,52 @@
               /^\s*<(StaticMesh|ActorMesh|Actor|MaterialInstance|KeyValueProperty)\b/
             );
             if (tagMatch) {
-              return `<span class="cyan">${escapeHtml(lineText)}</span>`;
+              return `<div id="${lineId}" class="linea-log"><span class="cyan">${escapeHtml(lineText)}</span></div>`;
             }
+            // Added lines use <ins>
+            return `<div id="${lineId}" class="linea-log"><ins>${escapeHtml(lineText)}</ins></div>`;
           }
 
-          // old → <s> rojo | new → <mark> amarillo
-          return `<${tag}>${escapeHtml(lineText)}</${tag}>`;
+          // old → <s> rojo | new → <mark> amarillo (pero aquí new es solo added o modificado, si es only y no es processed side, es deleted)
+          // Wait, tag argument is "s" for old and "mark" for new.
+          // But I want <ins> for added (new only) and <mark> for modified (handled by mods[i]).
+          // If state[i] is "only" and isProcessedSide is true, it's ADDED. I used <ins> above.
+          // If state[i] is "only" and isProcessedSide is false, it's DELETED. I should use <s>.
+          
+          if (!isProcessedSide && state[i] === "only") {
+             return `<div id="${lineId}" class="linea-log"><s>${escapeHtml(lineText)}</s></div>`;
+          }
+
+          // Fallback (shouldn't happen often if logic covers all)
+          return `<div id="${lineId}" class="linea-log"><${tag}>${escapeHtml(lineText)}</${tag}></div>`;
         })
         .join("\n");
+
+    // ==================================================================
+    // CALCULAR METRICAS ESPECIFICAS
+    // ==================================================================
+    // Purgados: KeyValueProperty eliminados
+    // Modificados: StaticMesh modificados
+    const purgadosCount = details.filter(
+      (d) => d.type === "ELIMINADO" && d.tag === "KeyValueProperty"
+    ).length;
+
+    const modificadosCount = details.filter(
+      (d) => d.type === "MODIFICADO" && d.tag === "StaticMesh"
+    ).length;
+
+    // Si no hay conteo específico, usar el genérico para no mostrar 0 si hubo cambios
+    const finalPurgados = purgadosCount > 0 ? purgadosCount : removedLinesCount;
+    const finalModificados = modificadosCount > 0 ? modificadosCount : details.filter(d => d.type === "MODIFICADO").length;
 
     return {
       originalHtml: render(oLines, stateO, modO, "s", false),
       processedHtml: render(nLines, stateN, modN, "mark", true),
-      stats: { removedLinesCount, details },
+      stats: { 
+        removedLinesCount: finalPurgados, // Mapeamos a "Purgados"
+        modificadosCount: finalModificados,
+        details 
+      },
     };
   };
 

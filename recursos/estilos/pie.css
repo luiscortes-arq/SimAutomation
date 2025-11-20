@@ -11,22 +11,18 @@
 .pie-global {
   width: 100%;
   text-align: center;
-  padding: 1rem;
+  padding: var(--spacing-sm);
   position: fixed;
-  bottom: 4rem; /* Levantado para coincidir con el mockup */
+  bottom: var(--spacing-xxl); /* Levantado para coincidir con el mockup */
   left: 0;
   z-index: 100;
   pointer-events: none; /* El contenedor no bloquea clics */
 }
 
-/* NOTE FOR DUMMIES:
-   El texto del footer:
-   - Se mantiene clickeable.
-   - Aumentamos tamaño por el reset.
-   - Glow suave en hover.
-*/
+/* ... */
+
 .pie-global p {
-  font-size: 1.2rem;
+  font-size: var(--font-size-subtitle);
   color: var(--texto-secundario);
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -38,19 +34,10 @@
   display: inline-block;
 }
 
-/* NOTE FOR DUMMIES:
-   Hover general del texto.
-*/
-.pie-global p:hover {
-  color: var(--color-acento-actual, var(--color-naranja));
-  text-shadow: 0 0 10px var(--color-acento-actual, var(--color-naranja));
-}
+/* ... */
 
-/* NOTE FOR DUMMIES:
-   <strong> dentro del texto tiene más peso y cambia con hover.
-*/
 .pie-global strong {
-  font-weight: 800;
+  font-weight: var(--font-weight-heavy);
   color: var(--texto-principal);
   transition: var(--transicion-suave);
 }

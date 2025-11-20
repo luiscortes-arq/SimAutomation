@@ -21,37 +21,28 @@ body.fondo-inicio {
 */
 .dashboard-grid {
   display: flex;
-  gap: 4rem;
-  padding: 2rem;
+  gap: var(--spacing-xxl);
+  padding: var(--spacing-lg);
   width: 100%;
   max-width: 1200px;
   justify-content: center;
   align-items: center;
 }
 
-/* ------------------------------------------------------------- */
-/* TARJETAS                                                       */
-/* ------------------------------------------------------------- */
+/* ... */
 
-/* NOTE FOR DUMMIES:
-   Es la tarjeta base. Todo lo visual elegante está aquí:
-   - Borde redondeado
-   - Fondo semi-transparente (definido en variables)
-   - Glow animado
-   - Hover para levantar la tarjeta
-*/
 .tarjeta-accion {
   position: relative;
   flex: 1;
   max-width: 380px;
-  padding: 3.5rem 2.5rem;
-  border-radius: 24px;
+  padding: var(--spacing-xl) var(--spacing-card-pad);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  gap: var(--spacing-md);
   text-align: center;
   transition: var(--transicion-suave);
   overflow: hidden;
@@ -61,123 +52,28 @@ body.fondo-inicio {
   border: 1px solid transparent; /* Previene movimientos raros */
 }
 
-/* NOTE FOR DUMMIES:
-   Cada tarjeta hereda un color de acento según su módulo.
-*/
-.tarjeta-purga {
-  --color-acento-tarjeta: var(--color-verde);
-}
-.tarjeta-reemplazar {
-  --color-acento-tarjeta: var(--color-azul);
-}
+/* ... */
 
-/* ------------------------------------------------------------- */
-/* BORDE ANIMADO (GLOW ORBITANTE)                                */
-/* ------------------------------------------------------------- */
-
-/* NOTE FOR DUMMIES:
-   ::before crea un borde externo invisible pero con color.
-   Aquí vive la animación de glow alrededor de la tarjeta.
-*/
-.tarjeta-accion::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  z-index: -1;
-  background: var(--color-acento-tarjeta);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: 26px;
-}
-
-/* NOTE FOR DUMMIES:
-   ::after crea una máscara interna que tapa el centro,
-   dejando visible SOLO el borde iluminado.
-*/
-.tarjeta-accion::after {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  background: var(--bg-tarjeta);
-  border-radius: 24px;
-  z-index: -1;
-}
-
-/* NOTE FOR DUMMIES:
-   El borde tiene animación tipo "pulso" constante.
-*/
-.tarjeta-accion::before {
-  opacity: 0.5;
-  animation: pulso-glow 2.5s ease-in-out infinite;
-}
-
-@keyframes pulso-glow {
-  0%,
-  100% {
-    opacity: 0.5;
-    box-shadow: 0 0 30px var(--color-acento-tarjeta),
-      0 0 60px rgba(var(--color-acento-tarjeta), 0.3);
-  }
-  50% {
-    opacity: 0.9;
-    box-shadow: 0 0 50px var(--color-acento-tarjeta),
-      0 0 100px rgba(var(--color-acento-tarjeta), 0.5);
-  }
-}
-
-/* NOTE FOR DUMMIES:
-   Cuando pasas el mouse, el glow deja de animar
-   y se ilumina completamente.
-*/
-.tarjeta-accion:hover::before {
-  opacity: 1;
-  animation: none;
-}
-
-/* NOTE FOR DUMMIES:
-   Levanta la tarjeta y agrega sombras fuertes.
-*/
-.tarjeta-accion:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-    0 0 40px var(--color-acento-tarjeta);
-}
-
-/* ------------------------------------------------------------- */
-/* ICONOS                                                         */
-/* ------------------------------------------------------------- */
-
-/* NOTE FOR DUMMIES:
-   Icono superior grande. También tiene glow al hacer hover.
-*/
 .icono-contenedor {
   color: var(--color-acento-tarjeta);
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-sm);
   transition: var(--transicion-suave);
   filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.2));
 }
 
-.tarjeta-accion:hover .icono-contenedor {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 15px var(--color-acento-tarjeta));
-}
+/* ... */
 
 .icono-contenedor svg {
-  width: 80px;
-  height: 80px;
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
   stroke-width: 1.5;
 }
 
-/* ------------------------------------------------------------- */
-/* TIPOGRAFÍA                                                     */
-/* ------------------------------------------------------------- */
+/* ... */
 
-/* NOTE FOR DUMMIES:
-   Título grande, fuerte, centrado, no seleccionable.
-*/
 .titulo-tarjeta {
-  font-size: 2.4rem;
-  font-weight: 800;
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-heavy);
   text-transform: uppercase;
   color: var(--texto-principal);
   letter-spacing: 2px;
@@ -185,11 +81,8 @@ body.fondo-inicio {
   user-select: none;
 }
 
-/* NOTE FOR DUMMIES:
-   Descripción debajo del título.
-*/
 .descripcion-tarjeta {
-  font-size: 1.4rem;
+  font-size: var(--font-size-lg);
   color: var(--texto-secundario);
   line-height: 1.6;
   max-width: 90%;

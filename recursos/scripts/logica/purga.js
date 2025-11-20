@@ -278,6 +278,71 @@
     });
 
     // ------------------------------------------------------------
+    // 7.5) ORDENAR NODOS (A. Ordenar basado en sufijo numérico)
+    // ------------------------------------------------------------
+    // Helper para parsear ID (copiado/adaptado de Reemplazar.js logic)
+    const parseForSort = (s) => {
+      if (!s) return ["", Number.POSITIVE_INFINITY, ""];
+      const idx = s.indexOf("-");
+      if (idx === -1) {
+         // Intenta buscar _ si no hay -
+         const idx2 = s.lastIndexOf("_");
+         if (idx2 !== -1) {
+             const pfx = s.slice(0, idx2);
+             const rest = s.slice(idx2 + 1);
+             const n = /^\d+$/.test(rest) ? parseInt(rest, 10) : Number.POSITIVE_INFINITY;
+             return [pfx, n, rest];
+         }
+         return [s, Number.POSITIVE_INFINITY, s];
+      }
+      const pfx = s.slice(0, idx);
+      const rest = s.slice(idx + 1);
+      const n = /^\d+$/.test(rest)
+        ? parseInt(rest, 10)
+        : Number.POSITIVE_INFINITY;
+      return [pfx, n, rest];
+    };
+
+    const sortChildren = (parent) => {
+        const children = Array.from(parent.children);
+        // Solo ordenamos si son elementos relevantes (Actors, etc)
+        // O simplemente ordenamos todo por 'name' o 'label'
+        children.sort((a, b) => {
+            const nameA = a.getAttribute("label") || a.getAttribute("name") || "";
+            const nameB = b.getAttribute("label") || b.getAttribute("name") || "";
+            
+            const [pa, na, ra] = parseForSort(nameA);
+            const [pb, nb, rb] = parseForSort(nameB);
+            
+            if (pa < pb) return -1;
+            if (pa > pb) return 1;
+            if (na < nb) return -1;
+            if (na > nb) return 1;
+            if (ra < rb) return -1;
+            if (ra > rb) return 1;
+            return 0;
+        });
+        children.forEach(c => parent.appendChild(c));
+    };
+
+    // 4. Ordenar hijos del root (si se desea)
+    // NOTE FOR DUMMIES:
+    // Se ordenan alfabéticamente o por sufijo numérico para consistencia.
+    // UPDATE: User requested NOT to reorder parent blocks.
+    // sortChildren(root);
+    
+    // También ordenar hijos de Actors (ActorMesh)
+    byTag("Actor").forEach(actor => {
+        const childrenContainer = Array.from(actor.children).find(c => c.tagName === "children");
+        if (childrenContainer) {
+            sortChildren(childrenContainer);
+        }
+    });
+
+    // ------------------------------------------------------------
+    // 8) Serializar XML final limpio y ordenado
+    // ------------------------------------------------------------
+    // ------------------------------------------------------------
     // 8) Serializar XML final limpio y ordenado
     // ------------------------------------------------------------
     const serializer = new XMLSerializer();
@@ -293,5 +358,5 @@
     );
   }
 
-  window.DatasmithSort = { sortAndPurgeUdatasmith };
+  window.Purga = { run: sortAndPurgeUdatasmith };
 })();

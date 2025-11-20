@@ -1,6 +1,8 @@
 /* ------------------------------------------------------------- */
 /* Contenedores Genéricos                                        */
 /* ------------------------------------------------------------- */
+/* Contenedores Genéricos                                        */
+/* ------------------------------------------------------------- */
 
 /* NOTE FOR DUMMIES:
    Este contenedor ocupa todo el ancho y agrega padding lateral.
@@ -8,7 +10,7 @@
 */
 .contenedor-fluido {
   width: 100%;
-  padding: 0 1rem;
+  padding: 0 var(--spacing-sm);
   margin: 0 auto;
 }
 
@@ -53,7 +55,7 @@ body.fondo-reemplazar {
    Siempre centrado y con separación.
 */
 .grupo-accion {
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--spacing-card-pad);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -68,7 +70,7 @@ body.fondo-reemplazar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: var(--spacing-lg);
   width: 100%;
   max-width: 800px;
 }
@@ -82,10 +84,10 @@ body.fondo-reemplazar {
    Usa uppercase y un ligero espaciado para verse pro.
 */
 .titulo-con-numero {
-  margin-top: 0.8rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 700;
+  margin-top: var(--spacing-sm-minus);
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: var(--transicion-suave);
@@ -96,8 +98,8 @@ body.fondo-reemplazar {
    El número “01 / 02 / 03” se resalta más.
 */
 .num-resaltado {
-  font-weight: 800;
-  margin-right: 5px;
+  font-weight: var(--font-weight-heavy);
+  margin-right: var(--spacing-tiny);
 }
 
 /* NOTE FOR DUMMIES:
@@ -161,22 +163,22 @@ body.fondo-reemplazar .titulo-con-numero:hover .num-resaltado {
 .checkbox-container {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-sm);
   background: var(--bg-tarjeta);
-  padding: 1rem 2rem;
-  border-radius: 50px;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-pill);
   border: 1px solid var(--borde-tarjeta);
   box-shadow: var(--sombra-tarjeta);
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 /* NOTE FOR DUMMIES:
    Texto del lado derecho del checkbox.
 */
 .checkbox-label {
-  font-size: 1.1rem;
+  font-size: var(--font-size-md-plus);
   color: var(--texto-principal);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* ------------------------------------------------------------- */
@@ -188,7 +190,7 @@ body.fondo-reemplazar .titulo-con-numero:hover .num-resaltado {
 */
 .fila-inputs {
   display: flex;
-  gap: 2rem;
+  gap: var(--spacing-lg);
   justify-content: center;
   width: 100%;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -211,13 +213,13 @@ body.fondo-reemplazar .titulo-con-numero:hover .num-resaltado {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-xs);
 }
 
 /* NOTE FOR DUMMIES:
    Botón IR en PURGA.
 */
 .btn-ir-purga {
-  margin-top: 1rem;
-  font-size: 0.9rem;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
 }

@@ -43,7 +43,7 @@ body {
   display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 1fr;
-  font-size: 1.6rem; /* Regresa 1rem a 16px dentro de contenido */
+  font-size: var(--font-size-base); /* Regresa 1rem a 16px dentro de contenido */
   overflow: hidden;
 }
 

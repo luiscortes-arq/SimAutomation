@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="../recursos/estilos/variables.css" />
+    <link rel="stylesheet" href="../recursos/estilos/tokens.css" />
     <link rel="stylesheet" href="../recursos/estilos/base.css" />
     <link
       rel="stylesheet"
@@ -58,7 +58,7 @@
 
       <div class="card-stat" onclick="mostrarDetalles('eliminados')">
         <span class="stat-number" id="count-del">0</span>
-        <span class="stat-label">Líneas Eliminadas</span>
+        <span class="stat-label">Purgados</span>
       </div>
     </div>
 
@@ -166,9 +166,8 @@
             (d) => d.type === "MODIFICADO" || d.type === "AGREGADO"
           ).length;
 
-          document.getElementById("count-mod").textContent = modificados;
-          document.getElementById("count-del").textContent =
-            currentStats.removedLinesCount;
+          document.getElementById("count-mod").textContent = currentStats.modificadosCount;
+          document.getElementById("count-del").textContent = currentStats.removedLinesCount;
         }
 
         // ------------------------------------------------------------
@@ -253,6 +252,10 @@
           grouped[tag].forEach((item) => {
             const itemDiv = document.createElement("div");
             itemDiv.className = "item-detalle";
+            itemDiv.style.cursor = "pointer";
+            
+            // Click-to-find
+            itemDiv.onclick = () => scrollToLine(item.line, item.lineOrig, item.type);
 
             const infoDiv = document.createElement("div");
             const nameStrong = document.createElement("strong");
@@ -288,6 +291,35 @@
         });
 
         requestAnimationFrame(() => modalBody.appendChild(fragment));
+      }
+
+      function scrollToLine(lineNew, lineOld, type) {
+        cerrarModal();
+
+        let targetId = "";
+        let panelId = "";
+
+        if (type === "ELIMINADO") {
+          // Ir al panel ORIGINAL
+          targetId = `orig-${lineOld}`;
+          panelId = "log-original";
+        } else {
+          // Ir al panel PROCESADO (Modificado o Agregado)
+          targetId = `proc-${lineNew}`;
+          panelId = "log-processed";
+        }
+
+        // Pequeño delay para que cierre el modal
+        setTimeout(() => {
+          const el = document.getElementById(targetId);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.classList.add("highlight-line");
+            setTimeout(() => el.classList.remove("highlight-line"), 2000);
+          } else {
+            console.warn("No se encontró la línea:", targetId);
+          }
+        }, 300);
       }
 
       function cerrarModal() {

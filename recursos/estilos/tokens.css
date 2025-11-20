@@ -1,0 +1,147 @@
+/* ------------------------------------------------------------- */
+/* TOKENS DE DISEÑO (SISTEMA CENTRALIZADO)                       */
+/* ------------------------------------------------------------- */
+
+:root {
+  /* =========================================================== */
+  /* 1. PRIMITIVAS (Paleta de Colores Base)                      */
+  /* =========================================================== */
+  --color-naranja: #e95e2d;
+  --color-verde: #6c7d47;
+  --color-azul: #6990ab;
+  --color-amarillo: #efb628;
+  --color-rojo: #c42021;
+
+  --color-blanco: #ffffff;
+  --color-negro-profundo: #0b0b0b;
+  --color-gris-claro: #c0c0c0;
+  --color-gris-oscuro: #3f3f3f;
+  --color-fondo-day: #f0f2f5;
+  
+  --color-day-text-primary: #2d3436;
+  --color-day-text-secondary: #636e72;
+  --color-day-card-shadow-light: #ffffff;
+  --color-day-card-shadow-dark: #d1d9e6;
+
+  /* =========================================================== */
+  /* 2. TIPOGRAFÍA                                               */
+  /* =========================================================== */
+  --fuente-principal: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --fuente-mono: "Consolas", "Monaco", monospace;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.4rem;
+  --font-size-xl: 2rem;
+  --font-size-xxl: 2.4rem;
+  --font-size-hero: 3rem;
+
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 800;
+
+  /* =========================================================== */
+  /* 3. ESPACIADO Y BORDES                                       */
+  /* =========================================================== */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 50px;
+  --radius-circle: 50%;
+
+  --spacing-tiny: 5px;
+  --spacing-xs: 0.5rem;
+  --spacing-sm-minus: 0.8rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-btn-pad: 3rem;
+  --spacing-xl: 3.5rem;
+  --spacing-xxl: 4rem;
+  --spacing-card-pad: 2.5rem; /* 40px */
+
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 800;
+
+  --font-size-tag: 0.65rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.85rem; /* ~0.9rem */
+  --font-size-md: 1rem;
+  --font-size-md-plus: 1.1rem;
+  --font-size-subtitle: 1.2rem;
+  --font-size-lg: 1.4rem;
+  --font-size-title: 1.5rem;
+  --font-size-xl: 2rem;
+  --font-size-xxl: 2.4rem;
+  --font-size-hero: 3rem;
+  --font-size-base: 1.6rem;
+
+  --logo-width: 150px;
+
+  /* =========================================================== */
+  /* 5. TRANSICIONES                                             */
+  /* =========================================================== */
+  --transicion-suave: all 0.3s ease;
+  --transicion-lenta: all 0.5s ease;
+  --transicion-tema: background-color 0.5s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  /* =========================================================== */
+  /* 6. SEMÁNTICA (DEFAULT - TEMA OSCURO)                        */
+  /* =========================================================== */
+  --bg-app: var(--color-negro-profundo);
+  --texto-principal: var(--color-blanco);
+  --texto-secundario: var(--color-gris-claro);
+  --texto-titulo-no-num: var(--color-gris-claro);
+
+  /* Componentes */
+  --bg-tarjeta: rgba(15, 15, 15, 0.9);
+  --borde-tarjeta: rgba(255, 255, 255, 0.1);
+  --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.8);
+
+  /* Glows */
+  --glow-color: var(--color-naranja);
+  --glow-intensidad: 0 0 15px;
+  --glow-hover: 0 0 25px;
+
+  /* Ondas */
+  --color-onda-primario: rgba(233, 94, 45, 0.15);
+  --color-onda-secundario: rgba(233, 94, 45, 0.05);
+
+  /* UI Elements */
+  --bg-toggle: rgba(255, 255, 255, 0.1);
+  --texto-toggle: var(--color-blanco);
+  --borde-suave: rgba(255, 255, 255, 0.1);
+  --bg-btn-outline-hover: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================================== */
+/* 5. TEMA CLARO (Sobreescritura Semántica)                    */
+/* =========================================================== */
+body.tema-claro {
+  --bg-app: var(--color-fondo-day);
+  --texto-principal: var(--color-day-text-primary);
+  --texto-secundario: var(--color-day-text-secondary);
+  --texto-titulo-no-num: var(--color-gris-oscuro);
+
+  /* Tarjetas (Neumorphism) */
+  --bg-tarjeta: var(--color-blanco);
+  --borde-tarjeta: rgba(0, 0, 0, 0.05);
+  --sombra-tarjeta: 8px 8px 16px var(--color-day-card-shadow-dark), -8px -8px 16px var(--color-day-card-shadow-light);
+
+  /* Glows */
+  --glow-intensidad: 0 0 8px;
+  --glow-hover: 0 0 12px;
+
+  /* Ondas */
+  --color-onda-primario: rgba(233, 94, 45, 0.08);
+  --color-onda-secundario: rgba(233, 94, 45, 0.02);
+
+  /* UI Elements */
+  --bg-toggle: #e0e0e0;
+  --texto-toggle: #333333;
+  --borde-suave: rgba(0, 0, 0, 0.1);
+  --bg-btn-outline-hover: rgba(0, 0, 0, 0.05);
+}

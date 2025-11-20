@@ -11,7 +11,7 @@
 
     <!-- Estilos globales y componentes -->
     <!-- NOTE FOR DUMMIES: Nada de esto afecta la lógica, solo apariencia. -->
-    <link rel="stylesheet" href="../recursos/estilos/variables.css" />
+    <link rel="stylesheet" href="../recursos/estilos/tokens.css" />
     <link rel="stylesheet" href="../recursos/estilos/base.css" />
     <link
       rel="stylesheet"
@@ -123,7 +123,13 @@
          sort-purge.js contiene TODA la lógica de purga y ordenamiento.
          Aquí solo llamamos a la función principal.
     -->
-    <script src="../recursos/scripts/logica/sort-purge.js"></script>
+    <!-- SCRIPTS DE LÓGICA -->
+    <!-- ************************************************************************************************ -->
+    <!-- NOTE FOR DUMMIES:
+         purga.js contiene TODA la lógica de purga y ordenamiento.
+         Aquí solo llamamos a la función principal.
+    -->
+    <script src="../recursos/scripts/logica/purga.js"></script>
 
     <!-- ************************************************************************************************ -->
     <!-- SCRIPT LOCAL (LÓGICA DE LA VISTA) -->
@@ -197,7 +203,7 @@
        * ----------------------------------------------------------
        * 1. Revisa que haya archivo seleccionado.
        * 2. Lo lee como XML.
-       * 3. Llama al algoritmo DatasmithSort.sortAndPurgeUdatasmith().
+       * 3. Llama al algoritmo Purga.run().
        * 4. Guarda Original/Procesado en sessionStorage para mostrarlos en el LOG.
        * 5. Descarga el archivo purgado.
        * 6. Navega a la vista LOG.
@@ -213,8 +219,7 @@
 
           // NOTE FOR DUMMIES:
           // Aquí llamas al ALGORITMO REAL de purga y ordenamiento.
-          const processedXml =
-            window.DatasmithSort.sortAndPurgeUdatasmith(originalXml);
+          const processedXml = window.Purga.run(originalXml);
 
           // NOTE FOR DUMMIES:
           // Guardamos todo para que el LOG pueda mostrar diferencias.

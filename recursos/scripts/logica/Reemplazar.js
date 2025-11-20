@@ -276,7 +276,29 @@
     return { xml: step2, usedIds };
   }
 
+    // NOTE FOR DUMMIES:
+    // Reemplazos específicos solicitados por el usuario.
+    // Ejemplo: Level_8mm_Head_L1 -> VDC MTY - 4D
+    function applySpecificReplacements(xml) {
+      return xml.replace(/Level_8mm_Head_L1/g, "VDC MTY - 4D");
+    }
+
   // NOTE FOR DUMMIES:
-  // Hacemos accesible runMerge en window para que lo use la UI.
-  window.DatasmithMerge = { runMerge };
+  // API Global: Reemplazar.run(origXml, newXml)
+  // Flujo: 1. Ordenar y Purgar (Purga.js) -> 2. Fusionar (Merge) -> 3. Reemplazos específicos
+  window.Reemplazar = {
+    run: function (origXml, newXml) {
+      // A & B: Ordenar y Purgar
+      // Se asume que window.Purga ya está cargado (purga.js)
+      let cleanXml = window.Purga.run(newXml);
+
+      // C: Merge
+      let mergedXml = runMerge(origXml, cleanXml);
+
+      // D: Reemplazos específicos
+      mergedXml.xml = applySpecificReplacements(mergedXml.xml);
+
+      return mergedXml;
+    },
+  };
 })();

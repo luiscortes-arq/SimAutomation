@@ -54,25 +54,28 @@
 .logo-img {
   width: 150px;
   height: auto;
-  display: none; /* Se activa con las reglas siguientes */
-  transition: opacity 0.3s ease;
+  display: block;
+  transition: filter 0.3s ease, opacity 0.3s ease;
   filter: none;
 }
 
-/* Hover con glow */
+/* Hover con glow (Dark Mode - Default) */
 .logo-hermosillo:hover .logo-img {
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
-/* Lógica de visualización */
-body:not(.tema-claro) .logo-night {
-  display: block;
+/* ------------------------------------------------------------- */
+/* LOGO EN MODO CLARO                                            */
+/* ------------------------------------------------------------- */
+
+/* Invertir colores para que sea negro, pero rotar hue para mantener el naranja */
+body.tema-claro .logo-img {
+  filter: invert(1) hue-rotate(180deg);
 }
-body.tema-claro .logo-day {
-  display: block;
-}
-body.tema-claro .logo-night {
-  display: none;
+
+/* Hover en modo claro (Sombra oscura) */
+body.tema-claro .logo-hermosillo:hover .logo-img {
+  filter: invert(1) hue-rotate(180deg) drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
 }
 
 /* ------------------------------------------------------------- */
@@ -115,7 +118,7 @@ body.tema-claro .logo-night {
   width: 52px;
   height: 28px;
   background-color: var(--bg-toggle);
-  border-radius: 50px;
+  border-radius: var(--radius-pill);
   position: relative;
   cursor: pointer;
   border: 1px solid var(--borde-suave);
@@ -166,12 +169,12 @@ body.tema-claro .logo-night {
 /* ------------------------------------------------------------- */
 
 body.tema-claro .toggle-tema {
-  background-color: #e0e0e0;
+  background-color: var(--bg-toggle);
 }
 
 body.tema-claro .toggle-tema::after {
   transform: translateX(24px); /* Desplazamiento exacto */
-  background-color: #fff;
+  background-color: var(--color-blanco);
 }
 
 /* NOTE FOR DUMMIES:

@@ -166,9 +166,12 @@ body {
 /* NOTE FOR DUMMIES:
    mark = resaltado tipo diff (líneas cambiadas).
 */
+/* NOTE FOR DUMMIES:
+   mark = resaltado tipo diff (líneas cambiadas).
+*/
 mark {
   background: rgba(255, 235, 59, 0.2);
-  color: inherit;
+  color: var(--color-amarillo);
   padding: 0 2px;
   border-radius: 2px;
 }
@@ -180,231 +183,38 @@ s {
   color: var(--color-rojo);
   text-decoration: line-through;
   opacity: 0.7;
-}
-
-/* ------------------------------------------------------------- */
-/* RESUMEN DE CAMBIOS (STATS)                                    */
-/* ------------------------------------------------------------- */
-
-/* NOTE FOR DUMMIES:
-   Tarjetas pequeñas que muestran:
-   - Cuántos modificados
-   - Cuántos eliminados
-*/
-.resumen-cambios {
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 1rem;
-  width: 100%;
-  justify-content: center;
-}
-
-.card-stat {
-  background: var(--bg-tarjeta);
-  border: 1px solid var(--borde-tarjeta);
-  padding: 1rem 2rem;
-  border-radius: 16px;
-  text-align: center;
-  min-width: 180px;
-  backdrop-filter: blur(10px);
-  transition: var(--transicion-suave);
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--sombra-tarjeta);
-}
-
-.card-stat:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 800;
-  display: block;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  opacity: 0.8;
-  color: var(--texto-principal);
-}
-
-.stat-modificados {
-  color: var(--color-amarillo);
-}
-.stat-eliminados {
-  color: var(--color-rojo);
-}
-
-/* ------------------------------------------------------------- */
-/* MODAL DE DETALLES                                              */
-/* ------------------------------------------------------------- */
-
-/* NOTE FOR DUMMIES:
-   Oscurece el fondo y centra la ventana de detalles.
-*/
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-/* NOTE FOR DUMMIES:
-   Al activarse, aparece la ventana.
-*/
-.modal-overlay.activo {
-  opacity: 1;
-  pointer-events: all;
-}
-
-.modal-content {
-  background: var(--bg-app);
-  border: 1px solid var(--borde-tarjeta);
-  border-radius: 20px;
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-  transform: scale(0.95);
-  transition: transform 0.3s ease;
-}
-
-.modal-overlay.activo .modal-content {
-  transform: scale(1);
-}
-
-/* NOTE FOR DUMMIES:
-   Header del modal con título + botón cerrar.
-*/
-.modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--borde-suave);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--texto-principal);
-}
-
-.btn-cerrar {
-  background: transparent;
-  border: none;
-  color: var(--texto-secundario);
-  cursor: pointer;
-  padding: 0.5rem;
-}
-
-.btn-cerrar:hover {
-  color: var(--color-rojo);
-}
-
-.modal-body {
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-/* ------------------------------------------------------------- */
-/* LISTAS COLAPSABLES (DETALLES)                                 */
-/* ------------------------------------------------------------- */
-
-/* NOTE FOR DUMMIES:
-   details/summary permiten abrir/cerrar grupos sin JS.
-*/
-details {
-  margin-bottom: 0.5rem;
-  border: 1px solid var(--borde-suave);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-summary {
-  padding: 0.8rem;
-  background: rgba(255, 255, 255, 0.05);
-  cursor: pointer;
-  font-weight: 700;
-  color: var(--texto-principal);
-  font-size: 0.9rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  list-style: none;
-}
-
-summary::-webkit-details-marker {
-  display: none;
-}
-
-summary:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-summary::after {
-  content: "+";
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-details[open] summary::after {
-  content: "-";
-}
-
-.grupo-contenido {
-  padding: 0;
-}
-
-/* NOTE FOR DUMMIES:
-   item individual dentro del modal.
-*/
-.item-detalle {
-  padding: 0.6rem 1rem;
-  border-top: 1px solid var(--borde-suave);
-  font-family: var(--fuente-mono);
-  font-size: 0.85rem;
-  color: var(--texto-secundario);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.item-detalle:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-/* Tags tipo MOD / ADD / DEL */
-.tag-tipo {
-  font-size: 0.65rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin-left: 0.5rem;
-  white-space: nowrap;
-}
-
-.tag-mod {
-  background: rgba(255, 235, 59, 0.1);
-  color: var(--color-amarillo);
   border: 1px solid rgba(255, 235, 59, 0.3);
+}
+
+/* NOTE FOR DUMMIES:
+   ins = texto agregado (verde).
+*/
+ins {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--color-verde);
+  text-decoration: none;
+  padding: 0 2px;
+  border-radius: 2px;
+  display: inline-block;
+  width: 100%;
+}
+
+/* NOTE FOR DUMMIES:
+   Línea completa del log (para scroll y highlight).
+*/
+.linea-log {
+  scroll-margin-top: 100px;
+  transition: background-color 0.5s ease;
+}
+
+.linea-log.highlight-line {
+  background-color: rgba(255, 235, 59, 0.3);
+  animation: pulseHighlight 2s ease-out;
+}
+
+@keyframes pulseHighlight {
+  0% { background-color: rgba(255, 235, 59, 0.6); }
+  100% { background-color: transparent; }
 }
 
 .tag-add {

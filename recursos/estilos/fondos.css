@@ -72,7 +72,7 @@ body.tema-claro .fondo-ondas {
 body[style*="--color-acento-actual: var(--color-naranja)"] .fondo-ondas,
 body[style*="--color-acento-actual:#e95e2d"] .fondo-ondas,
 body[style*="#e95e2d"] .fondo-ondas {
-  background-color: #e95e2d;
+  background-color: var(--color-naranja);
 }
 
 /* ------------------------- */
@@ -81,7 +81,7 @@ body[style*="#e95e2d"] .fondo-ondas {
 body[style*="--color-acento-actual: var(--color-verde)"] .fondo-ondas,
 body[style*="--color-acento-actual:#6c7d47"] .fondo-ondas,
 body[style*="#6c7d47"] .fondo-ondas {
-  background-color: #6c7d47;
+  background-color: var(--color-verde);
 }
 
 /* ------------------------- */
@@ -90,7 +90,7 @@ body[style*="#6c7d47"] .fondo-ondas {
 body[style*="--color-acento-actual: var(--color-azul)"] .fondo-ondas,
 body[style*="--color-acento-actual:#6990ab"] .fondo-ondas,
 body[style*="#6990ab"] .fondo-ondas {
-  background-color: #6990ab;
+  background-color: var(--color-azul);
 }
 
 /* ------------------------- */
@@ -99,5 +99,5 @@ body[style*="#6990ab"] .fondo-ondas {
 body[style*="--color-acento-actual: var(--color-amarillo)"] .fondo-ondas,
 body[style*="--color-acento-actual:#efb628"] .fondo-ondas,
 body[style*="#efb628"] .fondo-ondas {
-  background-color: #efb628;
+  background-color: var(--color-amarillo);
 }
