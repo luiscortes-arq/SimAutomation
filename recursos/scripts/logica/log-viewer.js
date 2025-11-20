@@ -12,6 +12,19 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
 
+  // Helper para renderizar XML simple con resaltado básico
+  const renderSimpleXml = (xmlText) => {
+    if (!xmlText) return '';
+    return String(xmlText).split(/\r?\n/).map(line => {
+        const escaped = escapeHtml(line);
+        // Resaltar tags
+        if (/^\s*&lt;/.test(escaped)) {
+            return escaped.replace(/^(\s*&lt;[^&]+&gt;)/, '<span style="color: var(--color-azul);">$1</span>');
+        }
+        return escaped;
+    }).join('\n');
+  };
+
   // ============================================================
   // LÓGICA DE DIFF (COMPARAR ORIGINAL VS PROCESADO)
   // ============================================================
@@ -142,6 +155,13 @@
         });
         // Contar líneas eliminadas
         os.forEach((obj) => {
+          // Count lines based on the text content of the item
+          // If the item spans multiple lines in the original file, we should count them.
+          // However, 'os' here is a list of objects {i, text, tag}. 
+          // If 'byName' grouped them correctly, 'os' contains all lines belonging to this item.
+          // So we just need to count the length of 'os'.
+          // BUT, 'byName' only groups by the *definition* line. 
+          // We need to count the full block.
           removedLinesCount += countLinesOfTag(oLines, obj.i);
         });
       }
@@ -159,8 +179,6 @@
         });
       }
     });
-
-    // NOTA: Se eliminó la sección de "Misc" (líneas sueltas agregadas).
 
     const render = (lines, state, mods, tag, isProcessedSide) =>
       lines
@@ -395,22 +413,23 @@
   // API PÚBLICA (window.LogViewer)
   // ============================================================
   window.LogViewer = {
-    render: (originalXml, processedXml) => {
-      return new Promise((resolve) => {
-        // El setTimeout libera el hilo principal para que la UI se actualice (ej. mostrar "cargando").
-        setTimeout(() => {
-          const diff = buildSideBySideHtml(originalXml, processedXml);
+    render: (originalXml, processedXml, unsortedXml) => {
+        const diff = buildSideBySideHtml(originalXml, processedXml);
 
-          // Inyectar en los contenedores existentes de log.html
-          const panels = document.querySelectorAll(".panel-log .contenido-log");
-          if (panels.length >= 2) {
-            panels[0].innerHTML = `<pre class="log-code-block">${diff.originalHtml}</pre>`;
-            panels[1].innerHTML = `<pre class="log-code-block">${diff.processedHtml}</pre>`;
-          }
+        // Inyectar en los contenedores existentes de log.html
+        const panelOriginal = document.getElementById('log-original');
+        const panelUnsorted = document.getElementById('log-unsorted');
+        const panelProcessed = document.getElementById('log-processed');
 
-          resolve(diff.stats);
-        }, 10);
-      });
+        if (panelOriginal) panelOriginal.innerHTML = diff.originalHtml;
+        if (panelProcessed) panelProcessed.innerHTML = diff.processedHtml;
+        
+        // Renderizar el panel del medio (Unsorted)
+        if (panelUnsorted) {
+            panelUnsorted.innerHTML = renderSimpleXml(unsortedXml);
+        }
+
+        return diff.stats;
     },
   };
 })();

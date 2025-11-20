@@ -9,10 +9,11 @@ html {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    font-size: 62.5%; /* Reset 1rem = 10px */
 }
 
 body {
-    height: 100%;
+    height: 100vh; /* Force exact viewport height */
     width: 100%;
     font-family: var(--fuente-principal);
     background-color: var(--bg-app);
@@ -21,7 +22,8 @@ body {
     display: grid;
     grid-template-rows: auto 1fr auto;
     grid-template-columns: 1fr;
-    min-height: 100vh;
+    font-size: 1.6rem; /* Base 16px para el cuerpo */
+    overflow: hidden; /* Prevent body scroll */
 }
 
 /* Fondo de Ondas */

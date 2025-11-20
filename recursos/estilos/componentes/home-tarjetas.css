@@ -1,5 +1,14 @@
 /* Estilos específicos para las tarjetas de Inicio */
 
+body.fondo-inicio {
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+}
+
 .dashboard-grid {
     display: flex;
     gap: 4rem;
@@ -7,14 +16,14 @@
     width: 100%;
     max-width: 1200px;
     justify-content: center;
-    align-items: stretch;
+    align-items: center; /* Centrado vertical */
 }
 
 .tarjeta-accion {
     position: relative;
     flex: 1;
     max-width: 380px;
-    padding: 3rem 2rem;
+    padding: 3.5rem 2.5rem;
     border-radius: 24px;
     cursor: pointer;
     display: flex;
@@ -23,86 +32,65 @@
     justify-content: center;
     gap: 1.5rem;
     text-align: center;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: var(--transicion-suave);
     overflow: hidden;
     z-index: 1;
-}
-
-/* --- TEMA NIGHT: Neon Minimal --- */
-/* --- TEMA NIGHT: Neon Glass Minimal --- */
-body:not(.tema-claro) .tarjeta-accion {
-    background: rgba(20, 20, 20, 0.6); /* Semi-transparente */
-    backdrop-filter: blur(12px); /* Efecto Glass */
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Borde Gradiente Neon (Pseudo-elemento) */
-body:not(.tema-claro) .tarjeta-accion::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 24px; 
-    padding: 1px; /* Más fino */
-    background: linear-gradient(135deg, var(--color-acento-tarjeta), transparent 40%); 
-    -webkit-mask: 
-       linear-gradient(#fff 0 0) content-box, 
-       linear-gradient(#fff 0 0);
-    mask: 
-       linear-gradient(#fff 0 0) content-box, 
-       linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    opacity: 0.6;
-    transition: opacity 0.4s ease;
-}
-
-body:not(.tema-claro) .tarjeta-accion:hover {
-    transform: translateY(-5px) scale(1.02);
-    background: rgba(30, 30, 30, 0.7);
-    box-shadow: 0 0 40px var(--color-acento-tarjeta-alpha, rgba(255,255,255,0.1));
-}
-
-body:not(.tema-claro) .tarjeta-accion:hover::before {
-    opacity: 1;
-    background: linear-gradient(135deg, var(--color-acento-tarjeta), var(--color-acento-tarjeta));
-}
-
-/* --- TEMA DAY: Ultra Soft UI --- */
-body.tema-claro .tarjeta-accion {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 
-        20px 20px 60px #d1d9e6, 
-        -20px -20px 60px #ffffff;
-    color: #2d3436;
-}
-
-body.tema-claro .tarjeta-accion:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 
-        20px 20px 60px #c8d0e7, 
-        -20px -20px 60px #ffffff;
-    border-color: var(--color-acento-tarjeta);
+    background: var(--bg-tarjeta);
+    box-shadow: var(--sombra-tarjeta);
+    border: 1px solid transparent; /* Para evitar salto de layout */
 }
 
 /* --- Variantes de Color --- */
-.tarjeta-purga {
-    --color-acento-tarjeta: var(--color-verde);
+.tarjeta-purga { --color-acento-tarjeta: var(--color-verde); }
+.tarjeta-reemplazar { --color-acento-tarjeta: var(--color-azul); }
+
+/* --- GLOW ORBITANTE (Border Gradient Animation) --- */
+.tarjeta-accion::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    background: var(--color-acento-tarjeta); /* Static color instead of gradient */
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+    border-radius: 26px;
 }
 
-.tarjeta-reemplazar {
-    --color-acento-tarjeta: var(--color-azul);
+/* Máscara para dejar solo el borde */
+.tarjeta-accion::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: var(--bg-tarjeta);
+    border-radius: 24px;
+    z-index: -1;
+}
+
+/* Mostrar borde animado siempre (tenue) y fuerte en hover */
+.tarjeta-accion::before {
+    opacity: 0.3;
+}
+
+.tarjeta-accion:hover::before {
+    opacity: 1;
+}
+
+.tarjeta-accion:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
 /* --- Iconografía --- */
 .icono-contenedor {
     color: var(--color-acento-tarjeta);
     margin-bottom: 1rem;
-    transition: color 0.3s ease;
+    transition: var(--transicion-suave);
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.2));
+}
+
+.tarjeta-accion:hover .icono-contenedor {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 15px var(--color-acento-tarjeta));
 }
 
 .icono-contenedor svg {
@@ -113,51 +101,30 @@ body.tema-claro .tarjeta-accion:hover {
 
 /* --- Tipografía --- */
 .titulo-tarjeta {
-    font-size: 1.8rem;
+    font-size: 2.4rem; /* Aumentado */
     font-weight: 800;
     text-transform: uppercase;
     color: var(--texto-principal);
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     margin: 0;
+    user-select: none;
 }
 
 .descripcion-tarjeta {
-    font-size: 1rem;
+    font-size: 1.4rem; /* Aumentado */
     color: var(--texto-secundario);
     line-height: 1.6;
-    max-width: 80%;
+    max-width: 90%;
+    user-select: none;
 }
 
-/* --- Efectos de Sombreado Dinámico (Glow) --- */
-/* Night Mode Glow */
-body.tema-oscuro .tarjeta-accion::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 150%;
-    height: 150%;
-    background: radial-gradient(circle, var(--color-acento-tarjeta) 0%, transparent 60%);
-    opacity: 0.05;
-    z-index: -1;
-    transition: opacity 0.3s ease;
-}
-
-body.tema-oscuro .tarjeta-accion:hover::after {
-    opacity: 0.15;
-}
-
-/* Day Mode Subtle Gradient */
+/* --- Ajustes TEMA CLARO --- */
 body.tema-claro .tarjeta-accion {
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    border: 1px solid rgba(0,0,0,0.05); /* Definición sutil */
+    border: 1px solid var(--borde-tarjeta);
 }
-
-body.tema-claro .tarjeta-purga:hover {
-    border-color: var(--color-verde);
+body.tema-claro .tarjeta-accion::before {
+    opacity: 0.5; /* Un poco más visible en claro */
 }
-
-body.tema-claro .tarjeta-reemplazar:hover {
-    border-color: var(--color-azul);
+body.tema-claro .tarjeta-accion:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }

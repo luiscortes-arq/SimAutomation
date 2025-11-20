@@ -5,110 +5,120 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reemplazar - Sim Automation</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../recursos/estilos/variables.css">
     <link rel="stylesheet" href="../recursos/estilos/base.css">
-    <link rel="stylesheet" href="../recursos/estilos/tema.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
     <link rel="stylesheet" href="../recursos/estilos/fondos.css">
     <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
-    <style>
-        body {
-            background-color: transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-            position: relative;
-        }
-        .fila-botones {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2.5rem;
-            width: 100%;
-            justify-content: center;
-        }
-        .grupo-accion {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .info-archivo {
-            margin-top: 0.8rem;
-            font-size: 0.8rem;
-            color: var(--texto-principal);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-    </style>
 </head>
 <body class="fondo-reemplazar anim-fade-in">
 
-    <input type="file" id="fileSorted" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect('sorted', this)">
-    <input type="file" id="fileNew" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect('new', this)">
-
-    <div class="fila-botones anim-fade-in-up delay-100">
-        <div class="grupo-accion">
-            <button class="btn btn-azul btn-grande" style="width: 220px;" onclick="document.getElementById('fileSorted').click()">
-                <span>SORTED</span>
-                <div class="btn-icono-circulo">
-                    <i data-lucide="chevrons-right"></i>
-                </div>
-            </button>
-            <span class="info-archivo">
-                <span id="countSorted" style="color: #FFFFFF; font-weight: 800;">00</span> <span style="font-weight: 400; color: var(--texto-secundario);">ARCHIVOS</span>
-            </span>
+    <div class="contenedor-opciones">
+        
+        <!-- Pregunta Inicial -->
+        <div class="checkbox-container anim-fade-in-up">
+            <label class="checkbox-label">¿El archivo viene ya sorteado?</label>
+            <input type="checkbox" id="chkSorteado" style="width: 20px; height: 20px; accent-color: var(--color-azul);" onchange="toggleOpciones()">
         </div>
 
-        <div class="grupo-accion">
-            <button class="btn btn-azul btn-grande" style="width: 220px;" onclick="document.getElementById('fileNew').click()">
-                <span>NEW</span>
-                <div class="btn-icono-circulo">
-                    <i data-lucide="chevrons-right"></i>
-                </div>
-            </button>
-            <span class="info-archivo">
-                <span id="countNew" style="color: #FFFFFF; font-weight: 800;">00</span> <span style="font-weight: 400; color: var(--texto-secundario);">ARCHIVOS</span>
-            </span>
-        </div>
-    </div>
+        <!-- Inputs de Archivo -->
+        <div id="areaInputs" class="fila-inputs oculto anim-fade-in-up delay-100">
+            <input type="file" id="fileTemplate" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect('template', this)">
+            <input type="file" id="fileNew" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect('new', this)">
 
-    <div class="grupo-accion anim-fade-in-up delay-200" style="margin-bottom: 2rem;">
-        <button class="btn btn-azul btn-grande" onclick="procesarReemplazo()">
-            <span>IR</span>
-            <div class="btn-icono-circulo">
-                <i data-lucide="download"></i>
+            <!-- Plantilla -->
+            <div class="grupo-archivo">
+                <div class="titulo-con-numero">
+                    <span class="num-resaltado">01</span>
+                    <span class="texto-titulo">PLANTILLA</span>
+                </div>
+                <button class="btn btn-azul btn-grande" style="width: 220px;" onclick="document.getElementById('fileTemplate').click()">
+                    <span>EXAMINAR</span>
+                    <div class="btn-icono-circulo">
+                        <i data-lucide="file-check"></i>
+                    </div>
+                </button>
+                <span id="lblTemplate" style="font-size: 0.8rem; color: var(--texto-secundario); margin-top: 5px;">Ningún archivo</span>
             </div>
-        </button>
-        <span class="info-archivo">
-            <span style="font-weight: 800;">LISTO</span> <span style="font-weight: 400;">PARA DESCARGA</span>
-        </span>
+
+            <!-- Nuevo -->
+            <div class="grupo-archivo">
+                <div class="titulo-con-numero">
+                    <span class="num-resaltado">02</span>
+                    <span class="texto-titulo">NUEVO</span>
+                </div>
+                <button class="btn btn-azul btn-grande" style="width: 220px;" onclick="document.getElementById('fileNew').click()">
+                    <span>EXAMINAR</span>
+                    <div class="btn-icono-circulo">
+                        <i data-lucide="file-plus"></i>
+                    </div>
+                </button>
+                <span id="lblNew" style="font-size: 0.8rem; color: var(--texto-secundario); margin-top: 5px;">Ningún archivo</span>
+            </div>
+        </div>
+
+        <!-- Botón Procesar -->
+        <div id="areaProcesar" class="anim-fade-in-up delay-200" style="display: none;">
+            <button class="btn btn-azul btn-grande" onclick="procesarReemplazo()">
+                <span>PROCESAR</span>
+                <div class="btn-icono-circulo">
+                    <i data-lucide="play"></i>
+                </div>
+            </button>
+        </div>
+
+        <!-- Opción Ir a Purga (Si no está sorteado) -->
+        <div id="areaIrPurga" class="anim-fade-in-up delay-100">
+            <p style="color: var(--texto-secundario); margin-bottom: 1rem;">Si no tienes una plantilla ordenada, debes ir a Purga primero.</p>
+            <button class="btn btn-outline btn-ir-purga" onclick="irAPurga()">
+                Ir a Purga <i data-lucide="arrow-right" style="width: 16px; margin-left: 5px;"></i>
+            </button>
+        </div>
+
     </div>
 
-    <div class="grupo-accion anim-fade-in-up delay-300">
-        <button class="btn btn-outline" onclick="irALog()">LOG</button>
-    </div>
-
-    <!-- Scripts de Lógica -->
+    <!-- Scripts -->
     <script src="../recursos/scripts/logica/sort-purge.js"></script>
+    <script src="../recursos/scripts/logica/sorting.js"></script>
     <script src="../recursos/scripts/logica/merge-pipeline.js"></script>
 
     <script>
         lucide.createIcons();
 
-        let fileSorted = null;
+        let fileTemplate = null;
         let fileNew = null;
+
+        function toggleOpciones() {
+            const isChecked = document.getElementById('chkSorteado').checked;
+            const areaInputs = document.getElementById('areaInputs');
+            const areaIrPurga = document.getElementById('areaIrPurga');
+            const areaProcesar = document.getElementById('areaProcesar');
+
+            if (isChecked) {
+                areaInputs.classList.remove('oculto');
+                areaIrPurga.style.display = 'none';
+                areaProcesar.style.display = 'block';
+            } else {
+                areaInputs.classList.add('oculto');
+                areaIrPurga.style.display = 'block';
+                areaProcesar.style.display = 'none';
+                // Reset files
+                fileTemplate = null;
+                fileNew = null;
+                document.getElementById('lblTemplate').textContent = 'Ningún archivo';
+                document.getElementById('lblNew').textContent = 'Ningún archivo';
+            }
+        }
 
         function handleFileSelect(type, input) {
             if (input.files && input.files.length > 0) {
-                if (type === 'sorted') {
-                    fileSorted = input.files[0];
-                    document.getElementById('countSorted').textContent = '01';
+                if (type === 'template') {
+                    fileTemplate = input.files[0];
+                    document.getElementById('lblTemplate').textContent = fileTemplate.name;
                 } else {
                     fileNew = input.files[0];
-                    document.getElementById('countNew').textContent = '01';
+                    document.getElementById('lblNew').textContent = fileNew.name;
                 }
             }
         }
@@ -135,33 +145,34 @@
         }
 
         async function procesarReemplazo() {
-            if (!fileSorted || !fileNew) {
-                alert("Por favor selecciona ambos archivos (SORTED y NEW).");
+            if (!fileTemplate || !fileNew) {
+                alert("Por favor selecciona ambos archivos (Plantilla y Nuevo).");
                 return;
             }
 
             try {
-                const [xmlSorted, xmlNew] = await Promise.all([
-                    readFileAsText(fileSorted),
+                const [xmlTemplate, xmlNew] = await Promise.all([
+                    readFileAsText(fileTemplate),
                     readFileAsText(fileNew)
                 ]);
 
-                // 1. Sort & Purge del Nuevo
-                const xmlNewSorted = window.DatasmithSort.sortAndPurgeUdatasmith(xmlNew);
+                // 1. Ordenar el Nuevo basado en la Plantilla
+                const xmlNewSorted = window.DatasmithSorter.sortNewBasedOnTemplate(xmlTemplate, xmlNew);
 
                 // 2. Merge
-                const result = window.DatasmithMerge.runMerge(xmlSorted, xmlNewSorted);
-                const mergedXml = result.xml;
+                const result = window.DatasmithMerge.runMerge(xmlTemplate, xmlNewSorted);
+                const finalXml = result.xml;
 
                 // Guardar datos para el Log
-                sessionStorage.setItem('LOG_DATA_ORIGINAL', xmlSorted);
-                sessionStorage.setItem('LOG_DATA_PROCESSED', mergedXml);
+                sessionStorage.setItem('LOG_DATA_ORIGINAL', xmlTemplate);
+                sessionStorage.setItem('LOG_DATA_UNSORTED', xmlNew);
+                sessionStorage.setItem('LOG_DATA_PROCESSED', finalXml);
 
-                // Descargar archivo
-                const outName = "TRM_" + fileSorted.name;
-                downloadText(mergedXml, outName);
+                // Descargar
+                const outName = "TRM_" + fileNew.name;
+                downloadText(finalXml, outName);
 
-                // Navegar al Log
+                // Ir al Log
                 irALog();
 
             } catch (e) {
@@ -170,21 +181,27 @@
             }
         }
 
-        window.addEventListener('message', (event) => {
-            if (event.data.tipo === 'CAMBIO_TEMA') {
-                if (event.data.tema === 'claro') {
-                    document.body.classList.add('tema-claro');
-                    document.body.classList.remove('tema-oscuro');
-                } else {
-                    document.body.classList.add('tema-oscuro');
-                    document.body.classList.remove('tema-claro');
-                }
-            }
-        });
+        function irAPurga() {
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: 'purga.html' }, '*');
+        }
 
         function irALog() {
             window.parent.postMessage({ tipo: 'NAVEGAR', ruta: 'log.html?origen=reemplazar' }, '*');
         }
+
+        // Inicializar estado
+        toggleOpciones();
+
+        // Escuchar tema
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'CAMBIO_TEMA') {
+                if (event.data.tema === 'claro') {
+                    document.body.classList.add('tema-claro');
+                } else {
+                    document.body.classList.remove('tema-claro');
+                }
+            }
+        });
     </script>
 </body>
 </html>

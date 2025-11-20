@@ -5,39 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purga - Sim Automation</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../recursos/estilos/variables.css">
     <link rel="stylesheet" href="../recursos/estilos/base.css">
-    <link rel="stylesheet" href="../recursos/estilos/tema.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
     <link rel="stylesheet" href="../recursos/estilos/fondos.css">
     <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
-    <style>
-        body {
-            background-color: transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-            position: relative;
-        }
-        .grupo-accion {
-            margin-bottom: 2.5rem;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .info-archivo {
-            margin-top: 0.8rem;
-            font-size: 0.8rem;
-            color: var(--texto-principal);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-    </style>
 </head>
 <body class="fondo-purga anim-fade-in">
     
@@ -50,9 +23,11 @@
                 <i data-lucide="chevrons-right"></i>
             </div>
         </button>
-        <span class="info-archivo">
-            <span id="fileCount" style="color: #FFFFFF; font-weight: 800;">00</span> <span style="font-weight: 400; color: var(--texto-secundario);">ARCHIVOS</span>
-        </span>
+        <div class="titulo-con-numero">
+            <span class="num-resaltado" id="numCount">00</span>
+            <span class="texto-titulo">ARCHIVOS</span>
+        </div>
+        <div id="fileName" style="font-size: 0.7rem; color: var(--texto-secundario); margin-top: 5px; opacity: 0.8;"></div>
     </div>
 
     <div class="grupo-accion anim-fade-in-up delay-200">
@@ -62,9 +37,10 @@
                 <i data-lucide="download"></i>
             </div>
         </button>
-        <span class="info-archivo">
-            <span style="font-weight: 800;">LISTO</span> <span style="font-weight: 400;">PARA DESCARGA</span>
-        </span>
+        <div class="titulo-con-numero">
+            <span class="texto-titulo" style="font-weight: 800;">LISTO</span>
+            <span class="texto-titulo" style="font-weight: 400;">PARA DESCARGA</span>
+        </div>
     </div>
 
     <div class="grupo-accion anim-fade-in-up delay-300">
@@ -82,8 +58,8 @@
         function handleFileSelect(input) {
             if (input.files && input.files.length > 0) {
                 selectedFile = input.files[0];
-                document.getElementById('fileCount').textContent = '01';
-                // Feedback visual opcional
+                document.getElementById('numCount').textContent = '01';
+                document.getElementById('fileName').textContent = selectedFile.name;
             }
         }
 
@@ -139,9 +115,7 @@
             if (event.data.tipo === 'CAMBIO_TEMA') {
                 if (event.data.tema === 'claro') {
                     document.body.classList.add('tema-claro');
-                    document.body.classList.remove('tema-oscuro');
                 } else {
-                    document.body.classList.add('tema-oscuro');
                     document.body.classList.remove('tema-claro');
                 }
             }

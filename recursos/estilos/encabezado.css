@@ -1,133 +1,121 @@
 .encabezado-global {
     display: grid;
-    grid-template-columns: 1fr auto 1fr; /* Izquierda, Centro (auto), Derecha */
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    padding: 1rem 2rem;
+    padding: 0.5rem 2rem; /* Subir un poco (menos padding) */
     width: 100%;
     z-index: 100;
+    background: transparent;
+    /* margin-bottom removed to prevent layout gaps */
 }
 
-.marca {
-    justify-self: start;
-}
+.marca { justify-self: start; }
+.titulo-app { justify-self: center; text-align: center; }
+.controles-tema { justify-self: end; }
 
-.titulo-app {
-    justify-self: center;
-    text-align: center;
-    white-space: nowrap;
-}
-
-.controles-tema {
-    justify-self: end;
-}
-
-/* Logo Hermosillo */
-/* Logo Hermosillo */
+/* --- Logo Hermosillo --- */
 .logo-hermosillo {
     display: flex;
     align-items: center;
     position: relative;
-    /* Sin bordes ni efectos extraños */
+    cursor: pointer;
+    transition: var(--transicion-suave);
+    user-select: none;
 }
 
 .logo-img {
-    width: 160px; /* Tamaño ajustado */
+    width: 150px;
     height: auto;
-    display: none; /* Default hidden */
+    display: none;
     transition: opacity 0.3s ease;
+    /* Eliminar sombras que causan baja calidad */
+    filter: none; 
 }
 
-/* Lógica de visualización de logos */
+.logo-hermosillo:hover .logo-img {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+/* Visualización Logos */
 body:not(.tema-claro) .logo-night { display: block; }
 body.tema-claro .logo-day { display: block; }
 body.tema-claro .logo-night { display: none; }
 
-/* Título Central */
+/* --- Título Central --- */
 .titulo-app h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+    font-size: 3rem; /* Aumentado para compensar reset */
+    font-weight: 800;
+    letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--texto-principal);
-    position: relative;
-    display: inline-block;
     margin: 0;
-    /* Sombra muy sutil y elegante */
-    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    user-select: none;
+    cursor: default;
+    transition: var(--transicion-suave);
 }
 
-/* Micro-acento (Punto elegante) */
-.titulo-app h1::after {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background-color: var(--color-acento-actual, var(--color-naranja));
-    border-radius: 50%;
-    margin-left: 10px;
-    vertical-align: middle;
-    box-shadow: 0 0 8px var(--color-acento-actual, var(--color-naranja));
-    opacity: 0.8;
+.titulo-app h1:hover {
+    color: var(--color-acento-actual, var(--color-naranja));
+    text-shadow: 0 0 15px var(--color-acento-actual, var(--color-naranja));
 }
 
-/* Toggle Tema - Estilo iPhone Switch */
+/* --- Toggle Tema --- */
 .toggle-tema {
     appearance: none;
     -webkit-appearance: none;
-    width: 50px;
+    width: 52px;
     height: 28px;
-    /* Color siempre activo según referencia */
-    background-color: var(--color-acento-actual, var(--color-naranja)); 
+    background-color: var(--bg-toggle);
     border-radius: 50px;
     position: relative;
     cursor: pointer;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-    padding: 0;
-    display: block;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    border: 1px solid var(--borde-suave);
+    transition: var(--transicion-suave);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
-/* El círculo (Thumb) */
+.toggle-tema:hover {
+    border-color: var(--color-acento-actual, var(--color-naranja));
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+
+/* Thumb */
 .toggle-tema::after {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 22px;
-    height: 22px;
-    background-color: #FFFFFF;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background-color: var(--texto-principal);
     border-radius: 50%;
     transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 2;
 }
 
-/* Icono dentro del Thumb (Opcional, si se quiere mantener el sol/luna pequeño) */
+/* Icono Lucide dentro del botón (opcional) */
 .icono-tema-lucide {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
+    z-index: 1;
     width: 14px;
     height: 14px;
-    color: #333;
-    pointer-events: none;
-    opacity: 0; /* Ocultar por defecto si queremos estilo puro switch */
+    color: var(--texto-secundario);
+    transition: opacity 0.3s;
+    opacity: 0.5;
 }
 
-/* Estado Activo (Day Mode) - Asumimos que el botón cambia de estado visualmente */
-/* Usaremos una clase 'activo' o dependeremos del body.tema-claro */
-
+/* Estado Activo (Light) */
 body.tema-claro .toggle-tema {
-    background-color: var(--color-acento-actual, #e0e0e0);
-    border-color: transparent;
+    background-color: #e0e0e0;
 }
 
 body.tema-claro .toggle-tema::after {
-    transform: translateX(22px);
+    transform: translateX(24px);
+    background-color: #fff;
 }
 
-.texto-tema {
-    display: none;
-}
+.texto-tema { display: none; }

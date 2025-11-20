@@ -1,43 +1,38 @@
 .pie-global {
+    width: 100%;
     text-align: center;
     padding: 1rem;
-    padding-bottom: 2rem; /* Posición ajustada */
-    font-size: 0.75rem;
-    color: #c0c0c0;
-    letter-spacing: 1px;
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 100%;
-    z-index: 1000;
-    background: transparent;
-    pointer-events: none;
-    border: none; /* Sin bordes */
+    z-index: 100;
+    pointer-events: none; /* Para que no bloquee clicks en el fondo si fuera necesario, pero el texto sí debe ser interactivo */
 }
 
 .pie-global p {
-    pointer-events: auto;
-    opacity: 0.8;
-    transition: opacity 0.3s ease;
+    font-size: 1.2rem; /* Aumentado para compensar reset */
+    color: var(--texto-secundario);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0;
+    user-select: none;
+    pointer-events: auto; /* Reactivar eventos para el texto */
+    cursor: pointer;
+    transition: var(--transicion-suave);
+    display: inline-block;
 }
 
 .pie-global p:hover {
-    opacity: 1;
+    color: var(--color-acento-actual, var(--color-naranja));
+    text-shadow: 0 0 10px var(--color-acento-actual, var(--color-naranja));
 }
 
 .pie-global strong {
-    color: #FFFFFF;
-    font-weight: 700;
-    /* Sutil glow en el texto de la marca */
-    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+    font-weight: 800;
+    color: var(--texto-principal);
+    transition: var(--transicion-suave);
 }
 
-/* Ajuste específico para Modo Light */
-body.tema-claro .pie-global {
-    color: #3f3f3f; /* Color exacto solicitado */
-}
-
-body.tema-claro .pie-global strong {
-    color: #000000; /* Marca en negro o gris muy oscuro para contraste */
-    text-shadow: none;
+.pie-global p:hover strong {
+    color: var(--color-acento-actual, var(--color-naranja));
 }

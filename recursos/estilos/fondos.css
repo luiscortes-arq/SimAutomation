@@ -1,70 +1,27 @@
 /* 
-    FONDOS DE ONDA DINÁMICOS 
-    Implementación con CSS Masks para colorear un único SVG negro.
+    FONDOS DE ONDA ESTÁTICOS (CSS)
 */
 
-/* Base para el fondo de onda */
-body[class*="fondo-"]::after {
-    content: '';
+.fondo-ondas {
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     width: 100%;
-    height: 100vh; /* Cubrir toda la altura para evitar cortes */
-    z-index: -1; /* Detrás del contenido */
+    height: 100vh;
+    z-index: 0; /* Cambiado de -1 a 0 para evitar que quede detrás del body */
     pointer-events: none;
-
-    /* Máscara SVG */
-    -webkit-mask-image: url('../imagenes/fondos/wave-background.svg');
-    mask-image: url('../imagenes/fondos/wave-background.svg');
-
-    -webkit-mask-size: 100% auto; /* Mantener proporción original */
-    mask-size: 100% auto;
-
-    -webkit-mask-position: bottom center;
-    mask-position: bottom center;
-
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-
-    /* Transición suave de color */
-    transition: background-color 0.5s ease, opacity 0.5s ease;
+    overflow: hidden;
     
-    /* Opacidad por defecto */
-    opacity: 0.5;
+    /* Imagen de fondo estática */
+    background-image: url('../imagenes/fondos/wave-background.svg');
+    background-repeat: no-repeat;
+    background-position: bottom center; /* Anclar al fondo */
+    background-size: 100% auto; /* Ancho completo */
+    opacity: 1; /* Máxima visibilidad */
 }
 
-/* --- COLORES POR MÓDULO (FORZADOS) --- */
-
-/* Inicio / Dashboard -> Naranja */
-body.fondo-inicio::after {
-    background-color: var(--color-naranja) !important;
-}
-
-/* Log -> Amarillo */
-body.fondo-log::after {
-    background-color: var(--color-amarillo) !important;
-}
-
-/* Purga -> Verde */
-body.fondo-purga::after {
-    background-color: var(--color-verde) !important;
-}
-
-/* Reemplazar -> Azul */
-body.fondo-reemplazar::after {
-    background-color: var(--color-azul) !important;
-}
-
-/* --- AJUSTES POR TEMA --- */
-
-/* En modo Night, mantenemos la onda visible pero integrada */
-body.tema-oscuro[class*="fondo-"]::after {
-    opacity: 0.3; 
-}
-
-body.tema-claro[class*="fondo-"]::after {
-    opacity: 0.8; /* Mayor opacidad para compensar el fondo blanco */
-    mix-blend-mode: multiply; /* Multiplicar para que los colores se fusionen bien con el blanco */
-    filter: saturate(1.2); /* Aumentar saturación para colores más vivos */
+/* Ajustes por tema */
+body.tema-claro .fondo-ondas {
+    opacity: 0.3; /* Un poco más visible en claro */
+    filter: invert(1);
 }

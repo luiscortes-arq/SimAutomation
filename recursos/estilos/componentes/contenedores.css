@@ -11,3 +11,118 @@
     align-items: center;
     height: 100%;
 }
+
+/* --- Estilos Compartidos de Vistas (Purga / Reemplazar) --- */
+
+/* Body Centrado para Vistas */
+body.fondo-purga,
+body.fondo-reemplazar {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    position: relative;
+}
+
+/* Grupos de Acción */
+.grupo-accion {
+    margin-bottom: 2.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contenedor-opciones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Títulos con Número (01 ARCHIVOS, etc) */
+.titulo-con-numero {
+    margin-top: 0.8rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: var(--transicion-suave);
+    cursor: default;
+}
+
+.num-resaltado {
+    font-weight: 800;
+    margin-right: 5px;
+}
+
+/* Colores específicos por contexto */
+body.fondo-purga .num-resaltado { color: var(--color-acento-actual, var(--color-verde)); }
+body.fondo-reemplazar .num-resaltado { color: var(--color-acento-actual, var(--color-azul)); }
+
+.texto-titulo {
+    color: var(--texto-titulo-no-num);
+}
+
+.titulo-con-numero:hover {
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+body.fondo-purga .titulo-con-numero:hover .num-resaltado {
+    text-shadow: 0 0 10px var(--color-acento-actual, var(--color-verde));
+}
+body.fondo-reemplazar .titulo-con-numero:hover .num-resaltado {
+    text-shadow: 0 0 10px var(--color-acento-actual, var(--color-azul));
+}
+
+/* Checkbox Container (Reemplazar) */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-tarjeta);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    border: 1px solid var(--borde-tarjeta);
+    box-shadow: var(--sombra-tarjeta);
+    margin-bottom: 2rem;
+}
+
+.checkbox-label {
+    font-size: 1.1rem;
+    color: var(--texto-principal);
+    font-weight: 600;
+}
+
+/* Inputs de Archivo (Reemplazar) */
+.fila-inputs {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    width: 100%;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fila-inputs.oculto {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(1);
+}
+
+.grupo-archivo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-ir-purga {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}

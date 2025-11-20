@@ -1,0 +1,74 @@
+:root {
+    /* --- Paleta Corporativa (Hermosillo / VDC) --- */
+    --color-naranja: #e95e2d;
+    --color-verde: #6c7d47;
+    --color-azul: #6990ab;
+    --color-amarillo: #efb628;
+    --color-rojo: #C42021;
+
+    /* --- Neutros --- */
+    --color-blanco: #FFFFFF;
+    --color-negro-profundo: #0b0b0b;
+    --color-gris-claro: #c0c0c0;
+    --color-gris-oscuro: #3f3f3f;
+    --color-fondo-day: #F0F2F5;
+
+    /* --- Tipografía --- */
+    --fuente-principal: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --fuente-mono: 'Consolas', 'Monaco', monospace;
+
+    /* --- Transiciones --- */
+    --transicion-suave: all 0.3s ease;
+    --transicion-lenta: all 0.5s ease;
+
+    /* --- Variables de Tema (Default: NIGHT) --- */
+    --bg-app: var(--color-negro-profundo);
+    --texto-principal: var(--color-blanco);
+    --texto-secundario: var(--color-gris-claro);
+    --texto-titulo-no-num: var(--color-gris-claro);
+
+    /* Componentes */
+    --bg-tarjeta: rgba(15, 15, 15, 0.9);
+    --borde-tarjeta: rgba(255, 255, 255, 0.1);
+    --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.8);
+    
+    /* Glows */
+    --glow-color: var(--color-naranja);
+    --glow-intensidad: 0 0 15px;
+    --glow-hover: 0 0 25px;
+
+    /* Ondas */
+    --color-onda-primario: rgba(233, 94, 45, 0.15);
+    --color-onda-secundario: rgba(233, 94, 45, 0.05);
+
+    /* UI Elements */
+    --bg-toggle: rgba(255, 255, 255, 0.1);
+    --texto-toggle: var(--color-blanco);
+    --borde-suave: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Tema DAY --- */
+body.tema-claro {
+    --bg-app: var(--color-fondo-day);
+    --texto-principal: #2d3436;
+    --texto-secundario: #636e72;
+    --texto-titulo-no-num: var(--color-gris-oscuro);
+
+    /* Componentes */
+    --bg-tarjeta: #FFFFFF;
+    --borde-tarjeta: rgba(0, 0, 0, 0.05);
+    --sombra-tarjeta: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+
+    /* Glows */
+    --glow-intensidad: 0 0 8px;
+    --glow-hover: 0 0 12px;
+
+    /* Ondas */
+    --color-onda-primario: rgba(233, 94, 45, 0.08);
+    --color-onda-secundario: rgba(233, 94, 45, 0.02);
+
+    /* UI Elements */
+    --bg-toggle: #e0e0e0;
+    --texto-toggle: #333333;
+    --borde-suave: rgba(0, 0, 0, 0.1);
+}
