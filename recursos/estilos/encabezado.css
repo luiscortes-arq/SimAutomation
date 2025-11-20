@@ -27,43 +27,47 @@
     display: flex;
     align-items: center;
     position: relative;
+    /* Sin bordes ni efectos extraños */
 }
 
 .logo-img {
-    width: 180px;
+    width: 160px; /* Tamaño ajustado */
     height: auto;
     display: none; /* Default hidden */
+    transition: opacity 0.3s ease;
 }
 
-/* Default Theme (Night) - Show Dark Logo? 
-   Wait, usually Dark Mode uses Light Logo (white text) and Light Mode uses Dark Logo (black text).
-   Let's check the filenames: hermosillo-light-logo.svg (Para modo DAY) -> This implies the logo ITSELF is light? Or for Light Mode?
-   User said: "hermosillo-light-logo.svg (Para modo DAY)"
-   "hermosillo-dark-logo.svg (Para modo NIGHT)"
-   
-   I will follow the user's mapping exactly.
-*/
-
-/* Default (Night) */
-body:not(.tema-claro) .logo-night {
-    display: block;
-}
-
-/* Day Mode */
-body.tema-claro .logo-day {
-    display: block;
-}
-body.tema-claro .logo-night {
-    display: none;
-}
+/* Lógica de visualización de logos */
+body:not(.tema-claro) .logo-night { display: block; }
+body.tema-claro .logo-day { display: block; }
+body.tema-claro .logo-night { display: none; }
 
 /* Título Central */
 .titulo-app h1 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--texto-principal);
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    /* Sombra muy sutil y elegante */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Micro-acento (Punto elegante) */
+.titulo-app h1::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: var(--color-acento-actual, var(--color-naranja));
+    border-radius: 50%;
+    margin-left: 10px;
+    vertical-align: middle;
+    box-shadow: 0 0 8px var(--color-acento-actual, var(--color-naranja));
+    opacity: 0.8;
 }
 
 /* Toggle Tema - Estilo iPhone Switch */
@@ -72,7 +76,8 @@ body.tema-claro .logo-night {
     -webkit-appearance: none;
     width: 50px;
     height: 28px;
-    background-color: rgba(255, 255, 255, 0.1); /* Track default */
+    /* Color siempre activo según referencia */
+    background-color: var(--color-acento-actual, var(--color-naranja)); 
     border-radius: 50px;
     position: relative;
     cursor: pointer;

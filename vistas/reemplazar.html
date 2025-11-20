@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
     <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
     <style>
         body {
-            background-color: transparent; /* Vital para ver el fondo de onda (z-index: -1) */
+            background-color: transparent;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,14 +21,6 @@
             height: 100vh;
             text-align: center;
             position: relative;
-        }
-        .titulo-vista {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--texto-principal);
-            margin-bottom: 4rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
         .fila-botones {
             display: flex;
@@ -51,47 +44,131 @@
         }
     </style>
 </head>
-<body class="fondo-reemplazar">
-    <!-- Título eliminado (Manejado por Header Global) -->
+<body class="fondo-reemplazar anim-fade-in">
 
-    <div class="fila-botones">
+    <input type="file" id="fileSorted" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect('sorted', this)">
+    <input type="file" id="fileNew" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect('new', this)">
+
+    <div class="fila-botones anim-fade-in-up delay-100">
         <div class="grupo-accion">
-            <button class="btn btn-azul btn-grande" style="width: 220px;">
+            <button class="btn btn-azul btn-grande" style="width: 220px;" onclick="document.getElementById('fileSorted').click()">
                 <span>SORTED</span>
                 <div class="btn-icono-circulo">
                     <i data-lucide="chevrons-right"></i>
                 </div>
             </button>
-            <span class="info-archivo">01 ARCHIVOS</span>
+            <span class="info-archivo">
+                <span id="countSorted" style="color: #FFFFFF; font-weight: 800;">00</span> <span style="font-weight: 400; color: var(--texto-secundario);">ARCHIVOS</span>
+            </span>
         </div>
 
         <div class="grupo-accion">
-            <button class="btn btn-azul btn-grande" style="width: 220px;">
+            <button class="btn btn-azul btn-grande" style="width: 220px;" onclick="document.getElementById('fileNew').click()">
                 <span>NEW</span>
                 <div class="btn-icono-circulo">
                     <i data-lucide="chevrons-right"></i>
                 </div>
             </button>
-            <span class="info-archivo">01 ARCHIVOS</span>
+            <span class="info-archivo">
+                <span id="countNew" style="color: #FFFFFF; font-weight: 800;">00</span> <span style="font-weight: 400; color: var(--texto-secundario);">ARCHIVOS</span>
+            </span>
         </div>
     </div>
 
-    <div class="grupo-accion" style="margin-bottom: 2rem;">
-        <button class="btn btn-azul btn-grande">
+    <div class="grupo-accion anim-fade-in-up delay-200" style="margin-bottom: 2rem;">
+        <button class="btn btn-azul btn-grande" onclick="procesarReemplazo()">
             <span>IR</span>
             <div class="btn-icono-circulo">
                 <i data-lucide="download"></i>
             </div>
         </button>
-        <span class="info-archivo">LISTO PARA DESCARGA</span>
+        <span class="info-archivo">
+            <span style="font-weight: 800;">LISTO</span> <span style="font-weight: 400;">PARA DESCARGA</span>
+        </span>
     </div>
 
-    <div class="grupo-accion">
-        <button class="btn btn-outline" onclick="navegar('log.html')">LOG</button>
+    <div class="grupo-accion anim-fade-in-up delay-300">
+        <button class="btn btn-outline" onclick="irALog()">LOG</button>
     </div>
+
+    <!-- Scripts de Lógica -->
+    <script src="../recursos/scripts/logica/sort-purge.js"></script>
+    <script src="../recursos/scripts/logica/merge-pipeline.js"></script>
 
     <script>
         lucide.createIcons();
+
+        let fileSorted = null;
+        let fileNew = null;
+
+        function handleFileSelect(type, input) {
+            if (input.files && input.files.length > 0) {
+                if (type === 'sorted') {
+                    fileSorted = input.files[0];
+                    document.getElementById('countSorted').textContent = '01';
+                } else {
+                    fileNew = input.files[0];
+                    document.getElementById('countNew').textContent = '01';
+                }
+            }
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+
+        function downloadText(text, filename) {
+            const blob = new Blob([text], { type: "application/xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function procesarReemplazo() {
+            if (!fileSorted || !fileNew) {
+                alert("Por favor selecciona ambos archivos (SORTED y NEW).");
+                return;
+            }
+
+            try {
+                const [xmlSorted, xmlNew] = await Promise.all([
+                    readFileAsText(fileSorted),
+                    readFileAsText(fileNew)
+                ]);
+
+                // 1. Sort & Purge del Nuevo
+                const xmlNewSorted = window.DatasmithSort.sortAndPurgeUdatasmith(xmlNew);
+
+                // 2. Merge
+                const result = window.DatasmithMerge.runMerge(xmlSorted, xmlNewSorted);
+                const mergedXml = result.xml;
+
+                // Guardar datos para el Log
+                sessionStorage.setItem('LOG_DATA_ORIGINAL', xmlSorted);
+                sessionStorage.setItem('LOG_DATA_PROCESSED', mergedXml);
+
+                // Descargar archivo
+                const outName = "TRM_" + fileSorted.name;
+                downloadText(mergedXml, outName);
+
+                // Navegar al Log
+                irALog();
+
+            } catch (e) {
+                console.error(e);
+                alert("Error al procesar: " + e.message);
+            }
+        }
 
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'CAMBIO_TEMA') {
@@ -105,8 +182,8 @@
             }
         });
 
-        function navegar(ruta) {
-            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: ruta }, '*');
+        function irALog() {
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: 'log.html?origen=reemplazar' }, '*');
         }
     </script>
 </body>

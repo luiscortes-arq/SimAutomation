@@ -10,9 +10,10 @@
     <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
     <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
     <style>
         body {
-            background-color: transparent; /* Vital para ver el fondo de onda (z-index: -1) */
+            background-color: transparent;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,15 +21,6 @@
             height: 100vh;
             text-align: center;
             position: relative;
-        }
-
-        .titulo-vista {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--texto-principal);
-            margin-bottom: 4rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
         }
         .grupo-accion {
             margin-bottom: 2.5rem;
@@ -47,36 +39,102 @@
         }
     </style>
 </head>
-<body class="fondo-purga">
-    <!-- Título eliminado (Manejado por Header Global) -->
+<body class="fondo-purga anim-fade-in">
+    
+    <input type="file" id="fileInput" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect(this)">
 
-    <div class="grupo-accion">
-        <button class="btn btn-verde btn-grande">
+    <div class="grupo-accion anim-fade-in-up delay-100">
+        <button class="btn btn-verde btn-grande" onclick="document.getElementById('fileInput').click()">
             <span>EXAMINAR</span>
             <div class="btn-icono-circulo">
                 <i data-lucide="chevrons-right"></i>
             </div>
         </button>
-        <span class="info-archivo">01 ARCHIVOS</span>
+        <span class="info-archivo">
+            <span id="fileCount" style="color: #FFFFFF; font-weight: 800;">00</span> <span style="font-weight: 400; color: var(--texto-secundario);">ARCHIVOS</span>
+        </span>
     </div>
 
-    <div class="grupo-accion">
-        <button class="btn btn-verde btn-grande">
+    <div class="grupo-accion anim-fade-in-up delay-200">
+        <button class="btn btn-verde btn-grande" onclick="procesarPurga()">
             <span>IR</span>
             <div class="btn-icono-circulo">
                 <i data-lucide="download"></i>
             </div>
         </button>
-        <span class="info-archivo">LISTO PARA DESCARGA</span>
+        <span class="info-archivo">
+            <span style="font-weight: 800;">LISTO</span> <span style="font-weight: 400;">PARA DESCARGA</span>
+        </span>
     </div>
 
-    <div class="grupo-accion">
-        <button class="btn btn-outline" onclick="navegar('log.html')">LOG</button>
+    <div class="grupo-accion anim-fade-in-up delay-300">
+        <button class="btn btn-outline" onclick="irALog()">LOG</button>
     </div>
+
+    <!-- Scripts de Lógica -->
+    <script src="../recursos/scripts/logica/sort-purge.js"></script>
 
     <script>
         lucide.createIcons();
         
+        let selectedFile = null;
+
+        function handleFileSelect(input) {
+            if (input.files && input.files.length > 0) {
+                selectedFile = input.files[0];
+                document.getElementById('fileCount').textContent = '01';
+                // Feedback visual opcional
+            }
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+
+        function downloadText(text, filename) {
+            const blob = new Blob([text], { type: "application/xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        async function procesarPurga() {
+            if (!selectedFile) {
+                alert("Por favor selecciona un archivo primero.");
+                return;
+            }
+
+            try {
+                const originalXml = await readFileAsText(selectedFile);
+                const processedXml = window.DatasmithSort.sortAndPurgeUdatasmith(originalXml);
+
+                // Guardar datos para el Log
+                sessionStorage.setItem('LOG_DATA_ORIGINAL', originalXml);
+                sessionStorage.setItem('LOG_DATA_PROCESSED', processedXml);
+
+                // Descargar archivo
+                const outName = "TSP_" + selectedFile.name;
+                downloadText(processedXml, outName);
+
+                // Navegar al Log
+                irALog();
+
+            } catch (e) {
+                console.error(e);
+                alert("Error al procesar: " + e.message);
+            }
+        }
+
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'CAMBIO_TEMA') {
                 if (event.data.tema === 'claro') {
@@ -89,8 +147,8 @@
             }
         });
 
-        function navegar(ruta) {
-            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: ruta }, '*');
+        function irALog() {
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: 'log.html?origen=purga' }, '*');
         }
     </script>
 </body>

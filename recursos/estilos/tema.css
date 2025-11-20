@@ -7,7 +7,7 @@
     
     --color-negro-profundo: #0b0b0b; /* Fondo NIGHT */
     --color-gris-claro: #c0c0c0;
-    --color-fondo-day: #e5e5e5; /* Fondo DAY */
+    --color-fondo-day: #F0F2F5; /* Fondo DAY - Soft Gray */
     
     --color-blanco: #FFFFFF;
 
@@ -15,47 +15,55 @@
     --fuente-principal: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     
     /* --- Transiciones --- */
-    --transicion-tema: background-color 0.5s ease, color 0.3s ease, border-color 0.3s ease;
+    --transicion-tema: background-color 0.5s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* --- Tema NIGHT (Default) --- */
+/* --- Tema NIGHT (Default - Neon Minimal) --- */
 :root, body.tema-oscuro {
     --bg-app: var(--color-negro-profundo);
     --texto-principal: var(--color-blanco);
     --texto-secundario: var(--color-gris-claro);
     
     /* Componentes */
-    --bg-tarjeta: rgba(20, 20, 20, 0.8);
+    --bg-tarjeta: rgba(15, 15, 15, 0.9); /* Casi negro opaco */
     --borde-tarjeta: rgba(255, 255, 255, 0.1);
-    --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.7);
+    --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.8);
     
     /* Ondas */
-    --color-onda-primario: rgba(233, 94, 45, 0.2); /* Naranja sutil */
+    --color-onda-primario: rgba(233, 94, 45, 0.15);
     --color-onda-secundario: rgba(233, 94, 45, 0.05);
 
     /* UI Elements */
     --bg-toggle: rgba(255, 255, 255, 0.1);
     --texto-toggle: var(--color-blanco);
     --bg-btn-outline-hover: rgba(255, 255, 255, 0.1);
+    
+    /* Efectos Neon */
+    --glow-intensidad: 0 0 15px;
 }
 
-/* --- Tema DAY --- */
+/* --- Tema DAY (Soft UI / Neumorphism) --- */
 body.tema-claro {
-    --bg-app: #FFFFFF; /* Blanco puro solicitado */
-    --texto-principal: #111111;
-    --texto-secundario: #555555;
+    --bg-app: var(--color-fondo-day);
+    --texto-principal: #2d3436;
+    --texto-secundario: #636e72;
     
-    /* Componentes */
-    --bg-tarjeta: #FFFFFF;
-    --borde-tarjeta: rgba(0, 0, 0, 0.05);
-    --sombra-tarjeta: 0 15px 35px rgba(0, 0, 0, 0.08); /* Sombra más suave y difusa */
+    /* Componentes - Neumorphism */
+    --bg-tarjeta: #F0F2F5;
+    --borde-tarjeta: rgba(255, 255, 255, 0.5); /* Highlight superior */
+    --sombra-tarjeta: 
+        8px 8px 16px #d1d9e6, 
+        -8px -8px 16px #ffffff; /* Sombra doble para efecto flotante */
     
-    /* Ondas - Más vibrantes en Day Mode */
-    --color-onda-primario: rgba(233, 94, 45, 0.1);
+    /* Ondas - Más sutiles */
+    --color-onda-primario: rgba(233, 94, 45, 0.08);
     --color-onda-secundario: rgba(233, 94, 45, 0.02);
 
     /* UI Elements */
     --bg-toggle: #e0e0e0;
     --texto-toggle: #333333;
     --bg-btn-outline-hover: rgba(0, 0, 0, 0.05);
+    
+    /* Efectos */
+    --glow-intensidad: 0 0 5px;
 }

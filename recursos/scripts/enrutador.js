@@ -77,9 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function cargarVista(ruta) {
-        // Validar ruta para seguridad básica (evitar salir del directorio vistas)
-        // En un entorno real, usar un mapa de rutas permitidas.
-        if (ruta.endsWith('.html')) {
+        // Permitir parámetros de consulta (ej: log.html?origen=purga)
+        const archivoBase = ruta.split('?')[0];
+        
+        if (archivoBase.endsWith('.html')) {
             iframe.src = `vistas/${ruta}`;
         } else {
             console.error('Ruta inválida:', ruta);

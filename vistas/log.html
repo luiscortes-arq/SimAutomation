@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log - Sim Automation</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../recursos/estilos/base.css">
     <link rel="stylesheet" href="../recursos/estilos/tema.css">
     <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
     <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
     <style>
         body {
-            background-color: transparent; /* Vital para ver el fondo de onda (z-index: -1) */
+            background-color: transparent;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,13 +22,59 @@
             padding: 2rem;
             position: relative;
         }
-        .titulo-vista {
-            font-size: 2rem;
+        
+        /* Encabezado del Log (Volver + Título Contexto) */
+        .log-header {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            border: 2px solid var(--texto-secundario);
+            color: var(--texto-principal);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .btn-volver:hover {
+            transform: translateX(-5px);
+            border-color: var(--color-acento-actual);
+            color: var(--color-acento-actual);
+        }
+
+        .titulo-contexto {
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--texto-principal);
-            margin-bottom: 2rem;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
+
+        .indicador-contexto {
+            font-size: 0.8rem;
+            background: var(--color-acento-actual);
+            color: #fff;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            vertical-align: middle;
+        }
+
         .contenedor-logs {
             display: flex;
             gap: 2rem;
@@ -35,15 +84,32 @@
         }
         .panel-log {
             flex: 1;
-            background: var(--bg-tarjeta);
             border-radius: 20px;
             padding: 2rem;
             display: flex;
             flex-direction: column;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--sombra-tarjeta);
             overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
         }
+
+        /* Estilo Night (Neon) */
+        body:not(.tema-claro) .panel-log {
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid var(--color-amarillo);
+            box-shadow: 0 0 15px rgba(239, 182, 40, 0.1);
+        }
+
+        /* Estilo Day (Soft UI) */
+        body.tema-claro .panel-log {
+            background: #F0F2F5;
+            border: none;
+            box-shadow: 
+                8px 8px 16px #d1d9e6, 
+                -8px -8px 16px #ffffff;
+            color: #2d3436;
+        }
+
         .titulo-panel {
             font-size: 1.2rem;
             font-weight: 700;
@@ -51,38 +117,47 @@
             margin-bottom: 1rem;
             text-align: center;
             color: var(--texto-principal);
+            z-index: 1;
         }
         .contenido-log {
             flex: 1;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--texto-secundario);
             line-height: 1.6;
+            white-space: pre-wrap; /* Mantener formato */
         }
         /* Estilos específicos del log */
-        .tachado {
-            text-decoration: line-through;
-            color: #E53935; /* Rojo */
-        }
-        .resaltado {
-            color: #FDD835; /* Amarillo */
-            font-weight: bold;
-        }
+        .cyan { color: #00bcd4; }
+        mark { background: rgba(255, 235, 59, 0.3); color: inherit; padding: 0 2px; border-radius: 2px; }
+        s { color: #E53935; text-decoration: line-through; opacity: 0.7; }
+        
+        /* Ajuste para Light Mode */
+        body.tema-claro .cyan { color: #0097a7; }
+        body.tema-claro mark { background: rgba(255, 235, 59, 0.5); }
     </style>
 </head>
-<body class="fondo-log">
-    <!-- Título eliminado (Manejado por Header Global) -->
-    <!-- Botón Volver eliminado -->
+<body class="fondo-log anim-fade-in">
+
+    <div class="log-header anim-fade-in-up">
+        <button class="btn-volver" onclick="volver()">
+            <i data-lucide="arrow-left" style="width: 18px;"></i>
+            VOLVER
+        </button>
+        <div class="titulo-contexto">
+            LOG <span id="badge-contexto" class="indicador-contexto">GENERAL</span>
+        </div>
+    </div>
 
     <div class="contenedor-logs">
-        <div class="panel-log">
+        <div class="panel-log anim-fade-in-up delay-100">
             <h3 class="titulo-panel">ORIGINAL</h3>
             <div class="contenido-log">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. <span class="tachado">sit amet bibendum enim</span> facilisis. Duis sollicitudin, magna ac ullamcorper faucibus...
             </div>
         </div>
-        <div class="panel-log">
+        <div class="panel-log anim-fade-in-up delay-200">
             <h3 class="titulo-panel">PROCESADO</h3>
             <div class="contenido-log">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. <span class="resaltado">sit amet bibendum enim</span> facilisis. Duis sollicitudin, magna ac ullamcorper faucibus...
@@ -90,7 +165,45 @@
         </div>
     </div>
 
+    <script src="../recursos/scripts/logica/log-viewer.js"></script>
+
     <script>
+        lucide.createIcons();
+
+        // Obtener parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+        const origen = params.get('origen') || 'inicio';
+
+        // Configurar UI según origen
+        const badge = document.getElementById('badge-contexto');
+        const btnVolver = document.querySelector('.btn-volver');
+        
+        let colorAcento = 'var(--color-amarillo)'; // Default Log
+
+        if (origen === 'purga') {
+            badge.textContent = 'PURGA';
+            badge.style.backgroundColor = 'var(--color-verde)';
+            colorAcento = 'var(--color-verde)';
+            document.body.style.setProperty('--color-acento-actual', 'var(--color-verde)');
+        } else if (origen === 'reemplazar') {
+            badge.textContent = 'REEMPLAZAR';
+            badge.style.backgroundColor = 'var(--color-azul)';
+            colorAcento = 'var(--color-azul)';
+            document.body.style.setProperty('--color-acento-actual', 'var(--color-azul)');
+        }
+
+        // Cargar datos del Log
+        const originalXml = sessionStorage.getItem('LOG_DATA_ORIGINAL');
+        const processedXml = sessionStorage.getItem('LOG_DATA_PROCESSED');
+
+        if (originalXml && processedXml) {
+            window.LogViewer.render(originalXml, processedXml);
+        } else {
+            // Mensaje por defecto si no hay datos
+            document.querySelector('.panel-log:nth-child(1) .contenido-log').innerHTML = '<p style="text-align:center; opacity:0.5;">No hay datos cargados.</p>';
+            document.querySelector('.panel-log:nth-child(2) .contenido-log').innerHTML = '<p style="text-align:center; opacity:0.5;">No hay datos cargados.</p>';
+        }
+
         window.addEventListener('message', (event) => {
             if (event.data.tipo === 'CAMBIO_TEMA') {
                 if (event.data.tema === 'claro') {
@@ -103,8 +216,9 @@
             }
         });
 
-        function navegar(ruta) {
-            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: ruta }, '*');
+        function volver() {
+            const rutaDestino = origen === 'inicio' ? 'inicio.html' : `${origen}.html`;
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: rutaDestino }, '*');
         }
     </script>
 </body>
