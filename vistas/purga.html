@@ -1,129 +1,270 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Purga - Sim Automation</title>
+
+    <!-- Librería de iconos Lucide -->
+    <!-- NOTE FOR DUMMIES: Esto solo sirve para mostrar los iconos (flechas, refresh, etc). -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="../recursos/estilos/variables.css">
-    <link rel="stylesheet" href="../recursos/estilos/base.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
-    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
-    <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
-</head>
-<body class="fondo-purga anim-fade-in">
-    
-    <input type="file" id="fileInput" accept=".udatasmith,.xml" style="display: none;" onchange="handleFileSelect(this)">
 
+    <!-- Estilos globales y componentes -->
+    <!-- NOTE FOR DUMMIES: Nada de esto afecta la lógica, solo apariencia. -->
+    <link rel="stylesheet" href="../recursos/estilos/variables.css" />
+    <link rel="stylesheet" href="../recursos/estilos/base.css" />
+    <link
+      rel="stylesheet"
+      href="../recursos/estilos/componentes/contenedores.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../recursos/estilos/componentes/herramientas-botones.css"
+    />
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css" />
+    <link rel="stylesheet" href="../recursos/estilos/animaciones.css" />
+  </head>
+
+  <body class="fondo-purga anim-fade-in">
+    <!-- ************************************************************************************************ -->
+    <!-- INPUT OCULTO PARA CARGAR ARCHIVO -->
+    <!-- ************************************************************************************************ -->
+    <!-- NOTE FOR DUMMIES:
+         Este input NO se ve. Solo se activa cuando presionas el botón "EXAMINAR".
+         Acepta .udatasmith y .xml.
+    -->
+    <input
+      type="file"
+      id="fileInput"
+      accept=".udatasmith,.xml"
+      style="display: none"
+      onchange="handleFileSelect(this)"
+    />
+
+    <!-- ************************************************************************************************ -->
+    <!-- GRUPO: BOTÓN EXAMINAR -->
+    <!-- ************************************************************************************************ -->
+    <!-- NOTE FOR DUMMIES:
+         - Este botón abre el explorador de archivos.
+         - Cuando el usuario selecciona un archivo, handleFileSelect() actualiza el contador y nombre.
+    -->
     <div class="grupo-accion anim-fade-in-up delay-100">
-        <button class="btn btn-verde btn-grande" onclick="document.getElementById('fileInput').click()">
-            <span>EXAMINAR</span>
-            <div class="btn-icono-circulo">
-                <i data-lucide="chevrons-right"></i>
-            </div>
-        </button>
-        <div class="titulo-con-numero">
-            <span class="num-resaltado" id="numCount">00</span>
-            <span class="texto-titulo">ARCHIVOS</span>
+      <!-- BOTÓN EXAMINAR -->
+      <button
+        class="btn btn-verde btn-grande"
+        onclick="document.getElementById('fileInput').click()"
+      >
+        <span>EXAMINAR</span>
+        <div class="btn-icono-circulo">
+          <i data-lucide="chevrons-right"></i>
         </div>
-        <div id="fileName" style="font-size: 0.7rem; color: var(--texto-secundario); margin-top: 5px; opacity: 0.8;"></div>
+      </button>
+
+      <!-- CONTADOR DE ARCHIVOS -->
+      <!-- NOTE FOR DUMMIES:
+             Siempre dice "00" hasta que se haya seleccionado un archivo.
+        -->
+      <div class="titulo-con-numero">
+        <span class="num-resaltado" id="numCount">00</span>
+        <span class="texto-titulo">ARCHIVOS</span>
+      </div>
+
+      <!-- NOMBRE DEL ARCHIVO SELECCIONADO -->
+      <!-- NOTE FOR DUMMIES:
+             Esto solo muestra el nombre del archivo cargado.
+        -->
+      <div
+        id="fileName"
+        style="
+          font-size: 0.7rem;
+          color: var(--texto-secundario);
+          margin-top: 5px;
+          opacity: 0.8;
+        "
+      ></div>
     </div>
 
+    <!-- ************************************************************************************************ -->
+    <!-- GRUPO: BOTÓN IR (PROCESAR PURGA) -->
+    <!-- ************************************************************************************************ -->
+    <!-- NOTE FOR DUMMIES:
+         - Cuando presionas “IR”, se ejecuta procesarPurga().
+         - Esta función toma el archivo, lo purga, lo ordena y lo descarga.
+    -->
     <div class="grupo-accion anim-fade-in-up delay-200">
-        <button class="btn btn-verde btn-grande" onclick="procesarPurga()">
-            <span>IR</span>
-            <div class="btn-icono-circulo">
-                <i data-lucide="download"></i>
-            </div>
-        </button>
-        <div class="titulo-con-numero">
-            <span class="texto-titulo" style="font-weight: 800;">LISTO</span>
-            <span class="texto-titulo" style="font-weight: 400;">PARA DESCARGA</span>
+      <button class="btn btn-verde btn-grande" onclick="procesarPurga()">
+        <span>IR</span>
+        <div class="btn-icono-circulo">
+          <i data-lucide="download"></i>
         </div>
+      </button>
+
+      <div class="titulo-con-numero">
+        <span class="texto-titulo" style="font-weight: 800">LISTO</span>
+        <span class="texto-titulo" style="font-weight: 400">PARA DESCARGA</span>
+      </div>
     </div>
 
+    <!-- ************************************************************************************************ -->
+    <!-- GRUPO: BOTÓN LOG -->
+    <!-- ************************************************************************************************ -->
+    <!-- NOTE FOR DUMMIES:
+         Esto abre la vista LOG dentro del iframe del index.
+         Se usa para revisar qué cambió durante la purga.
+    -->
     <div class="grupo-accion anim-fade-in-up delay-300">
-        <button class="btn btn-outline" onclick="irALog()">LOG</button>
+      <button class="btn btn-outline" onclick="irALog()">LOG</button>
     </div>
 
-    <!-- Scripts de Lógica -->
+    <!-- ************************************************************************************************ -->
+    <!-- SCRIPTS DE LÓGICA -->
+    <!-- ************************************************************************************************ -->
+    <!-- NOTE FOR DUMMIES:
+         sort-purge.js contiene TODA la lógica de purga y ordenamiento.
+         Aquí solo llamamos a la función principal.
+    -->
     <script src="../recursos/scripts/logica/sort-purge.js"></script>
 
+    <!-- ************************************************************************************************ -->
+    <!-- SCRIPT LOCAL (LÓGICA DE LA VISTA) -->
+    <!-- ************************************************************************************************ -->
     <script>
-        lucide.createIcons();
-        
-        let selectedFile = null;
+      lucide.createIcons();
 
-        function handleFileSelect(input) {
-            if (input.files && input.files.length > 0) {
-                selectedFile = input.files[0];
-                document.getElementById('numCount').textContent = '01';
-                document.getElementById('fileName').textContent = selectedFile.name;
-            }
+      /* NOTE FOR DUMMIES:
+           Aquí guardamos el archivo seleccionado.
+           Solo podemos procesar si este valor está lleno.
+        */
+      let selectedFile = null;
+
+      /* **********************************************************************************************
+       * handleFileSelect()
+       * **********************************************************************************************
+       * NOTE FOR DUMMIES:
+       * - Se ejecuta cuando el usuario selecciona un archivo.
+       * - Guarda el archivo en selectedFile.
+       * - Actualiza el número “01” y el nombre del archivo.
+       */
+      function handleFileSelect(input) {
+        if (input.files && input.files.length > 0) {
+          selectedFile = input.files[0];
+          document.getElementById("numCount").textContent = "01";
+          document.getElementById("fileName").textContent = selectedFile.name;
         }
+      }
 
-        function readFileAsText(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsText(file);
-            });
-        }
-
-        function downloadText(text, filename) {
-            const blob = new Blob([text], { type: "application/xml;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        async function procesarPurga() {
-            if (!selectedFile) {
-                alert("Por favor selecciona un archivo primero.");
-                return;
-            }
-
-            try {
-                const originalXml = await readFileAsText(selectedFile);
-                const processedXml = window.DatasmithSort.sortAndPurgeUdatasmith(originalXml);
-
-                // Guardar datos para el Log
-                sessionStorage.setItem('LOG_DATA_ORIGINAL', originalXml);
-                sessionStorage.setItem('LOG_DATA_PROCESSED', processedXml);
-
-                // Descargar archivo
-                const outName = "TSP_" + selectedFile.name;
-                downloadText(processedXml, outName);
-
-                // Navegar al Log
-                irALog();
-
-            } catch (e) {
-                console.error(e);
-                alert("Error al procesar: " + e.message);
-            }
-        }
-
-        window.addEventListener('message', (event) => {
-            if (event.data.tipo === 'CAMBIO_TEMA') {
-                if (event.data.tema === 'claro') {
-                    document.body.classList.add('tema-claro');
-                } else {
-                    document.body.classList.remove('tema-claro');
-                }
-            }
+      /* **********************************************************************************************
+       * readFileAsText()
+       * **********************************************************************************************
+       * NOTE FOR DUMMIES:
+       * - Convierte el archivo seleccionado en texto.
+       * - Necesario para poder procesarlo con el parser XML.
+       */
+      function readFileAsText(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsText(file);
         });
+      }
 
-        function irALog() {
-            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: 'log.html?origen=purga' }, '*');
+      /* **********************************************************************************************
+       * downloadText()
+       * **********************************************************************************************
+       * NOTE FOR DUMMIES:
+       * - Crea un archivo nuevo (el .xml purgado) y lo descarga automáticamente.
+       */
+      function downloadText(text, filename) {
+        const blob = new Blob([text], {
+          type: "application/xml;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      /* **********************************************************************************************
+       * procesarPurga()
+       * **********************************************************************************************
+       * NOTE FOR DUMMIES:
+       * ESTA ES LA FUNCIÓN PRINCIPAL
+       * ----------------------------------------------------------
+       * 1. Revisa que haya archivo seleccionado.
+       * 2. Lo lee como XML.
+       * 3. Llama al algoritmo DatasmithSort.sortAndPurgeUdatasmith().
+       * 4. Guarda Original/Procesado en sessionStorage para mostrarlos en el LOG.
+       * 5. Descarga el archivo purgado.
+       * 6. Navega a la vista LOG.
+       */
+      async function procesarPurga() {
+        if (!selectedFile) {
+          alert("Por favor selecciona un archivo primero.");
+          return;
         }
+
+        try {
+          const originalXml = await readFileAsText(selectedFile);
+
+          // NOTE FOR DUMMIES:
+          // Aquí llamas al ALGORITMO REAL de purga y ordenamiento.
+          const processedXml =
+            window.DatasmithSort.sortAndPurgeUdatasmith(originalXml);
+
+          // NOTE FOR DUMMIES:
+          // Guardamos todo para que el LOG pueda mostrar diferencias.
+          sessionStorage.setItem("LOG_DATA_ORIGINAL", originalXml);
+          sessionStorage.setItem("LOG_DATA_PROCESSED", processedXml);
+
+          // Descargar archivo con prefijo
+          const outName = "TSP_" + selectedFile.name;
+          downloadText(processedXml, outName);
+
+          // Navegar al log
+          irALog();
+        } catch (e) {
+          console.error(e);
+          alert("Error al procesar: " + e.message);
+        }
+      }
+
+      /* **********************************************************************************************
+       * EVENTO: CAMBIO DE TEMA DESDE EL PADRE
+       * **********************************************************************************************
+       * NOTE FOR DUMMIES:
+       * El index.html envía mensajes al iframe para sincronizar light/dark mode.
+       */
+      window.addEventListener("message", (event) => {
+        if (event.data.tipo === "CAMBIO_TEMA") {
+          if (event.data.tema === "claro") {
+            document.body.classList.add("tema-claro");
+          } else {
+            document.body.classList.remove("tema-claro");
+          }
+        }
+      });
+
+      /* **********************************************************************************************
+       * irALog()
+       * **********************************************************************************************
+       * NOTE FOR DUMMIES:
+       * - Envia un mensaje al padre (index) para navegar a la vista LOG.
+       * - Le agrega ?origen=purga para pintar el badge en amarillo.
+       */
+      function irALog() {
+        window.parent.postMessage(
+          {
+            tipo: "NAVEGAR",
+            ruta: "log.html?origen=purga",
+          },
+          "*"
+        );
+      }
     </script>
-</body>
+  </body>
 </html>

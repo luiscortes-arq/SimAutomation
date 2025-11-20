@@ -1,38 +1,60 @@
+/* ------------------------------------------------------------- */
+/* PIE DE PÁGINA GLOBAL (FOOTER)                                */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Footer fijo en la parte inferior.
+   Se sube ligeramente (4rem) para evitar que tape el wave-background.
+   pointer-events:none evita bloquear clics generales,
+   pero el texto interno sí puede recibir eventos.
+*/
 .pie-global {
-    width: 100%;
-    text-align: center;
-    padding: 1rem;
-    position: fixed;
-    bottom: 4rem; /* Movido más arriba */
-    left: 0;
-    z-index: 100;
-    pointer-events: none; /* Para que no bloquee clicks en el fondo si fuera necesario, pero el texto sí debe ser interactivo */
+  width: 100%;
+  text-align: center;
+  padding: 1rem;
+  position: fixed;
+  bottom: 4rem; /* Levantado para coincidir con el mockup */
+  left: 0;
+  z-index: 100;
+  pointer-events: none; /* El contenedor no bloquea clics */
 }
 
+/* NOTE FOR DUMMIES:
+   El texto del footer:
+   - Se mantiene clickeable.
+   - Aumentamos tamaño por el reset.
+   - Glow suave en hover.
+*/
 .pie-global p {
-    font-size: 1.2rem; /* Aumentado para compensar reset */
-    color: var(--texto-secundario);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin: 0;
-    user-select: none;
-    pointer-events: auto; /* Reactivar eventos para el texto */
-    cursor: pointer;
-    transition: var(--transicion-suave);
-    display: inline-block;
+  font-size: 1.2rem;
+  color: var(--texto-secundario);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0;
+  user-select: none;
+  pointer-events: auto; /* Reactivar interacción solo para el texto */
+  cursor: pointer;
+  transition: var(--transicion-suave);
+  display: inline-block;
 }
 
+/* NOTE FOR DUMMIES:
+   Hover general del texto.
+*/
 .pie-global p:hover {
-    color: var(--color-acento-actual, var(--color-naranja));
-    text-shadow: 0 0 10px var(--color-acento-actual, var(--color-naranja));
+  color: var(--color-acento-actual, var(--color-naranja));
+  text-shadow: 0 0 10px var(--color-acento-actual, var(--color-naranja));
 }
 
+/* NOTE FOR DUMMIES:
+   <strong> dentro del texto tiene más peso y cambia con hover.
+*/
 .pie-global strong {
-    font-weight: 800;
-    color: var(--texto-principal);
-    transition: var(--transicion-suave);
+  font-weight: 800;
+  color: var(--texto-principal);
+  transition: var(--transicion-suave);
 }
 
 .pie-global p:hover strong {
-    color: var(--color-acento-actual, var(--color-naranja));
+  color: var(--color-acento-actual, var(--color-naranja));
 }

@@ -1,240 +1,338 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log - Sim Automation</title>
+
+    <!-- Librería de íconos Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="../recursos/estilos/variables.css">
-    <link rel="stylesheet" href="../recursos/estilos/base.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
-    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
-    <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/log.css">
-</head>
-<body class="fondo-log anim-fade-in">
 
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../recursos/estilos/variables.css" />
+    <link rel="stylesheet" href="../recursos/estilos/base.css" />
+    <link
+      rel="stylesheet"
+      href="../recursos/estilos/componentes/contenedores.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../recursos/estilos/componentes/herramientas-botones.css"
+    />
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css" />
+    <link rel="stylesheet" href="../recursos/estilos/animaciones.css" />
+    <link rel="stylesheet" href="../recursos/estilos/componentes/log.css" />
+  </head>
+
+  <body class="fondo-log anim-fade-in">
+    <!-- ********************************************************************** -->
+    <!-- HEADER DE LA VISTA -->
+    <!-- ********************************************************************** -->
+    <!-- NOTA FOR DUMMIES:
+         Este header solo controla el título y el botón de volver.
+         NO carga datos, NO toca el viewer.
+    -->
     <div class="log-header anim-fade-in-up">
-        <button class="btn-volver" onclick="volver()">
-            <i data-lucide="arrow-left" style="width: 18px;"></i>
-            VOLVER
-        </button>
-        <div class="titulo-contexto">
-            LOG <span id="badge-contexto" class="indicador-contexto">GENERAL</span>
-        </div>
+      <button class="btn-volver" onclick="volver()">
+        <i data-lucide="arrow-left" style="width: 18px"></i>
+        VOLVER
+      </button>
+
+      <div class="titulo-contexto">
+        LOG <span id="badge-contexto" class="indicador-contexto">GENERAL</span>
+      </div>
     </div>
 
-    <!-- Resumen de Cambios -->
+    <!-- ********************************************************************** -->
+    <!-- TARJETAS DE RESUMEN ARRIBA -->
+    <!-- ********************************************************************** -->
+    <!-- NOTA FOR DUMMIES:
+         Estas tarjetas muestran "Modificados" y "Eliminados" usando datos
+         que genera el script log-viewer.js al comparar XML.
+    -->
     <div class="resumen-cambios anim-fade-in-up delay-50">
-        <div class="card-stat" onclick="mostrarDetalles('modificados')">
-            <span class="stat-number stat-modificados" id="count-mod">0</span>
-            <span class="stat-label">Modificados</span>
-        </div>
-        <div class="card-stat" onclick="mostrarDetalles('eliminados')">
-            <span class="stat-number stat-eliminados" id="count-del">0</span>
-            <span class="stat-label">Líneas Eliminadas</span>
-        </div>
+      <div class="card-stat" onclick="mostrarDetalles('modificados')">
+        <span class="stat-number" id="count-mod">0</span>
+        <span class="stat-label">Modificados</span>
+      </div>
+
+      <div class="card-stat" onclick="mostrarDetalles('eliminados')">
+        <span class="stat-number" id="count-del">0</span>
+        <span class="stat-label">Líneas Eliminadas</span>
+      </div>
     </div>
 
-    <!-- Modal Detalles -->
+    <!-- ********************************************************************** -->
+    <!-- MODAL -->
+    <!-- ********************************************************************** -->
+    <!-- NOTA FOR DUMMIES:
+         Este modal aparece cuando haces clic en Modificados o Eliminados.
+         Se llena dinámicamente con datos del viewer.
+    -->
     <div class="modal-overlay" id="modal-detalles">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-titulo">Detalles</h3>
-                <button class="btn-cerrar" onclick="cerrarModal()">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="modal-body-content">
-                <!-- Contenido dinámico -->
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modal-titulo">Detalles</h3>
+          <button class="btn-cerrar" onclick="cerrarModal()">
+            <i data-lucide="x"></i>
+          </button>
         </div>
+
+        <div class="modal-body" id="modal-body-content"></div>
+      </div>
     </div>
 
-    <!-- 3 Paneles -->
+    <!-- ********************************************************************** -->
+    <!-- TRES PANELES DE LOGS -->
+    <!-- ********************************************************************** -->
+    <!-- NOTA FOR DUMMIES:
+         - El panel central se oculta cuando vienes desde PURGA.
+         - Todo se llena usando sessionStorage.
+    -->
     <div class="contenedor-logs">
-        <div class="panel-log anim-fade-in-up delay-100">
-            <h3 class="titulo-panel">ORIGINAL (PLANTILLA)</h3>
-            <div class="contenido-log" id="log-original">Cargando...</div>
-        </div>
-        <div class="panel-log anim-fade-in-up delay-200">
-            <h3 class="titulo-panel">NUEVO (DESORDENADO)</h3>
-            <div class="contenido-log" id="log-unsorted">Cargando...</div>
-        </div>
-        <div class="panel-log anim-fade-in-up delay-300">
-            <h3 class="titulo-panel">PROCESADO (FINAL)</h3>
-            <div class="contenido-log" id="log-processed">Cargando...</div>
-        </div>
+      <div class="panel-log anim-fade-in-up delay-100">
+        <h3 class="titulo-panel">ORIGINAL (PLANTILLA)</h3>
+        <div class="contenido-log" id="log-original">Cargando...</div>
+      </div>
+
+      <div class="panel-log anim-fade-in-up delay-200">
+        <h3 class="titulo-panel">NUEVO (DESORDENADO)</h3>
+        <div class="contenido-log" id="log-unsorted">Cargando...</div>
+      </div>
+
+      <div class="panel-log anim-fade-in-up delay-300">
+        <h3 class="titulo-panel">PROCESADO (FINAL)</h3>
+        <div class="contenido-log" id="log-processed">Cargando...</div>
+      </div>
     </div>
 
+    <!-- Script que analiza el XML -->
     <script src="../recursos/scripts/logica/log-viewer.js"></script>
 
+    <!-- ********************************************************************** -->
+    <!-- LÓGICA PRINCIPAL -->
+    <!-- ********************************************************************** -->
+    <!-- NOTA FOR DUMMIES:
+         Aquí solo se arma la interfaz. Todo el análisis heavy lo hace LOG VIEWER.
+    -->
     <script>
-        lucide.createIcons();
+      lucide.createIcons();
 
-        // Params
-        const params = new URLSearchParams(window.location.search);
-        const origen = params.get('origen') || 'inicio';
+      // ------------------------------------------------------------
+      // NOTA FOR DUMMIES: Detectamos desde dónde vino la vista
+      // para pintar el badge (PURGA / REEMPLAZAR / GENERAL).
+      // ------------------------------------------------------------
+      const params = new URLSearchParams(window.location.search);
+      const origen = params.get("origen") || "inicio";
+      const badge = document.getElementById("badge-contexto");
 
-        // Config UI
-        const badge = document.getElementById('badge-contexto');
-        
-        if (origen === 'purga') {
-            badge.textContent = 'PURGA';
-            badge.style.backgroundColor = 'var(--color-verde)';
-            document.body.style.setProperty('--color-acento-actual', 'var(--color-verde)');
-        } else if (origen === 'reemplazar') {
-            badge.textContent = 'REEMPLAZAR';
-            badge.style.backgroundColor = 'var(--color-azul)';
-            document.body.style.setProperty('--color-acento-actual', 'var(--color-azul)');
+      if (origen === "purga") {
+        badge.textContent = "PURGA";
+        badge.style.backgroundColor = "var(--color-verde)";
+      } else if (origen === "reemplazar") {
+        badge.textContent = "REEMPLAZAR";
+        badge.style.backgroundColor = "var(--color-azul)";
+      }
+
+      // ------------------------------------------------------------
+      // NOTA FOR DUMMIES:
+      // Cargamos los 3 XML desde sessionStorage.
+      // Estos valores fueron guardados por PURGA/REEMPLAZAR.
+      // ------------------------------------------------------------
+      const originalXml = sessionStorage.getItem("LOG_DATA_ORIGINAL");
+      const unsortedXml = sessionStorage.getItem("LOG_DATA_UNSORTED");
+      const processedXml = sessionStorage.getItem("LOG_DATA_PROCESSED");
+
+      let currentStats = null;
+
+      // ------------------------------------------------------------
+      // NOTA FOR DUMMIES:
+      // Si existen datos, se renderiza el diff.
+      // El algoritmo de comparación está dentro de log-viewer.js.
+      // ------------------------------------------------------------
+      if (originalXml && processedXml) {
+        currentStats = window.LogViewer.render(
+          originalXml,
+          processedXml,
+          unsortedXml
+        );
+
+        // ------------------------------------------------------------
+        // NOTA FOR DUMMIES:
+        // Contadores superiores (modificados y eliminados).
+        // ------------------------------------------------------------
+        if (currentStats) {
+          const modificados = currentStats.details.filter(
+            (d) => d.type === "MODIFICADO" || d.type === "AGREGADO"
+          ).length;
+
+          document.getElementById("count-mod").textContent = modificados;
+          document.getElementById("count-del").textContent =
+            currentStats.removedLinesCount;
         }
 
-        // Load Data
-        let currentStats = null;
-        const originalXml = sessionStorage.getItem('LOG_DATA_ORIGINAL');
-        const unsortedXml = sessionStorage.getItem('LOG_DATA_UNSORTED');
-        const processedXml = sessionStorage.getItem('LOG_DATA_PROCESSED');
+        // ------------------------------------------------------------
+        // NOTA FOR DUMMIES:
+        // Si vienes desde PURGA, se oculta el panel central.
+        // ------------------------------------------------------------
+        if (origen === "purga") {
+          const panelUnsorted = document.querySelector(
+            ".panel-log:nth-child(2)"
+          );
+          if (panelUnsorted) panelUnsorted.style.display = "none";
 
-        if (originalXml && processedXml) {
-            // Render Diff (Original vs Processed)
-            // Note: We pass unsortedXml just for display in the middle panel
-            currentStats = window.LogViewer.render(originalXml, processedXml, unsortedXml);
-            
-            if (currentStats) {
-                const modCount = currentStats.details.filter(d => d.type === 'MODIFICADO' || d.type === 'AGREGADO').length;
-                document.getElementById('count-mod').textContent = modCount;
-                document.getElementById('count-del').textContent = currentStats.removedLinesCount;
-            }
+          document.querySelector(".contenedor-logs").style.gridTemplateColumns =
+            "1fr 1fr";
+        }
+      } else {
+        document.getElementById("log-original").textContent = "No hay datos.";
+        document.getElementById("log-unsorted").textContent = "No hay datos.";
+        document.getElementById("log-processed").textContent = "No hay datos.";
+      }
 
-            // Ocultar panel central si es Purga
-            if (origen === 'purga') {
-                const panelUnsorted = document.querySelector('.panel-log:nth-child(2)');
-                if (panelUnsorted) panelUnsorted.style.display = 'none';
-                
-                // Ajustar grid para 2 columnas
-                document.querySelector('.contenedor-logs').style.gridTemplateColumns = '1fr 1fr';
-            }
-        } else {
-            document.getElementById('log-original').textContent = "No hay datos.";
-            document.getElementById('log-unsorted').textContent = "No hay datos.";
-            document.getElementById('log-processed').textContent = "No hay datos.";
+      // **********************************************************************
+      // MODAL DE DETALLES
+      // **********************************************************************
+      const modal = document.getElementById("modal-detalles");
+      const modalBody = document.getElementById("modal-body-content");
+      const tituloModal = document.getElementById("modal-titulo");
+
+      // ------------------------------------------------------------
+      // NOTA FOR DUMMIES:
+      // Abre el modal filtrando por tipo: modificados o eliminados.
+      // ------------------------------------------------------------
+      function mostrarDetalles(tipo) {
+        if (!currentStats) return;
+
+        modalBody.innerHTML = "";
+        modal.classList.add("activo");
+
+        let items = [];
+
+        if (tipo === "modificados") {
+          tituloModal.textContent = "ELEMENTOS MODIFICADOS / AGREGADOS";
+          items = currentStats.details.filter(
+            (d) => d.type === "MODIFICADO" || d.type === "AGREGADO"
+          );
+        } else if (tipo === "eliminados") {
+          tituloModal.textContent = "ELEMENTOS ELIMINADOS";
+          items = currentStats.details.filter(
+            (d) => d.type === "ELIMINADO" || d.type === "PARCIALMENTE_ELIMINADO"
+          );
         }
 
-        // Modal Logic (Optimized)
-        const modal = document.getElementById('modal-detalles');
-        const modalBody = document.getElementById('modal-body-content');
-        const tituloModal = document.getElementById('modal-titulo');
-
-        function mostrarDetalles(tipo) {
-            if (!currentStats) return;
-            
-            modalBody.innerHTML = ''; // Clear
-            modal.classList.add('activo');
-
-            let items = [];
-            if (tipo === 'modificados') {
-                tituloModal.textContent = 'ELEMENTOS MODIFICADOS / AGREGADOS';
-                items = currentStats.details.filter(d => d.type === 'MODIFICADO' || d.type === 'AGREGADO');
-            } else if (tipo === 'eliminados') {
-                tituloModal.textContent = 'ELEMENTOS ELIMINADOS';
-                items = currentStats.details.filter(d => d.type === 'ELIMINADO' || d.type === 'PARCIALMENTE_ELIMINADO');
-            }
-
-            if (items.length === 0) {
-                modalBody.innerHTML = '<p style="text-align:center; opacity:0.5;">No hay elementos.</p>';
-                return;
-            }
-
-            // Group by Tag
-            const grouped = items.reduce((acc, item) => {
-                const tag = item.tag || 'Otros';
-                (acc[tag] = acc[tag] || []).push(item);
-                return acc;
-            }, {});
-
-            const fragment = document.createDocumentFragment();
-            const sortedTags = Object.keys(grouped).sort();
-
-            sortedTags.forEach(tag => {
-                const detailsEl = document.createElement('details');
-                const summaryEl = document.createElement('summary');
-                
-                // Determine group type for description
-                let groupDesc = "";
-                if (tipo === 'modificados') groupDesc = "(Cambios detectados)";
-                else groupDesc = "(Removidos)";
-
-                summaryEl.textContent = `${tag} ${groupDesc} [${grouped[tag].length}]`;
-                detailsEl.appendChild(summaryEl);
-
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'grupo-contenido';
-
-                grouped[tag].forEach(item => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'item-detalle';
-                    
-                    const infoDiv = document.createElement('div');
-                    const nameStrong = document.createElement('strong');
-                    nameStrong.textContent = item.name;
-                    const descDiv = document.createElement('div');
-                    descDiv.style.fontSize = '0.75em';
-                    descDiv.style.opacity = '0.7';
-                    descDiv.textContent = item.desc;
-
-                    infoDiv.appendChild(nameStrong);
-                    infoDiv.appendChild(descDiv);
-
-                    const tagSpan = document.createElement('span');
-                    let tagClass = '';
-                    let labelTipo = item.type;
-                    if (item.type === 'MODIFICADO') tagClass = 'tag-mod';
-                    else if (item.type === 'AGREGADO') tagClass = 'tag-add';
-                    else if (item.type === 'ELIMINADO') tagClass = 'tag-del';
-                    else if (item.type === 'PARCIALMENTE_ELIMINADO') {
-                        tagClass = 'tag-del';
-                        labelTipo = 'ELIMINADO (PARCIAL)';
-                    }
-                    tagSpan.className = `tag-tipo ${tagClass}`;
-                    tagSpan.textContent = labelTipo;
-
-                    itemDiv.appendChild(infoDiv);
-                    itemDiv.appendChild(tagSpan);
-                    contentDiv.appendChild(itemDiv);
-                });
-
-                detailsEl.appendChild(contentDiv);
-                fragment.appendChild(detailsEl);
-            });
-
-            requestAnimationFrame(() => {
-                modalBody.appendChild(fragment);
-            });
+        if (items.length === 0) {
+          modalBody.innerHTML =
+            '<p style="text-align:center; opacity:0.5;">No hay elementos.</p>';
+          return;
         }
 
-        function cerrarModal() {
-            modal.classList.remove('activo');
-        }
+        // ------------------------------------------------------------
+        // NOTA FOR DUMMIES:
+        // Agrupar elementos por "tag" (Actor, MaterialInstance, etc.)
+        // ------------------------------------------------------------
+        const grouped = items.reduce((acc, item) => {
+          const tag = item.tag || "Otros";
+          (acc[tag] = acc[tag] || []).push(item);
+          return acc;
+        }, {});
 
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) cerrarModal();
+        const fragment = document.createDocumentFragment();
+        const sortedTags = Object.keys(grouped).sort();
+
+        sortedTags.forEach((tag) => {
+          const detailsEl = document.createElement("details");
+          const summaryEl = document.createElement("summary");
+
+          summaryEl.textContent = `${tag} [${grouped[tag].length}]`;
+          detailsEl.appendChild(summaryEl);
+
+          const contentDiv = document.createElement("div");
+          contentDiv.className = "grupo-contenido";
+
+          grouped[tag].forEach((item) => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "item-detalle";
+
+            const infoDiv = document.createElement("div");
+            const nameStrong = document.createElement("strong");
+            nameStrong.textContent = item.name;
+
+            const descDiv = document.createElement("div");
+            descDiv.style.fontSize = "0.75em";
+            descDiv.style.opacity = "0.7";
+            descDiv.textContent = item.desc;
+
+            infoDiv.appendChild(nameStrong);
+            infoDiv.appendChild(descDiv);
+
+            const tagSpan = document.createElement("span");
+            let tagClass = "";
+
+            if (item.type === "MODIFICADO") tagClass = "tag-mod";
+            else if (item.type === "AGREGADO") tagClass = "tag-add";
+            else if (item.type === "ELIMINADO") tagClass = "tag-del";
+            else if (item.type === "PARCIALMENTE_ELIMINADO")
+              tagClass = "tag-del";
+
+            tagSpan.className = `tag-tipo ${tagClass}`;
+            tagSpan.textContent = item.type;
+
+            itemDiv.appendChild(infoDiv);
+            itemDiv.appendChild(tagSpan);
+            contentDiv.appendChild(itemDiv);
+          });
+
+          detailsEl.appendChild(contentDiv);
+          fragment.appendChild(detailsEl);
         });
 
-        window.addEventListener('message', (event) => {
-            if (event.data.tipo === 'CAMBIO_TEMA') {
-                if (event.data.tema === 'claro') {
-                    document.body.classList.add('tema-claro');
-                } else {
-                    document.body.classList.remove('tema-claro');
-                }
-            }
-        });
+        requestAnimationFrame(() => modalBody.appendChild(fragment));
+      }
 
-        function volver() {
-            const rutaDestino = origen === 'inicio' ? 'inicio.html' : `${origen}.html`;
-            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: rutaDestino }, '*');
+      function cerrarModal() {
+        modal.classList.remove("activo");
+      }
+
+      // Cerrar modal click afuera
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) cerrarModal();
+      });
+
+      // **********************************************************************
+      // TEMA DESDE EL PADRE
+      // **********************************************************************
+      window.addEventListener("message", (event) => {
+        if (event.data.tipo === "CAMBIO_TEMA") {
+          if (event.data.tema === "claro") {
+            document.body.classList.add("tema-claro");
+          } else {
+            document.body.classList.remove("tema-claro");
+          }
         }
+      });
+
+      // **********************************************************************
+      // BOTÓN VOLVER
+      // **********************************************************************
+      // NOTA FOR DUMMIES:
+      // Navega de regreso a:
+      // - inicio.html, si vienes de inicio
+      // - purga.html
+      // - reemplazar.html
+      // **********************************************************************
+      function volver() {
+        const rutaDestino =
+          origen === "inicio" ? "inicio.html" : `${origen}.html`;
+
+        window.parent.postMessage(
+          {
+            tipo: "NAVEGAR",
+            ruta: rutaDestino,
+          },
+          "*"
+        );
+      }
     </script>
-</body>
+  </body>
 </html>

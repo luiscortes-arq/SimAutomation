@@ -1,271 +1,420 @@
-/* Estilos específicos para la vista de Log */
+/* ------------------------------------------------------------- */
+/* ESTILOS ESPECÍFICOS PARA LA VISTA DE LOG                      */
+/* ------------------------------------------------------------- */
 
+/* NOTE FOR DUMMIES:
+   Este <body> centra todo el contenido vertical y horizontalmente.
+   El fondo es transparente para que se vea el wave-background.
+*/
 body {
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    padding: 1rem;
-    position: relative;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 1rem;
+  position: relative;
 }
 
-/* Header Log */
+/* ------------------------------------------------------------- */
+/* HEADER LOG                                                     */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Contenedor superior con:
+   - Botón "volver"
+   - Nombre del contexto / vista
+*/
 .log-header {
-    width: 100%;
-    max-width: 1400px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
+/* NOTE FOR DUMMIES:
+   Botón “VOLVER”.
+   Outline minimalista y animación lateral suave.
+*/
 .btn-volver {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: transparent;
-    border: 2px solid var(--texto-secundario);
-    color: var(--texto-principal);
-    padding: 0.5rem 1.5rem;
-    border-radius: 50px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: var(--transicion-suave);
-    text-transform: uppercase;
-    font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 2px solid var(--texto-secundario);
+  color: var(--texto-principal);
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transicion-suave);
+  text-transform: uppercase;
+  font-size: 0.9rem;
 }
+
 .btn-volver:hover {
-    transform: translateX(-5px);
-    border-color: var(--color-acento-actual);
-    color: var(--color-acento-actual);
+  transform: translateX(-5px);
+  border-color: var(--color-acento-actual);
+  color: var(--color-acento-actual);
 }
 
+/* NOTE FOR DUMMIES:
+   Título grande del log (LOG PURGA / LOG REEMPLAZAR).
+*/
 .titulo-contexto {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--texto-principal);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--texto-principal);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
+/* NOTE FOR DUMMIES:
+   Badge que indica PURGA, REEMPLAZAR o LOG.
+*/
 .indicador-contexto {
-    font-size: 0.8rem;
-    background: var(--color-acento-actual);
-    color: #fff;
-    padding: 0.2rem 0.8rem;
-    border-radius: 12px;
-    vertical-align: middle;
+  font-size: 0.8rem;
+  background: var(--color-acento-actual);
+  color: #fff;
+  padding: 0.2rem 0.8rem;
+  border-radius: 12px;
+  vertical-align: middle;
 }
 
-/* Contenedor 3 Paneles */
+/* ------------------------------------------------------------- */
+/* CONTENEDOR DE 3 PANELES                                       */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Estructura tipo “3 columnas”:
+   - Archivo Original
+   - Diff
+   - Resultado Procesado
+*/
 .contenedor-logs {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    width: 100%;
-    max-width: 1600px;
-    height: 65vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  max-width: 1600px;
+  height: 65vh;
 }
+
+/* NOTE FOR DUMMIES:
+   Cada panel es una tarjeta con scroll y sombras.
+*/
 .panel-log {
-    background: var(--bg-tarjeta);
-    border: 1px solid var(--borde-tarjeta);
-    border-radius: 16px;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    box-shadow: var(--sombra-tarjeta);
-    transition: var(--transicion-suave);
+  background: var(--bg-tarjeta);
+  border: 1px solid var(--borde-tarjeta);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--sombra-tarjeta);
+  transition: var(--transicion-suave);
 }
 
+/* NOTE FOR DUMMIES:
+   Título superior de cada panel (ORIGINAL / DIFF / PROCESADO).
+*/
 .titulo-panel {
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: underline;
-    margin-bottom: 0.5rem;
-    text-align: center;
-    color: var(--texto-principal);
-    z-index: 1;
-    text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: underline;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  color: var(--texto-principal);
+  z-index: 1;
+  text-transform: uppercase;
 }
+
+/* NOTE FOR DUMMIES:
+   Área donde vive el texto de logs (con scroll vertical).
+*/
 .contenido-log {
-    flex: 1;
-    overflow-y: auto;
-    font-family: var(--fuente-mono);
-    font-size: 0.75rem;
-    color: var(--texto-secundario);
-    line-height: 1.5;
-    white-space: pre-wrap;
-    padding: 0.5rem;
-    background: rgba(0,0,0,0.02);
-    border-radius: 8px;
+  flex: 1;
+  overflow-y: auto;
+  font-family: var(--fuente-mono);
+  font-size: 0.75rem;
+  color: var(--texto-secundario);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
 }
 
-/* Estilos Diff */
-.cyan { color: var(--color-gris-claro); } /* Gris tenue solicitado */
-mark { background: rgba(255, 235, 59, 0.2); color: inherit; padding: 0 2px; border-radius: 2px; }
-s { color: var(--color-rojo); text-decoration: line-through; opacity: 0.7; }
+/* ------------------------------------------------------------- */
+/* ESTILOS DIFF                                                   */
+/* ------------------------------------------------------------- */
 
-/* Resumen Stats */
+/* NOTE FOR DUMMIES:
+   “cyan” aquí es un gris clarito (tu solicitud).
+*/
+.cyan {
+  color: var(--color-gris-claro);
+}
+
+/* NOTE FOR DUMMIES:
+   mark = resaltado tipo diff (líneas cambiadas).
+*/
+mark {
+  background: rgba(255, 235, 59, 0.2);
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* NOTE FOR DUMMIES:
+   s = texto eliminado (tache rojo).
+*/
+s {
+  color: var(--color-rojo);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* ------------------------------------------------------------- */
+/* RESUMEN DE CAMBIOS (STATS)                                    */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Tarjetas pequeñas que muestran:
+   - Cuántos modificados
+   - Cuántos eliminados
+*/
 .resumen-cambios {
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1rem;
-    width: 100%;
-    justify-content: center;
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  justify-content: center;
 }
+
 .card-stat {
-    background: var(--bg-tarjeta);
-    border: 1px solid var(--borde-tarjeta);
-    padding: 1rem 2rem;
-    border-radius: 16px;
-    text-align: center;
-    min-width: 180px;
-    backdrop-filter: blur(10px);
-    transition: var(--transicion-suave);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--sombra-tarjeta);
+  background: var(--bg-tarjeta);
+  border: 1px solid var(--borde-tarjeta);
+  padding: 1rem 2rem;
+  border-radius: 16px;
+  text-align: center;
+  min-width: 180px;
+  backdrop-filter: blur(10px);
+  transition: var(--transicion-suave);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--sombra-tarjeta);
 }
+
 .card-stat:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
 }
+
 .stat-number {
-    font-size: 2rem;
-    font-weight: 800;
-    display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  display: block;
 }
+
 .stat-label {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.8;
-    color: var(--texto-principal);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  color: var(--texto-principal);
 }
-.stat-modificados { color: var(--color-amarillo); }
-.stat-eliminados { color: var(--color-rojo); }
 
-/* Modal Detalles */
+.stat-modificados {
+  color: var(--color-amarillo);
+}
+.stat-eliminados {
+  color: var(--color-rojo);
+}
+
+/* ------------------------------------------------------------- */
+/* MODAL DE DETALLES                                              */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Oscurece el fondo y centra la ventana de detalles.
+*/
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-.modal-overlay.activo {
-    opacity: 1;
-    pointer-events: all;
-}
-.modal-content {
-    background: var(--bg-app);
-    border: 1px solid var(--borde-tarjeta);
-    border-radius: 20px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-}
-.modal-overlay.activo .modal-content {
-    transform: scale(1);
-}
-.modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--borde-suave);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.modal-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--texto-principal);
-}
-.btn-cerrar {
-    background: transparent;
-    border: none;
-    color: var(--texto-secundario);
-    cursor: pointer;
-    padding: 0.5rem;
-}
-.btn-cerrar:hover { color: var(--color-rojo); }
-.modal-body {
-    padding: 1.5rem;
-    overflow-y: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
-/* Collapsible Groups */
+/* NOTE FOR DUMMIES:
+   Al activarse, aparece la ventana.
+*/
+.modal-overlay.activo {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-content {
+  background: var(--bg-app);
+  border: 1px solid var(--borde-tarjeta);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+.modal-overlay.activo .modal-content {
+  transform: scale(1);
+}
+
+/* NOTE FOR DUMMIES:
+   Header del modal con título + botón cerrar.
+*/
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--borde-suave);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.btn-cerrar {
+  background: transparent;
+  border: none;
+  color: var(--texto-secundario);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.btn-cerrar:hover {
+  color: var(--color-rojo);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+/* ------------------------------------------------------------- */
+/* LISTAS COLAPSABLES (DETALLES)                                 */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   details/summary permiten abrir/cerrar grupos sin JS.
+*/
 details {
-    margin-bottom: 0.5rem;
-    border: 1px solid var(--borde-suave);
-    border-radius: 8px;
-    overflow: hidden;
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--borde-suave);
+  border-radius: 8px;
+  overflow: hidden;
 }
+
 summary {
-    padding: 0.8rem;
-    background: rgba(255,255,255,0.05);
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--texto-principal);
-    font-size: 0.9rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    list-style: none; /* Ocultar triángulo default */
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--texto-principal);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  list-style: none;
 }
-summary::-webkit-details-marker { display: none; }
-summary:hover { background: rgba(255,255,255,0.08); }
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+summary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 summary::after {
-    content: '+';
-    font-weight: bold;
-    font-size: 1.2rem;
+  content: "+";
+  font-weight: bold;
+  font-size: 1.2rem;
 }
-details[open] summary::after { content: '-'; }
+
+details[open] summary::after {
+  content: "-";
+}
 
 .grupo-contenido {
-    padding: 0;
+  padding: 0;
 }
-.item-detalle {
-    padding: 0.6rem 1rem;
-    border-top: 1px solid var(--borde-suave);
-    font-family: var(--fuente-mono);
-    font-size: 0.85rem;
-    color: var(--texto-secundario);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-.item-detalle:hover { background: rgba(255,255,255,0.02); }
 
-.tag-tipo {
-    font-size: 0.65rem;
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-left: 0.5rem;
-    white-space: nowrap;
+/* NOTE FOR DUMMIES:
+   item individual dentro del modal.
+*/
+.item-detalle {
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--borde-suave);
+  font-family: var(--fuente-mono);
+  font-size: 0.85rem;
+  color: var(--texto-secundario);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
-.tag-mod { background: rgba(255, 235, 59, 0.1); color: var(--color-amarillo); border: 1px solid rgba(255, 235, 59, 0.3); }
-.tag-add { background: rgba(76, 175, 80, 0.1); color: var(--color-verde); border: 1px solid rgba(76, 175, 80, 0.3); }
-.tag-del { background: rgba(196, 32, 33, 0.1); color: var(--color-rojo); border: 1px solid rgba(196, 32, 33, 0.3); }
+
+.item-detalle:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Tags tipo MOD / ADD / DEL */
+.tag-tipo {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: 0.5rem;
+  white-space: nowrap;
+}
+
+.tag-mod {
+  background: rgba(255, 235, 59, 0.1);
+  color: var(--color-amarillo);
+  border: 1px solid rgba(255, 235, 59, 0.3);
+}
+
+.tag-add {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--color-verde);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.tag-del {
+  background: rgba(196, 32, 33, 0.1);
+  color: var(--color-rojo);
+  border: 1px solid rgba(196, 32, 33, 0.3);
+}

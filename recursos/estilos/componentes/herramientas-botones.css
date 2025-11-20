@@ -1,160 +1,235 @@
-/* Botones Píldora */
+/* ------------------------------------------------------------- */
+/* BOTONES PÍLDORA                                                */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Clase base para TODOS los botones.
+   - Píldora (bordes redondeados)
+   - Tipografía pesada (800)
+   - Icono y texto separados
+   - Animaciones suaves y elegantes
+*/
 .btn {
-    border: none;
-    border-radius: 50px; /* Píldora completa */
-    padding: 0.8rem 2rem; /* Padding ajustado */
-    font-family: var(--fuente-principal);
-    font-weight: 800;
-    cursor: pointer;
-    transition: var(--transicion-tema), transform 0.2s ease, box-shadow 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: space-between; /* Texto e icono separados */
-    gap: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    outline: none;
-    position: relative;
-    overflow: hidden;
+  border: none;
+  border-radius: 50px;
+  padding: 0.8rem 2rem;
+  font-family: var(--fuente-principal);
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transicion-tema), transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  outline: none;
+  position: relative;
+  overflow: hidden;
 }
 
+/* NOTE FOR DUMMIES:
+   Hover universal que levanta el botón y agrega sombra.
+*/
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* NOTE FOR DUMMIES:
+   Estado cuando presionas el botón físicamente.
+*/
 .btn:active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
-/* Variantes de Color */
-/* Variantes de Color con Gradiente Sutil */
-/* Variantes de Color */
-/* Variantes de Color con Estilo Glass/Neon */
+/* ------------------------------------------------------------- */
+/* VARIANTES DE COLOR CON EFECTO GLASS + NEON SUTIL              */
+/* ------------------------------------------------------------- */
+
+/* ---------------------------- */
+/* VERDE                        */
+/* ---------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Botón verde con efecto “vidrio ligeramente borroso”.
+   El gradiente lo hace más premium.
+*/
 .btn-verde {
-    background: linear-gradient(135deg, rgba(108, 125, 71, 0.8), rgba(74, 94, 42, 0.9));
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--color-blanco);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: linear-gradient(
+    135deg,
+    rgba(108, 125, 71, 0.8),
+    rgba(74, 94, 42, 0.9)
+  );
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-blanco);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .btn-verde:hover {
-    background: linear-gradient(135deg, var(--color-verde), #6c7d47);
-    box-shadow: 0 0 20px rgba(108, 125, 71, 0.6);
-    border-color: rgba(255,255,255,0.3);
-    transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, var(--color-verde), #6c7d47);
+  box-shadow: 0 0 20px rgba(108, 125, 71, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px) scale(1.02);
 }
 
+/* ---------------------------- */
+/* AZUL                         */
+/* ---------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Misma lógica que el verde, pero adaptado al módulo azul.
+*/
 .btn-azul {
-    background: linear-gradient(135deg, rgba(105, 144, 171, 0.8), rgba(55, 71, 79, 0.9));
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--color-blanco);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: linear-gradient(
+    135deg,
+    rgba(105, 144, 171, 0.8),
+    rgba(55, 71, 79, 0.9)
+  );
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-blanco);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .btn-azul:hover {
-    background: linear-gradient(135deg, var(--color-azul), #6990ab);
-    box-shadow: 0 0 20px rgba(105, 144, 171, 0.6);
-    border-color: rgba(255,255,255,0.3);
-    transform: translateY(-3px) scale(1.02);
+  background: linear-gradient(135deg, var(--color-azul), #6990ab);
+  box-shadow: 0 0 20px rgba(105, 144, 171, 0.6);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px) scale(1.02);
 }
 
-/* Active State for all buttons */
+/* ------------------------------------------------------------- */
+/* ESTADO ACTIVO GLOBAL                                           */
+/* ------------------------------------------------------------- */
+
 .btn:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transform: scale(0.98);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Botón Outline (Log) */
+/* ------------------------------------------------------------- */
+/* BOTÓN OUTLINE (LOG)                                            */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   - Este botón NO usa fondo.
+   - Funciona como variante neutral para el LOG.
+   - Dentro de cada vista (purga, reemplazar, log) cambia el color.
+*/
 .btn-outline {
-    background-color: transparent;
-    /* Fallback general */
-    border: 2px solid var(--texto-secundario);
-    color: var(--texto-principal);
-    padding: 0.6rem 3rem;
-    transition: all 0.3s ease;
-    opacity: 0.9;
+  background-color: transparent;
+  border: 2px solid var(--texto-secundario);
+  color: var(--texto-principal);
+  padding: 0.6rem 3rem;
+  transition: all 0.3s ease;
+  opacity: 0.9;
 }
 
-/* Colores específicos por Módulo (para que funcione dentro del iframe) */
+/* NOTE FOR DUMMIES:
+   Cambian automáticamente por vista gracias al body.
+*/
 body.fondo-purga .btn-outline {
-    border-color: var(--color-verde);
-    color: var(--color-verde);
+  border-color: var(--color-verde);
+  color: var(--color-verde);
 }
 
 body.fondo-reemplazar .btn-outline {
-    border-color: var(--color-azul);
-    color: var(--color-azul);
+  border-color: var(--color-azul);
+  color: var(--color-azul);
 }
 
 body.fondo-log .btn-outline {
-    border-color: var(--color-amarillo);
-    color: var(--color-amarillo);
+  border-color: var(--color-amarillo);
+  color: var(--color-amarillo);
 }
 
+/* NOTE FOR DUMMIES:
+   Hover elegante para outline.
+*/
 .btn-outline:hover {
-    border-color: currentColor; /* Mantiene el color del módulo */
-    background-color: rgba(255, 255, 255, 0.05);
-    transform: scale(1.05);
-    opacity: 1;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  border-color: currentColor;
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: scale(1.05);
+  opacity: 1;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajuste para Modo Light - Colores específicos por vista */
+/* ------------------------------------------------------------- */
+/* MODO CLARO – CORRECCIONES                                      */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   El modo claro conserva la lógica de colores por vista,
+   pero si por alguna razón no hay vista, usa gris oscuro.
+*/
 body.tema-claro.fondo-purga .btn-outline {
-    border-color: var(--color-verde);
-    color: var(--color-verde);
+  border-color: var(--color-verde);
+  color: var(--color-verde);
 }
 
 body.tema-claro.fondo-reemplazar .btn-outline {
-    border-color: var(--color-azul);
-    color: var(--color-azul);
+  border-color: var(--color-azul);
+  color: var(--color-azul);
 }
 
 body.tema-claro.fondo-log .btn-outline {
-    border-color: var(--color-amarillo);
-    color: var(--color-amarillo);
+  border-color: var(--color-amarillo);
+  color: var(--color-amarillo);
 }
 
-/* Fallback para modo claro sin clase específica */
+/* NOTE FOR DUMMIES:
+   Fallback total si no tiene clase de vista.
+*/
 body.tema-claro .btn-outline {
-    border-color: #3f3f3f;
-    color: #3f3f3f;
+  border-color: #3f3f3f;
+  color: #3f3f3f;
 }
 
-/* Ajuste para Modo Light - Hover */
 body.tema-claro .btn-outline:hover {
-    background-color: rgba(0,0,0,0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Icono Circular dentro del botón */
+/* ------------------------------------------------------------- */
+/* ICONO CIRCULAR                                                 */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Contenedor circular donde va el icono del botón.
+   Se ve como una burbuja con glow.
+*/
 .btn-icono-circulo {
-    background: rgba(0,0,0,0.2);
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Glow suave solicitado */
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .btn-icono-circulo svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2.5;
-    filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
 }
 
-/* Tamaños */
+/* ------------------------------------------------------------- */
+/* TAMAÑO GRANDE PARA BOTONES PRINCIPALES                         */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Botones de la pantalla HOME (PURGA / REEMPLAZAR).
+   Consistencia visual y ancho máximo controlado.
+*/
 .btn-grande {
-    width: 100%;
-    max-width: 320px;
-    font-size: 1.1rem;
-    height: 70px; /* Altura fija para consistencia */
+  width: 100%;
+  max-width: 320px;
+  font-size: 1.1rem;
+  height: 70px;
 }

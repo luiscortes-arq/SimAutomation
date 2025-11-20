@@ -1,74 +1,102 @@
+/* ------------------------------------------------------------- */
+/* VARIABLES GLOBALES + TEMA NIGHT/DAY                           */
+/* NOTE FOR DUMMIES EN ESPAÑOL                                   */
+/* ------------------------------------------------------------- */
+
+/*
+    NOTE FOR DUMMIES:
+    Este bloque controla TODA la identidad visual del proyecto:
+    colores, sombras, tipografías, tarjetas, ondas, glows.
+    Si quieres cambiar algo del look & feel → vienes aquí primero.
+*/
+
 :root {
-    /* --- Paleta Corporativa (Hermosillo / VDC) --- */
-    --color-naranja: #e95e2d;
-    --color-verde: #6c7d47;
-    --color-azul: #6990ab;
-    --color-amarillo: #efb628;
-    --color-rojo: #C42021;
+  /* --- Paleta Corporativa (los 4 módulos + rojo global) --- */
+  --color-naranja: #e95e2d; /* Inicio */
+  --color-verde: #6c7d47; /* Purga */
+  --color-azul: #6990ab; /* Reemplazar */
+  --color-amarillo: #efb628; /* Log */
+  --color-rojo: #c42021; /* Errores / Eliminados */
 
-    /* --- Neutros --- */
-    --color-blanco: #FFFFFF;
-    --color-negro-profundo: #0b0b0b;
-    --color-gris-claro: #c0c0c0;
-    --color-gris-oscuro: #3f3f3f;
-    --color-fondo-day: #F0F2F5;
+  /* --- Neutros (fondos y textos clásicos) --- */
+  --color-blanco: #ffffff;
+  --color-negro-profundo: #0b0b0b;
+  --color-gris-claro: #c0c0c0;
+  --color-gris-oscuro: #3f3f3f;
+  --color-fondo-day: #f0f2f5; /* Fondo suave del modo claro */
 
-    /* --- Tipografía --- */
-    --fuente-principal: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    --fuente-mono: 'Consolas', 'Monaco', monospace;
+  /* --- Tipografías (Regular + Monoespaciada para logs) --- */
+  --fuente-principal: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --fuente-mono: "Consolas", "Monaco", monospace;
 
-    /* --- Transiciones --- */
-    --transicion-suave: all 0.3s ease;
-    --transicion-lenta: all 0.5s ease;
+  /* --- Transiciones globales (suave y lenta) --- */
+  --transicion-suave: all 0.3s ease;
+  --transicion-lenta: all 0.5s ease;
 
-    /* --- Variables de Tema (Default: NIGHT) --- */
-    --bg-app: var(--color-negro-profundo);
-    --texto-principal: var(--color-blanco);
-    --texto-secundario: var(--color-gris-claro);
-    --texto-titulo-no-num: var(--color-gris-claro);
+  /* --------------------------------------------------------- */
+  /*  TEMA OSCURO (NIGHT) — LOAD DEFAULT                       */
+  /* --------------------------------------------------------- */
+  /*
+        NOTE FOR DUMMIES:
+        Estas variables son las activas si NO hay tema-claro en el <body>.
+    */
+  --bg-app: var(--color-negro-profundo);
+  --texto-principal: var(--color-blanco);
+  --texto-secundario: var(--color-gris-claro);
+  --texto-titulo-no-num: var(--color-gris-claro);
 
-    /* Componentes */
-    --bg-tarjeta: rgba(15, 15, 15, 0.9);
-    --borde-tarjeta: rgba(255, 255, 255, 0.1);
-    --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.8);
-    
-    /* Glows */
-    --glow-color: var(--color-naranja);
-    --glow-intensidad: 0 0 15px;
-    --glow-hover: 0 0 25px;
+  /* Componentes principales */
+  --bg-tarjeta: rgba(15, 15, 15, 0.9);
+  --borde-tarjeta: rgba(255, 255, 255, 0.1);
+  --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.8);
 
-    /* Ondas */
-    --color-onda-primario: rgba(233, 94, 45, 0.15);
-    --color-onda-secundario: rgba(233, 94, 45, 0.05);
+  /* Glows globales */
+  --glow-color: var(--color-naranja);
+  --glow-intensidad: 0 0 15px;
+  --glow-hover: 0 0 25px;
 
-    /* UI Elements */
-    --bg-toggle: rgba(255, 255, 255, 0.1);
-    --texto-toggle: var(--color-blanco);
-    --borde-suave: rgba(255, 255, 255, 0.1);
+  /* Ondas para el fondo (más fuertes en Night) */
+  --color-onda-primario: rgba(233, 94, 45, 0.15);
+  --color-onda-secundario: rgba(233, 94, 45, 0.05);
+
+  /* UI elements */
+  --bg-toggle: rgba(255, 255, 255, 0.1);
+  --texto-toggle: var(--color-blanco);
+  --borde-suave: rgba(255, 255, 255, 0.1);
 }
 
-/* --- Tema DAY --- */
+/* ------------------------------------------------------------- */
+/* TEMA CLARO (DAY — SOFT / NEUMORPHISM)                         */
+/* ------------------------------------------------------------- */
+
+/*
+    NOTE FOR DUMMIES:
+    Cuando el body tiene la clase .tema-claro, se REEMPLAZAN
+    todas estas variables. Eso hace que el tema cambie instantáneo.
+*/
 body.tema-claro {
-    --bg-app: var(--color-fondo-day);
-    --texto-principal: #2d3436;
-    --texto-secundario: #636e72;
-    --texto-titulo-no-num: var(--color-gris-oscuro);
+  --bg-app: var(--color-fondo-day);
+  --texto-principal: #2d3436;
+  --texto-secundario: #636e72;
+  --texto-titulo-no-num: var(--color-gris-oscuro);
 
-    /* Componentes */
-    --bg-tarjeta: #FFFFFF;
-    --borde-tarjeta: rgba(0, 0, 0, 0.05);
-    --sombra-tarjeta: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
+  /* Tarjetas en modo claro (neumorphism suave) */
+  --bg-tarjeta: #ffffff;
+  --borde-tarjeta: rgba(0, 0, 0, 0.05);
+  --sombra-tarjeta: 8px 8px 16px #d1d9e6, -8px -8px 16px #ffffff;
 
-    /* Glows */
-    --glow-intensidad: 0 0 8px;
-    --glow-hover: 0 0 12px;
+  /* Glows más suaves en DAY */
+  --glow-intensidad: 0 0 8px;
+  --glow-hover: 0 0 12px;
 
-    /* Ondas */
-    --color-onda-primario: rgba(233, 94, 45, 0.08);
-    --color-onda-secundario: rgba(233, 94, 45, 0.02);
+  /* Ondas más sutiles */
+  --color-onda-primario: rgba(233, 94, 45, 0.08);
+  --color-onda-secundario: rgba(233, 94, 45, 0.02);
 
-    /* UI Elements */
-    --bg-toggle: #e0e0e0;
-    --texto-toggle: #333333;
-    --borde-suave: rgba(0, 0, 0, 0.1);
+  /* Toggle claro */
+  --bg-toggle: #e0e0e0;
+  --texto-toggle: #333333;
+
+  /* Borde general suavizado */
+  --borde-suave: rgba(0, 0, 0, 0.1);
 }

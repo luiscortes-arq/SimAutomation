@@ -1,5 +1,13 @@
-/* Estilos para Iconos SVG */
+/* ------------------------------------------------------------- */
+/* ESTILOS PARA ICONOS SVG                                       */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Estos ajustes aplican a TODOS los <svg> del sistema.
+   - inline-block: permite tratarlos como texto pero sin romper layout
+   - vertical-align: asegura que queden centrados respecto al texto
+*/
 svg {
-    display: inline-block;
-    vertical-align: middle;
+  display: inline-block; /* El SVG se comporta como elemento en línea “controlable” */
+  vertical-align: middle; /* Alineación vertical perfecta con el texto y otros elementos */
 }

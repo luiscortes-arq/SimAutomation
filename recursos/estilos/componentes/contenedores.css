@@ -1,144 +1,223 @@
-/* Contenedores Genéricos */
+/* ------------------------------------------------------------- */
+/* Contenedores Genéricos                                        */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Este contenedor ocupa todo el ancho y agrega padding lateral.
+   Úsalo cuando quieras que el contenido “respire” horizontalmente.
+*/
 .contenedor-fluido {
-    width: 100%;
-    padding: 0 1rem;
-    margin: 0 auto;
+  width: 100%;
+  padding: 0 1rem;
+  margin: 0 auto;
 }
 
+/* NOTE FOR DUMMIES:
+   Centra cualquier cosa tanto horizontal como verticalmente.
+   Sirve para vistas que siempre deben aparecer en el centro.
+*/
 .contenedor-centrado {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
 }
 
-/* --- Estilos Compartidos de Vistas (Purga / Reemplazar) --- */
+/* ------------------------------------------------------------- */
+/* Estilos Compartidos de Vistas (Purga / Reemplazar)            */
+/* ------------------------------------------------------------- */
 
-/* Body Centrado para Vistas */
+/* NOTE FOR DUMMIES:
+   Estas dos clases se aplican AL BODY dependiendo de la vista.
+   Centran todo el contenido y dejan el fondo transparente para
+   poder ver el wave-background.
+*/
 body.fondo-purga,
 body.fondo-reemplazar {
-    background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    text-align: center;
-    position: relative;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  position: relative;
 }
 
-/* Grupos de Acción */
+/* ------------------------------------------------------------- */
+/* Grupos de Acción                                               */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Contenedor vertical para cada bloque (01 ARCHIVOS / 02 OPCIONES).
+   Siempre centrado y con separación.
+*/
 .grupo-accion {
-    margin-bottom: 2.5rem;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  margin-bottom: 2.5rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+/* NOTE FOR DUMMIES:
+   Agrupa los botones principales, inputs, etc.
+   Máximo 800px para que no se haga gigantesco.
+*/
 .contenedor-opciones {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-    width: 100%;
-    max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 800px;
 }
 
-/* Títulos con Número (01 ARCHIVOS, etc) */
+/* ------------------------------------------------------------- */
+/* Títulos con Número (01 ARCHIVOS, etc)                          */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Título pequeño con numerito.
+   Usa uppercase y un ligero espaciado para verse pro.
+*/
 .titulo-con-numero {
-    margin-top: 0.8rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: var(--transicion-suave);
-    cursor: default;
+  margin-top: 0.8rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: var(--transicion-suave);
+  cursor: default;
 }
 
+/* NOTE FOR DUMMIES:
+   El número “01 / 02 / 03” se resalta más.
+*/
 .num-resaltado {
-    font-weight: 800;
-    margin-right: 5px;
+  font-weight: 800;
+  margin-right: 5px;
 }
 
-/* Colores específicos por contexto */
-body.fondo-purga .num-resaltado { color: var(--color-acento-actual, var(--color-verde)); }
-body.fondo-reemplazar .num-resaltado { color: var(--color-acento-actual, var(--color-azul)); }
+/* NOTE FOR DUMMIES:
+   Cambia el color del número según si es PURGA o REEMPLAZAR.
+*/
+body.fondo-purga .num-resaltado {
+  color: var(--color-acento-actual, var(--color-verde));
+}
+body.fondo-reemplazar .num-resaltado {
+  color: var(--color-acento-actual, var(--color-azul));
+}
 
+/* NOTE FOR DUMMIES:
+   El texto que NO es número usa color neutro.
+*/
 .texto-titulo {
-    color: var(--texto-titulo-no-num);
+  color: var(--texto-titulo-no-num);
 }
 
-/* LISTO usa font-weight: 800, aplicar color de acento */
+/* NOTE FOR DUMMIES:
+   LISTO → si tiene font-weight: 800, usamos color de acento.
+*/
 .texto-titulo[style*="font-weight: 800"],
 .texto-titulo[style*="font-weight:800"] {
-    color: var(--color-acento-actual, var(--color-naranja));
+  color: var(--color-acento-actual, var(--color-naranja));
 }
 
 body.fondo-purga .texto-titulo[style*="font-weight: 800"],
 body.fondo-purga .texto-titulo[style*="font-weight:800"] {
-    color: var(--color-acento-actual, var(--color-verde));
+  color: var(--color-acento-actual, var(--color-verde));
 }
 
 body.fondo-reemplazar .texto-titulo[style*="font-weight: 800"],
 body.fondo-reemplazar .texto-titulo[style*="font-weight:800"] {
-    color: var(--color-acento-actual, var(--color-azul));
+  color: var(--color-acento-actual, var(--color-azul));
 }
 
+/* NOTE FOR DUMMIES:
+   Efecto sutil al pasar el mouse.
+*/
 .titulo-con-numero:hover {
-    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 body.fondo-purga .titulo-con-numero:hover .num-resaltado {
-    text-shadow: 0 0 10px var(--color-acento-actual, var(--color-verde));
+  text-shadow: 0 0 10px var(--color-acento-actual, var(--color-verde));
 }
+
 body.fondo-reemplazar .titulo-con-numero:hover .num-resaltado {
-    text-shadow: 0 0 10px var(--color-acento-actual, var(--color-azul));
+  text-shadow: 0 0 10px var(--color-acento-actual, var(--color-azul));
 }
 
-/* Checkbox Container (Reemplazar) */
+/* ------------------------------------------------------------- */
+/* Checkbox Container (Reemplazar)                                */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Caja redondeada donde vive el checkbox ON/OFF.
+   Tiene sombra y borde para parecer un componente “pro”.
+*/
 .checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: var(--bg-tarjeta);
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    border: 1px solid var(--borde-tarjeta);
-    box-shadow: var(--sombra-tarjeta);
-    margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-tarjeta);
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  border: 1px solid var(--borde-tarjeta);
+  box-shadow: var(--sombra-tarjeta);
+  margin-bottom: 2rem;
 }
 
+/* NOTE FOR DUMMIES:
+   Texto del lado derecho del checkbox.
+*/
 .checkbox-label {
-    font-size: 1.1rem;
-    color: var(--texto-principal);
-    font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--texto-principal);
+  font-weight: 600;
 }
 
-/* Inputs de Archivo (Reemplazar) */
+/* ------------------------------------------------------------- */
+/* Inputs de Archivo (Reemplazar)                                 */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Contenedor horizontal de inputs (ARCHIVO ORIGINAL / ARCHIVO NUEVO).
+*/
 .fila-inputs {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    width: 100%;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  width: 100%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+/* NOTE FOR DUMMIES:
+   Cuando el usuario desactiva el checkbox, se “deshabilita”
+   visualmente la fila. No se puede hacer clic.
+*/
 .fila-inputs.oculto {
-    opacity: 0.5;
-    pointer-events: none;
-    filter: grayscale(1);
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(1);
 }
 
+/* NOTE FOR DUMMIES:
+   Cada input y su título viven aquí.
+*/
 .grupo-archivo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 }
 
+/* NOTE FOR DUMMIES:
+   Botón IR en PURGA.
+*/
 .btn-ir-purga {
-    margin-top: 1rem;
-    font-size: 0.9rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
 }

@@ -1,47 +1,81 @@
-/* Reset Básico */
+/* ------------------------------------------------------------- */
+/* RESET BÁSICO Y CONFIGURACIÓN GLOBAL                           */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   * → Aplica a TODOS los elementos.
+   - Elimina margenes y paddings por defecto.
+   - Asegura que width/height se calculen correctamente.
+*/
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+/* NOTE FOR DUMMIES:
+   html es el “root”.
+   - overflow hidden evita scroll general (el iframe manejará scroll propio).
+   - font-size 62.5% = 1rem = 10px (más fácil para cálculos).
+*/
 html {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    font-size: 62.5%; /* Reset 1rem = 10px */
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-size: 62.5%;
 }
 
+/* NOTE FOR DUMMIES:
+   body se convierte en un layout tipo grid:
+   [HEADER]
+   [CONTENIDO / IFRAME]
+   [FOOTER]
+   - 100vh asegura altura exacta de pantalla.
+   - overflow hidden evita cualquier scroll accidental.
+*/
 body {
-    height: 100vh; /* Force exact viewport height */
-    width: 100%;
-    font-family: var(--fuente-principal);
-    background-color: var(--bg-app);
-    color: var(--texto-principal);
-    transition: var(--transicion-tema);
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    grid-template-columns: 1fr;
-    font-size: 1.6rem; /* Base 16px para el cuerpo */
-    overflow: hidden; /* Prevent body scroll */
+  height: 100vh;
+  width: 100%;
+  font-family: var(--fuente-principal);
+  background-color: var(--bg-app);
+  color: var(--texto-principal);
+  transition: var(--transicion-tema);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr;
+  font-size: 1.6rem; /* Regresa 1rem a 16px dentro de contenido */
+  overflow: hidden;
 }
 
-/* Fondo de Ondas */
-/* Fondo de Ondas eliminado - Ahora se maneja por vista en fondos.css */
+/* ------------------------------------------------------------- */
+/* CONTENEDOR PRINCIPAL                                           */
+/* ------------------------------------------------------------- */
 
+/* NOTE FOR DUMMIES:
+   contenedor-principal es donde vive el iframe.
+   Centra el contenido y evita desbordes.
+*/
 .contenedor-principal {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
+/* ------------------------------------------------------------- */
+/* IFRAME DE LA VISTA                                             */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   #vista-frame carga la vista actual (inicio / purga / reemplazar / log).
+   Se estira al 100% en ambas direcciones.
+*/
 #vista-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
 }

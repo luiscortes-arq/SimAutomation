@@ -1,72 +1,91 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio - Sim Automation</title>
-    
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Estilos Compartidos -->
-    <link rel="stylesheet" href="../recursos/estilos/base.css">
-    <link rel="stylesheet" href="../recursos/estilos/variables.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
-    <link rel="stylesheet" href="../recursos/estilos/componentes/home-tarjetas.css">
-    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
-    
-</head>
-<body class="fondo-inicio">
+    <!-- ============================
+         ESTILOS COMPARTIDOS
+         ============================ -->
+    <link rel="stylesheet" href="../recursos/estilos/base.css" />
+    <link rel="stylesheet" href="../recursos/estilos/variables.css" />
+    <link
+      rel="stylesheet"
+      href="../recursos/estilos/componentes/contenedores.css"
+    />
+    <link
+      rel="stylesheet"
+      href="../recursos/estilos/componentes/home-tarjetas.css"
+    />
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css" />
+  </head>
 
+  <body class="fondo-inicio">
+    <!-- ============================
+         TARJETAS PRINCIPALES (HOME)
+         ============================ -->
     <div class="dashboard-grid">
-        <!-- Tarjeta Purga -->
-        <div class="tarjeta-accion tarjeta-purga" onclick="navegar('purga.html')">
-            <div class="icono-contenedor">
-                <!-- Icono Lucide: Hard Hat (Construction) -->
-                <i data-lucide="hard-hat"></i>
-            </div>
-            <h2 class="titulo-tarjeta">PURGA</h2>
-            <p class="descripcion-tarjeta">Organizar el "Phasing Timeliner".</p>
+      <!-- PURGA -->
+      <div class="tarjeta-accion tarjeta-purga" onclick="navegar('purga.html')">
+        <div class="icono-contenedor">
+          <i data-lucide="hard-hat"></i>
         </div>
+        <h2 class="titulo-tarjeta">PURGA</h2>
+        <p class="descripcion-tarjeta">Organizar el "Phasing Timeliner".</p>
+      </div>
 
-        <!-- Tarjeta Reemplazar -->
-        <div class="tarjeta-accion tarjeta-reemplazar" onclick="navegar('reemplazar.html')">
-            <div class="icono-contenedor">
-                <!-- Icono Lucide: Replace / Refresh-cw -->
-                <i data-lucide="refresh-cw"></i>
-            </div>
-            <h2 class="titulo-tarjeta">REEMPLAZAR</h2>
-            <p class="descripcion-tarjeta">Construir el "Phasing Timeliner".</p>
+      <!-- REEMPLAZAR -->
+      <div
+        class="tarjeta-accion tarjeta-reemplazar"
+        onclick="navegar('reemplazar.html')"
+      >
+        <div class="icono-contenedor">
+          <i data-lucide="refresh-cw"></i>
         </div>
+        <h2 class="titulo-tarjeta">REEMPLAZAR</h2>
+        <p class="descripcion-tarjeta">Construir el "Phasing Timeliner".</p>
+      </div>
     </div>
 
+    <!-- ============================
+         SCRIPT LOCAL DEL IFRAME
+         ============================ -->
     <script>
-        // Inicializar iconos
-        lucide.createIcons();
+      // Inicializar Lucide dentro del iframe (iconos)
+      lucide.createIcons();
 
-        // Comunicación con el padre
-        window.addEventListener('message', (event) => {
-            if (event.data.tipo === 'CAMBIO_TEMA') {
-                aplicarTema(event.data.tema);
-            }
-        });
-
-        function aplicarTema(tema) {
-            if (tema === 'claro') {
-                document.body.classList.add('tema-claro');
-                document.body.classList.remove('tema-oscuro');
-            } else {
-                document.body.classList.add('tema-oscuro');
-                document.body.classList.remove('tema-claro');
-            }
+      // Recibir cambios de tema enviados por el index principal
+      window.addEventListener("message", (event) => {
+        if (event.data.tipo === "CAMBIO_TEMA") {
+          aplicarTema(event.data.tema);
         }
+      });
 
-        function navegar(ruta) {
-            window.parent.postMessage({ 
-                tipo: 'NAVEGAR', 
-                ruta: ruta 
-            }, '*');
+      // Alternar clases según el tema recibido
+      function aplicarTema(tema) {
+        if (tema === "claro") {
+          document.body.classList.add("tema-claro");
+          document.body.classList.remove("tema-oscuro");
+        } else {
+          document.body.classList.add("tema-oscuro");
+          document.body.classList.remove("tema-claro");
         }
+      }
+
+      // Enviar al index la instrucción para navegar
+      function navegar(ruta) {
+        window.parent.postMessage(
+          {
+            tipo: "NAVEGAR",
+            ruta: ruta,
+          },
+          "*"
+        );
+      }
     </script>
-</body>
+  </body>
 </html>

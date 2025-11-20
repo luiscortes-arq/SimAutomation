@@ -1,42 +1,60 @@
 (function () {
   "use strict";
 
-  // ============================================
-  // LOG VIEWER ADAPTADO
-  // ============================================
+  // ======================================================================
+  // LOG VIEWER — VERSIÓN FINAL CON NOTES FOR DUMMIES (COMPLETO)
+  // ======================================================================
+  // NOTE FOR DUMMIES:
+  // Este script:
+  // 1) Compara XML ORIGINALES vs PROCESADOS línea por línea.
+  // 2) Genera resaltado visual (amarillo = agregado/modificado, rojo = borrado).
+  // 3) Evita subrayar labels de Location, Survey Point y Project Base Point.
+  // 4) Manda HTML al panel ORIGINAL, UNSORTED y PROCESADO.
+  // 5) Devuelve estadísticas para contadores.
+  // ======================================================================
 
-  // Escapa caracteres especiales para mostrarlos como texto en HTML.
+  // ======================================================================
+  // ESCAPAR HTML
+  // ======================================================================
+  // NOTE FOR DUMMIES:
+  // Evita que los símbolos < > & rompan el HTML. Se convierten a texto.
   const escapeHtml = (s) =>
     String(s)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
 
-  // Helper para renderizar XML simple con resaltado básico
+  // ======================================================================
+  // RENDERIZADO SIMPLE (Panel UNSORTED)
+  // ======================================================================
+  // NOTE FOR DUMMIES:
+  // Solo se escapa el XML y se pinta cada línea como texto.
   const renderSimpleXml = (xmlText) => {
-    if (!xmlText) return '';
-    return String(xmlText).split(/\r?\n/).map(line => {
+    if (!xmlText) return "";
+    return String(xmlText)
+      .split(/\r?\n/)
+      .map((line) => {
         const escaped = escapeHtml(line);
-        // Resaltar tags
-        if (/^\s*&lt;/.test(escaped)) {
-            return escaped.replace(/^(\s*&lt;[^&]+&gt;)/, '<span style="color: var(--color-azul);">$1</span>');
-        }
-        return escaped;
-    }).join('\n');
+        return escaped.replace(
+          /^(\s*&lt;[^&]+&gt;)/,
+          '<span style="color: var(--color-azul);">$1</span>'
+        );
+      })
+      .join("\n");
   };
 
-  // ============================================================
-  // LÓGICA DE DIFF (COMPARAR ORIGINAL VS PROCESADO)
-  // ============================================================
-
+  // ======================================================================
+  // UTILIDAD: Contador de líneas idénticas
+  // ======================================================================
   const contarLineas = (arr) => {
     const map = {};
-    arr.forEach((l) => {
-      map[l] = (map[l] || 0) + 1;
-    });
+    arr.forEach((l) => (map[l] = (map[l] || 0) + 1));
     return map;
   };
 
+  // ======================================================================
+  // INTENTAR EXTRAER INFO DE TAGS (ActorMesh, MaterialInstance, etc.)
+  // ======================================================================
   const getMeshInfo = (line) => {
     const m = line.match(
       /<(StaticMesh|ActorMesh|Actor|mesh|MaterialInstance|KeyValueProperty)[^>]*\sname="([^"]+)"/
@@ -44,6 +62,9 @@
     return m ? { tag: m[1], name: m[2] } : null;
   };
 
+  // ======================================================================
+  // AGRUPAR LÍNEAS POR NOMBRE DE ELEMENTO
+  // ======================================================================
   const byName = (list) =>
     list.reduce((map, l) => {
       const info = getMeshInfo(l.text);
@@ -52,7 +73,12 @@
       return map;
     }, {});
 
+  // ======================================================================
+  // FUNCIÓN PRINCIPAL DE DIFF
+  // ======================================================================
   const buildSideBySideHtml = (origText, procText) => {
+    // NOTE FOR DUMMIES:
+    // Aquí se divide el texto por líneas para comparar.
     const oLines = String(origText).split(/\r?\n/);
     const nLines = String(procText).split(/\r?\n/);
 
@@ -91,14 +117,18 @@
     const details = [];
     let removedLinesCount = 0;
 
-    // Identificar Modificados (existen en ambos) y Eliminados (solo en old)
+    // ==================================================================
+    // DETECTAR MODIFICADOS / ELIMINADOS
+    // ==================================================================
     Object.keys(oBy).forEach((name) => {
       const os = oBy[name];
       const ns = nBy[name];
-      const tag = os[0].tag; // Tomamos el tag del primer elemento
+      const tag = os[0].tag;
 
       if (ns) {
-        // Existe en ambos -> MODIFICADO
+        // ========================
+        // EXISTE EN AMBOS → MODIFICADO
+        // ========================
         let linesRemovedInItem = 0;
         let labelChange = null;
 
@@ -107,92 +137,82 @@
           modO[os[i].i] = d.oldHtml;
           modN[ns[i].i] = d.newHtml;
 
-          // Detectar cambios específicos
           if (d.oldHtml.includes("<s>")) {
             linesRemovedInItem++;
           }
 
-          // Detectar cambio de Label
-          const labelMatchOld = oLines[os[i].i].match(/label="([^"]*)"/);
-          const labelMatchNew = nLines[ns[i].i].match(/label="([^"]*)"/);
-
-          if (labelMatchOld && labelMatchNew && labelMatchOld[1] !== labelMatchNew[1]) {
-            labelChange = `Label: "${labelMatchOld[1]}" -> "${labelMatchNew[1]}"`;
+          const lo = oLines[os[i].i].match(/label="([^"]*)"/);
+          const ln = nLines[ns[i].i].match(/label="([^"]*)"/);
+          if (lo && ln && lo[1] !== ln[1]) {
+            labelChange = `Label: "${lo[1]}" → "${ln[1]}"`;
           }
         }
 
-        // Solo sumamos al contador, ya NO agregamos detalle de PARCIALMENTE_ELIMINADO
         if (linesRemovedInItem > 0) {
           removedLinesCount += linesRemovedInItem;
         }
 
         if (labelChange) {
           details.push({
-            name: name,
-            tag: tag,
+            name,
+            tag,
             type: "MODIFICADO",
             desc: labelChange,
           });
-        } else if (
-          linesRemovedInItem > 0 ||
-          ns.some((n) => nLines[n.i].includes("<mark>"))
-        ) {
-          // Si hubo líneas eliminadas o atributos marcados, lo contamos como MODIFICADO
+        } else {
           details.push({
-            name: name,
-            tag: tag,
+            name,
+            tag,
             type: "MODIFICADO",
             desc: "Atributos modificados",
           });
         }
       } else {
-        // Solo en old -> ELIMINADO COMPLETAMENTE
+        // ========================
+        // SOLO EN ORIGINAL → ELIMINADO
+        // ========================
         details.push({
-          name: name,
-          tag: tag,
+          name,
+          tag,
           type: "ELIMINADO",
           desc: "Elemento eliminado completamente",
         });
-        // Contar líneas eliminadas
-        os.forEach((obj) => {
-          // Count lines based on the text content of the item
-          // If the item spans multiple lines in the original file, we should count them.
-          // However, 'os' here is a list of objects {i, text, tag}. 
-          // If 'byName' grouped them correctly, 'os' contains all lines belonging to this item.
-          // So we just need to count the length of 'os'.
-          // BUT, 'byName' only groups by the *definition* line. 
-          // We need to count the full block.
-          removedLinesCount += 1;
-        });
+        os.forEach(() => removedLinesCount++);
       }
     });
 
-    // Identificar Agregados (solo en new)
+    // ==================================================================
+    // DETECTAR AGREGADOS
+    // ==================================================================
     Object.keys(nBy).forEach((name) => {
       if (!oBy[name]) {
         const tag = nBy[name][0].tag;
         details.push({
-          name: name,
-          tag: tag,
+          name,
+          tag,
           type: "AGREGADO",
           desc: "Elemento nuevo",
         });
       }
     });
 
+    // ==================================================================
+    // RENDERIZAR CADA PANEL (OLD / NEW)
+    // ==================================================================
     const render = (lines, state, mods, tag, isProcessedSide) =>
       lines
         .map((l, i) => {
           const lineText = l || " ";
-          if (/^\s*<tag value="/.test(lineText)) {
-            return `<span class="cyan">${escapeHtml(lineText)}</span>`;
-          }
+
+          // Color gris para líneas comunes
           if (state[i] === "common") {
             return `<span class="cyan">${escapeHtml(lineText)}</span>`;
           }
-          if (mods[i]) {
-            return mods[i];
-          }
+
+          // Línea modificada → usar HTML generado por diffLineFragments
+          if (mods[i]) return mods[i];
+
+          // En PROCESADO, si es un tag complejo y "only", NO lo marques como agregado
           if (isProcessedSide && state[i] === "only") {
             const tagMatch = lineText.match(
               /^\s*<(StaticMesh|ActorMesh|Actor|MaterialInstance|KeyValueProperty)\b/
@@ -201,6 +221,8 @@
               return `<span class="cyan">${escapeHtml(lineText)}</span>`;
             }
           }
+
+          // old → <s> rojo | new → <mark> amarillo
           return `<${tag}>${escapeHtml(lineText)}</${tag}>`;
         })
         .join("\n");
@@ -212,7 +234,14 @@
     };
   };
 
+  // ======================================================================
+  // PROCESADOR DE TAGS XML DETALLADO
+  // ======================================================================
+  // NOTE FOR DUMMIES:
+  // Esta función identifica diferencias dentro del mismo TAG,
+  // como atributos cambiados o removidos.
   const diffXmlTagLine = (oldLine, newLine) => {
+    // Detectar estructura de XML tipo <ActorMesh ... >
     const tagRe = /^(\s*<[^>\s]+)([^>]*)(>.*)$/;
     const mo = oldLine.match(tagRe);
     const mn = newLine.match(tagRe);
@@ -221,19 +250,20 @@
     const [_, h1, attrs1, t1] = mo;
     const [__, h2, attrs2, t2] = mn;
 
-    const tnMatch = h1.match(/<\s*([^\s>]+)/);
-    const tagName = tnMatch ? tnMatch[1] : "";
+    const tn = h1.match(/<\s*([^\s>]+)/);
+    const tagName = tn ? tn[1] : "";
 
-    const isMeshTag =
+    const meshTag =
       tagName === "StaticMesh" ||
       tagName === "ActorMesh" ||
       tagName === "Actor" ||
       tagName === "MaterialInstance" ||
       tagName === "KeyValueProperty";
 
-    const isTagTag = tagName === "tag";
+    const tagTag = tagName === "tag";
 
-    const extractAttrs = (str) => {
+    // Extraer atributos como obj
+    const extract = (str) => {
       const obj = {};
       const order = [];
       let m;
@@ -245,117 +275,116 @@
       return [obj, order];
     };
 
-    const [oldAttrsObj, oldKeys] = extractAttrs(attrs1);
-    const [newAttrsObj, newKeys] = extractAttrs(attrs2);
+    const [oldA, oldKeys] = extract(attrs1);
+    const [newA, newKeys] = extract(attrs2);
 
-    const layerVal = oldAttrsObj.layer || newAttrsObj.layer || "";
+    const layerVal = oldA.layer || newA.layer || "";
 
-    const skipLabelHighlight =
+    // ==================================================================
+    // NO SUBRAYAR LABEL EN: LOCATION DATA, SURVEY POINT, PROJECT BASE POINT
+    // ==================================================================
+    const noHighlightLabel =
       tagName === "Actor" &&
       (layerVal === "Location Data" ||
         layerVal === "Survey Point" ||
         layerVal === "Project Base Point");
 
-    const buildAttrsHtml = (selfAttrs, selfKeys, otherAttrs, side) => {
-      const pieces = [];
+    // ==================================================================
+    // CONSTRUIR HTML DE ATRIBUTOS
+    // ==================================================================
+    const build = (attrs, keys, other, side) => {
+      return keys
+        .map((k) => {
+          const val = attrs[k];
+          const exists = Object.prototype.hasOwnProperty.call(other, k);
+          const skip = noHighlightLabel && k === "label";
 
-      selfKeys.forEach((k) => {
-        const val = selfAttrs[k];
-        const existsInOther = Object.prototype.hasOwnProperty.call(
-          otherAttrs,
-          k
-        );
-        let seg;
-
-        const skipThisLabel = skipLabelHighlight && k === "label";
-
-        if (skipThisLabel) {
-          seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
-            val
-          )}"</span>`;
-        } else if (isTagTag && k === "value") {
-          seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
-            val
-          )}"</span>`;
-        } else if (!existsInOther) {
-          if (isMeshTag && k !== "label") {
-            seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
+          // 1. Saltar subrayado de label para actores especiales
+          if (skip) {
+            return ` <span class="cyan">${escapeHtml(k)}="${escapeHtml(
               val
             )}"</span>`;
-          } else if (isMeshTag && k === "label") {
-            if (side === "old") {
-              seg = `<s>${escapeHtml(k)}="${escapeHtml(val)}"</s>`;
-            } else {
-              seg = `<mark>${escapeHtml(k)}="${escapeHtml(val)}"</mark>`;
-            }
-          } else {
-            if (side === "old") {
-              seg = `<s>${escapeHtml(k)}="${escapeHtml(val)}"</s>`;
-            } else {
-              seg = `<mark>${escapeHtml(k)}="${escapeHtml(val)}"</mark>`;
-            }
           }
-        } else {
-          const otherVal = otherAttrs[k];
-          if (val === otherVal) {
-            seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
+
+          // 2. Caso TAG <tag value="...">
+          if (tagTag && k === "value") {
+            return ` <span class="cyan">${escapeHtml(k)}="${escapeHtml(
               val
             )}"</span>`;
-          } else {
-            if (isMeshTag && k !== "label") {
-              seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
-                val
-              )}"</span>`;
-            } else if (isMeshTag && k === "label") {
-              if (side === "old") {
-                seg =
-                  `<span class="cyan">${escapeHtml(k)}="</span>` +
-                  `<s>${escapeHtml(val)}</s>` +
-                  `<span class="cyan">"</span>`;
-              } else {
-                seg =
-                  `<span class="cyan">${escapeHtml(k)}="</span>` +
-                  `<mark>${escapeHtml(val)}</mark>` +
-                  `<span class="cyan">"</span>`;
-              }
-            } else if (isTagTag && k === "value") {
-              seg = `<span class="cyan">${escapeHtml(k)}="${escapeHtml(
-                val
-              )}"</span>`;
-            } else {
-              if (side === "old") {
-                seg =
-                  `<span class="cyan">${escapeHtml(k)}="</span>` +
-                  `<s>${escapeHtml(val)}</s>` +
-                  `<span class="cyan">"</span>`;
-              } else {
-                seg =
-                  `<span class="cyan">${escapeHtml(k)}="</span>` +
-                  `<mark>${escapeHtml(val)}</mark>` +
-                  `<span class="cyan">"</span>`;
-              }
-            }
           }
-        }
-        pieces.push(" " + seg);
-      });
 
-      return pieces.join("");
+          // 3. SI NO EXISTE EN "other" → agregado/eliminado
+          if (!exists) {
+            if (meshTag && k !== "label") {
+              // MeshTag: NO resaltar atributos excepto label
+              return ` <span class="cyan">${escapeHtml(k)}="${escapeHtml(
+                val
+              )}"</span>`;
+            }
+            if (meshTag && k === "label") {
+              // Aquí sí resaltar label de cambios reales
+              return side === "old"
+                ? ` <s>${escapeHtml(k)}="${escapeHtml(val)}"</s>`
+                : ` <mark>${escapeHtml(k)}="${escapeHtml(val)}"</mark>`;
+            }
+            return side === "old"
+              ? ` <s>${escapeHtml(k)}="${escapeHtml(val)}"</s>`
+              : ` <mark>${escapeHtml(k)}="${escapeHtml(val)}"</mark>`;
+          }
+
+          // 4. EXISTE EN AMBOS, PERO CAMBIÓ EL VALOR
+          if (val !== other[k]) {
+            if (meshTag && k !== "label") {
+              return ` <span class="cyan">${escapeHtml(k)}="${escapeHtml(
+                val
+              )}"</span>`;
+            }
+            if (meshTag && k === "label") {
+              return side === "old"
+                ? ` <span class="cyan">${escapeHtml(k)}="</span><s>${escapeHtml(
+                    val
+                  )}</s><span class="cyan">"</span>`
+                : ` <span class="cyan">${escapeHtml(
+                    k
+                  )}="</span><mark>${escapeHtml(
+                    val
+                  )}</mark><span class="cyan">"</span>`;
+            }
+            return side === "old"
+              ? ` <span class="cyan">${escapeHtml(k)}="</span><s>${escapeHtml(
+                  val
+                )}</s><span class="cyan">"</span>`
+              : ` <span class="cyan">${escapeHtml(
+                  k
+                )}="</span><mark>${escapeHtml(
+                  val
+                )}</mark><span class="cyan">"</span>`;
+          }
+
+          // 5. Sin cambios → gris
+          return ` <span class="cyan">${escapeHtml(k)}="${escapeHtml(
+            val
+          )}"</span>`;
+        })
+        .join("");
     };
 
     const oldHtml =
       `<span class="cyan">${escapeHtml(h1)}</span>` +
-      buildAttrsHtml(oldAttrsObj, oldKeys, newAttrsObj, "old") +
+      build(oldA, oldKeys, newA, "old") +
       `<span class="cyan">${escapeHtml(t1)}</span>`;
 
     const newHtml =
       `<span class="cyan">${escapeHtml(h2)}</span>` +
-      buildAttrsHtml(newAttrsObj, newKeys, oldAttrsObj, "new") +
+      build(newA, newKeys, oldA, "new") +
       `<span class="cyan">${escapeHtml(t2)}</span>`;
 
     return { oldHtml, newHtml };
   };
 
+  // ======================================================================
+  // DIFF SIMPLE (para líneas sin XML estructural)
+  // ======================================================================
   const diffLineFragments = (a, b) => {
     const xml = diffXmlTagLine(a, b);
     if (xml) return xml;
@@ -384,52 +413,51 @@
     return { oldHtml, newHtml };
   };
 
+  // ======================================================================
+  // CONTAR BLOQUES DE TAG
+  // ======================================================================
   const countLinesOfTag = (lines, startIndex) => {
-    const startLine = lines[startIndex];
-    const tagMatch = startLine.match(/<\s*(\w+)/);
-    if (!tagMatch) return 1;
+    const start = lines[startIndex];
+    const m = start.match(/<\s*(\w+)/);
+    if (!m) return 1;
 
-    const tagName = tagMatch[1];
-    // Si es autocerrada
-    if (/\/>/.test(startLine)) return 1;
+    const tag = m[1];
+    if (/\/>/.test(start)) return 1;
 
     let depth = 0;
     let count = 0;
-    const startRe = new RegExp(`<${tagName}\\b`);
-    const endRe = new RegExp(`</${tagName}>`);
+    const open = new RegExp(`<${tag}\\b`);
+    const close = new RegExp(`</${tag}>`);
 
     for (let i = startIndex; i < lines.length; i++) {
       const line = lines[i];
       count++;
-      if (startRe.test(line)) depth++;
-      if (endRe.test(line)) depth--;
-
+      if (open.test(line)) depth++;
+      if (close.test(line)) depth--;
       if (depth === 0) break;
     }
+
     return count;
   };
 
-  // ============================================================
-  // API PÚBLICA (window.LogViewer)
-  // ============================================================
+  // ======================================================================
+  // API PUBLICA: window.LogViewer.render
+  // ======================================================================
   window.LogViewer = {
     render: (originalXml, processedXml, unsortedXml) => {
-        const diff = buildSideBySideHtml(originalXml, processedXml);
+      // Hacer diff
+      const diff = buildSideBySideHtml(originalXml, processedXml);
 
-        // Inyectar en los contenedores existentes de log.html
-        const panelOriginal = document.getElementById('log-original');
-        const panelUnsorted = document.getElementById('log-unsorted');
-        const panelProcessed = document.getElementById('log-processed');
+      // Paneles del HTML
+      const panelOriginal = document.getElementById("log-original");
+      const panelUnsorted = document.getElementById("log-unsorted");
+      const panelProcessed = document.getElementById("log-processed");
 
-        if (panelOriginal) panelOriginal.innerHTML = diff.originalHtml;
-        if (panelProcessed) panelProcessed.innerHTML = diff.processedHtml;
-        
-        // Renderizar el panel del medio (Unsorted)
-        if (panelUnsorted) {
-            panelUnsorted.innerHTML = renderSimpleXml(unsortedXml);
-        }
+      if (panelOriginal) panelOriginal.innerHTML = diff.originalHtml;
+      if (panelProcessed) panelProcessed.innerHTML = diff.processedHtml;
+      if (panelUnsorted) panelUnsorted.innerHTML = renderSimpleXml(unsortedXml);
 
-        return diff.stats;
+      return diff.stats;
     },
   };
 })();

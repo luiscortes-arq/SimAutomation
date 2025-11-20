@@ -1,64 +1,153 @@
-/* Animaciones Globales */
+/* ------------------------------------------------------------- */
+/* ANIMACIONES GLOBALES                                           */
+/* ------------------------------------------------------------- */
 
+/* NOTE FOR DUMMIES:
+   fadeInUp → aparece desde abajo con suavidad.
+*/
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(20px); /* Baja */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0); /* Posición original */
+  }
 }
 
+/* NOTE FOR DUMMIES:
+   fadeIn → solo aparición gradual.
+*/
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
+/* NOTE FOR DUMMIES:
+   hoverLift → pequeña elevación en hover o eventos.
+*/
 @keyframes hoverLift {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-5px); }
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-5px);
+  }
 }
 
+/* NOTE FOR DUMMIES:
+   pulseGlow → glow que late.
+*/
 @keyframes pulseGlow {
-    0% { box-shadow: 0 0 5px var(--color-acento-actual, rgba(255,255,255,0.2)); }
-    50% { box-shadow: 0 0 20px var(--color-acento-actual, rgba(255,255,255,0.5)); }
-    100% { box-shadow: 0 0 5px var(--color-acento-actual, rgba(255,255,255,0.2)); }
+  0% {
+    box-shadow: 0 0 5px var(--color-acento-actual, rgba(255, 255, 255, 0.2));
+  }
+  50% {
+    box-shadow: 0 0 20px var(--color-acento-actual, rgba(255, 255, 255, 0.5));
+  }
+  100% {
+    box-shadow: 0 0 5px var(--color-acento-actual, rgba(255, 255, 255, 0.2));
+  }
 }
 
+/* NOTE FOR DUMMIES:
+   slideInLeft → entra desde la izquierda.
+*/
 @keyframes slideInLeft {
-    from { opacity: 0; transform: translateX(-30px); }
-    to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
+/* NOTE FOR DUMMIES:
+   slideInRight → entra desde la derecha.
+*/
 @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(30px); }
-    to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
+/* NOTE FOR DUMMIES:
+   scaleUp → aparece agrandándose suavemente.
+*/
 @keyframes scaleUp {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-/* Clases de utilidad para animaciones */
-/* Inicializar opacidad en 0 para evitar flickering */
+/* ------------------------------------------------------------- */
+/* CLASES DE UTILIDAD PARA ANIMACIONES                            */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Estas clases parten con opacity:0 para evitar parpadeos (“flicker”).
+*/
 .anim-fade-in-up,
 .anim-fade-in,
 .anim-slide-in-left,
 .anim-slide-in-right,
 .anim-scale-up {
-    opacity: 0;
+  opacity: 0;
 }
 
-.anim-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-.anim-fade-in { animation: fadeIn 0.5s ease forwards; }
-.anim-slide-in-left { animation: slideInLeft 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-.anim-slide-in-right { animation: slideInRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-.anim-scale-up { animation: scaleUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+/* NOTE FOR DUMMIES:
+   Se aplican directamente al elemento para animarlo.
+*/
+.anim-fade-in-up {
+  animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
 
-/* Stagger delays */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
+.anim-fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.anim-slide-in-left {
+  animation: slideInLeft 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.anim-slide-in-right {
+  animation: slideInRight 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.anim-scale-up {
+  animation: scaleUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* ------------------------------------------------------------- */
+/* RETARDOS DE ANIMACIÓN (“STAGGER”)                              */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Agrega un pequeño delay para animaciones en cadena.
+*/
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
