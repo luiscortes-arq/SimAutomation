@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log - Sim Automation</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../recursos/estilos/base.css">
+    <link rel="stylesheet" href="../recursos/estilos/tema.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    <link rel="stylesheet" href="../recursos/estilos/animaciones.css">
+    <style>
+        body {
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        /* Encabezado del Log (Volver + Título Contexto) */
+        .log-header {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            border: 2px solid var(--texto-secundario);
+            color: var(--texto-principal);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .btn-volver:hover {
+            transform: translateX(-5px);
+            border-color: var(--color-acento-actual);
+            color: var(--color-acento-actual);
+        }
+
+        .titulo-contexto {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--texto-principal);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .indicador-contexto {
+            font-size: 0.8rem;
+            background: var(--color-acento-actual);
+            color: #fff;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            vertical-align: middle;
+        }
+
+        .contenedor-logs {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+            height: 60vh;
+        }
+        .panel-log {
+            flex: 1;
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Estilo Night (Neon) */
+        body:not(.tema-claro) .panel-log {
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid var(--color-amarillo);
+            box-shadow: 0 0 15px rgba(239, 182, 40, 0.1);
+        }
+
+        /* Estilo Day (Soft UI) */
+        body.tema-claro .panel-log {
+            background: #F0F2F5;
+            border: none;
+            box-shadow: 
+                8px 8px 16px #d1d9e6, 
+                -8px -8px 16px #ffffff;
+            color: #2d3436;
+        }
+
+        .titulo-panel {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: underline;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--texto-principal);
+            z-index: 1;
+        }
+        .contenido-log {
+            flex: 1;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--texto-secundario);
+            line-height: 1.6;
+            white-space: pre-wrap; /* Mantener formato */
+        }
+        /* Estilos específicos del log */
+        .cyan { color: #00bcd4; }
+        mark { background: rgba(255, 235, 59, 0.3); color: inherit; padding: 0 2px; border-radius: 2px; }
+        s { color: #E53935; text-decoration: line-through; opacity: 0.7; }
+        
+        /* Ajuste para Light Mode */
+        /* Ajuste para Light Mode */
+        body.tema-claro .cyan { color: #7f8c8d; } /* Gris tenue */
+        body.tema-claro mark { background: rgba(255, 235, 59, 0.5); }
+        
+        /* Override cyan to gray globally as requested */
+        .cyan { color: #95a5a6 !important; }
+
+        /* Resumen de Cambios */
+
+        /* Resumen de Cambios */
+        .resumen-cambios {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+            max-width: 800px;
+            justify-content: center;
+        }
+        .card-stat {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--borde-suave);
+            padding: 1.5rem 3rem;
+            border-radius: 16px;
+            text-align: center;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-stat:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .card-stat::after {
+            content: 'VER DETALLES';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 0.3rem;
+            font-size: 0.6rem;
+            background: rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .card-stat:hover::after {
+            opacity: 1;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            color: var(--texto-principal);
+        }
+        .stat-modificados { color: var(--color-amarillo); }
+        .stat-eliminados { color: #C42021; } /* Color solicitado */
+        
+        body.tema-claro .card-stat {
+            background: #fff;
+            box-shadow: 4px 4px 10px #d1d9e6, -4px -4px 10px #ffffff;
+            border: none;
+        }
+
+        /* Modal Detalles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.activo {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-content {
+            background: var(--fondo-principal);
+            border: 1px solid var(--borde-suave);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.activo .modal-content {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--borde-suave);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--texto-principal);
+        }
+        .btn-cerrar {
+            background: transparent;
+            border: none;
+            color: var(--texto-secundario);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .btn-cerrar:hover { color: var(--color-rojo); }
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .lista-detalles {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .lista-detalles li {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--borde-suave);
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+            display: flex;
+            justify-content: space-between;
+        }
+        .lista-detalles li:last-child { border-bottom: none; }
+        .tag-tipo {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+        .tag-mod { background: rgba(255, 235, 59, 0.1); color: var(--color-amarillo); border: 1px solid rgba(255, 235, 59, 0.3); }
+        .tag-add { background: rgba(76, 175, 80, 0.1); color: var(--color-verde); border: 1px solid rgba(76, 175, 80, 0.3); }
+        .tag-del { background: rgba(196, 32, 33, 0.1); color: #C42021; border: 1px solid rgba(196, 32, 33, 0.3); }
+        
+        .grupo-titulo {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--texto-principal);
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.2rem;
+            border-bottom: 1px solid var(--borde-suave);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .grupo-titulo:first-child { margin-top: 0; }
+
+    </style>
+</head>
+<body class="fondo-log anim-fade-in">
+
+    <div class="log-header anim-fade-in-up">
+        <button class="btn-volver" onclick="volver()">
+            <i data-lucide="arrow-left" style="width: 18px;"></i>
+            VOLVER
+        </button>
+        <div class="titulo-contexto">
+            LOG <span id="badge-contexto" class="indicador-contexto">GENERAL</span>
+        </div>
+    </div>
+
+    <!-- Resumen de Cambios -->
+    <div class="resumen-cambios anim-fade-in-up delay-50">
+        <div class="card-stat" onclick="mostrarDetalles('modificados')">
+            <span class="stat-number stat-modificados" id="count-mod">0</span>
+            <span class="stat-label">Modificados</span>
+        </div>
+        <div class="card-stat" onclick="mostrarDetalles('eliminados')">
+            <span class="stat-number stat-eliminados" id="count-del">0</span>
+            <span class="stat-label">Líneas Eliminadas</span>
+        </div>
+    </div>
+
+    <!-- Modal Detalles -->
+    <div class="modal-overlay" id="modal-detalles">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-titulo">Detalles</h3>
+                <button class="btn-cerrar" onclick="cerrarModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul class="lista-detalles" id="lista-detalles-contenido">
+                    <!-- Items -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="contenedor-logs">
+        <div class="panel-log anim-fade-in-up delay-100">
+            <h3 class="titulo-panel">ORIGINAL</h3>
+            <div class="contenido-log">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. <span class="tachado">sit amet bibendum enim</span> facilisis. Duis sollicitudin, magna ac ullamcorper faucibus...
+            </div>
+        </div>
+        <div class="panel-log anim-fade-in-up delay-200">
+            <h3 class="titulo-panel">PROCESADO</h3>
+            <div class="contenido-log">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. <span class="resaltado">sit amet bibendum enim</span> facilisis. Duis sollicitudin, magna ac ullamcorper faucibus...
+            </div>
+        </div>
+    </div>
+
+    <script src="../recursos/scripts/logica/log-viewer.js"></script>
+
+    <script>
+        lucide.createIcons();
+
+        // Obtener parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+        const origen = params.get('origen') || 'inicio';
+
+        // Configurar UI según origen
+        const badge = document.getElementById('badge-contexto');
+        const btnVolver = document.querySelector('.btn-volver');
+        
+        let colorAcento = 'var(--color-amarillo)'; // Default Log
+
+        if (origen === 'purga') {
+            badge.textContent = 'PURGA';
+            badge.style.backgroundColor = 'var(--color-verde)';
+            colorAcento = 'var(--color-verde)';
+            document.body.style.setProperty('--color-acento-actual', 'var(--color-verde)');
+        } else if (origen === 'reemplazar') {
+            badge.textContent = 'REEMPLAZAR';
+            badge.style.backgroundColor = 'var(--color-azul)';
+            colorAcento = 'var(--color-azul)';
+            document.body.style.setProperty('--color-acento-actual', 'var(--color-azul)');
+        }
+
+        // Global stats
+        let currentStats = null;
+
+        // Cargar datos del Log
+        const originalXml = sessionStorage.getItem('LOG_DATA_ORIGINAL');
+        const processedXml = sessionStorage.getItem('LOG_DATA_PROCESSED');
+
+        if (originalXml && processedXml) {
+            currentStats = window.LogViewer.render(originalXml, processedXml);
+            if (currentStats) {
+                // Modificados incluye Agregados
+                const modCount = currentStats.details.filter(d => d.type === 'MODIFICADO' || d.type === 'AGREGADO').length;
+                document.getElementById('count-mod').textContent = modCount;
+                
+                // Eliminados muestra líneas
+                document.getElementById('count-del').textContent = currentStats.removedLinesCount;
+            }
+        } else {
+            // Mensaje por defecto si no hay datos
+            document.querySelector('.panel-log:nth-child(1) .contenido-log').innerHTML = '<p style="text-align:center; opacity:0.5;">No hay datos cargados.</p>';
+            document.querySelector('.panel-log:nth-child(2) .contenido-log').innerHTML = '<p style="text-align:center; opacity:0.5;">No hay datos cargados.</p>';
+        }
+
+        // Lógica del Modal
+        const modal = document.getElementById('modal-detalles');
+        const lista = document.getElementById('lista-detalles-contenido');
+        const tituloModal = document.getElementById('modal-titulo');
+
+        function mostrarDetalles(tipo) {
+            if (!currentStats) return;
+            
+            lista.innerHTML = '';
+            modal.classList.add('activo');
+
+            let items = [];
+            if (tipo === 'modificados') {
+                tituloModal.textContent = 'ELEMENTOS MODIFICADOS / AGREGADOS';
+                items = currentStats.details.filter(d => d.type === 'MODIFICADO' || d.type === 'AGREGADO');
+            } else if (tipo === 'eliminados') {
+                tituloModal.textContent = 'ELEMENTOS ELIMINADOS';
+                items = currentStats.details.filter(d => d.type === 'ELIMINADO' || d.type === 'PARCIALMENTE_ELIMINADO');
+            }
+
+            if (items.length === 0) {
+                lista.innerHTML = '<li style="justify-content:center; opacity:0.5;">No hay elementos.</li>';
+            } else {
+                // Agrupar por Tag
+                const grouped = items.reduce((acc, item) => {
+                    const tag = item.tag || 'Otros';
+                    acc[tag] = acc[tag] || [];
+                    acc[tag].push(item);
+                    return acc;
+                }, {});
+
+                // Renderizar grupos
+                Object.keys(grouped).sort().forEach(tag => {
+                    lista.innerHTML += `<div class="grupo-titulo">${tag}</div>`;
+                    
+                    grouped[tag].forEach(item => {
+                        let tagClass = '';
+                        let labelTipo = item.type;
+                        
+                        if (item.type === 'MODIFICADO') tagClass = 'tag-mod';
+                        else if (item.type === 'AGREGADO') tagClass = 'tag-add';
+                        else if (item.type === 'ELIMINADO') tagClass = 'tag-del';
+                        else if (item.type === 'PARCIALMENTE_ELIMINADO') {
+                            tagClass = 'tag-del'; 
+                            labelTipo = 'ELIMINADO (PARCIAL)';
+                        }
+
+                        lista.innerHTML += `
+                            <li>
+                                <div style="flex:1;">
+                                    <strong>${item.name}</strong>
+                                    <div style="font-size:0.75em; opacity:0.7; margin-top:2px;">${item.desc}</div>
+                                </div>
+                                <span class="tag-tipo ${tagClass}">${labelTipo}</span>
+                            </li>`;
+                    });
+                });
+            }
+            
+            lucide.createIcons();
+        }
+
+        function cerrarModal() {
+            modal.classList.remove('activo');
+        }
+
+        // Cerrar al hacer click fuera
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) cerrarModal();
+        });
+
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'CAMBIO_TEMA') {
+                if (event.data.tema === 'claro') {
+                    document.body.classList.add('tema-claro');
+                    document.body.classList.remove('tema-oscuro');
+                } else {
+                    document.body.classList.add('tema-oscuro');
+                    document.body.classList.remove('tema-claro');
+                }
+            }
+        });
+
+        function volver() {
+            const rutaDestino = origen === 'inicio' ? 'inicio.html' : `${origen}.html`;
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: rutaDestino }, '*');
+        }
+    </script>
+</body>
+</html>

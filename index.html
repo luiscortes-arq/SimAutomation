@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sim Automation - Hermosillo</title>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Estilos Globales -->
+    <link rel="stylesheet" href="recursos/estilos/base.css">
+    <link rel="stylesheet" href="recursos/estilos/tema.css">
+    <link rel="stylesheet" href="recursos/estilos/animaciones.css">
+    <link rel="stylesheet" href="recursos/estilos/encabezado.css">
+    <link rel="stylesheet" href="recursos/estilos/pie.css">
+    <link rel="stylesheet" href="recursos/estilos/componentes/herramientas-botones.css">
+
+    <!-- Scripts -->
+    <script src="recursos/scripts/tema.js" defer></script>
+    <script src="recursos/scripts/enrutador.js" defer></script>
+    <script src="recursos/scripts/app.js" defer></script>
+</head>
+<body>
+    <!-- Fondo de Ondas (Global) -->
+    <!-- Fondo de Ondas (Global) eliminado -->
+
+    <!-- Encabezado Global -->
+    <header class="encabezado-global">
+        <div class="marca">
+            <div class="logo-hermosillo">
+                <img src="recursos/imagenes/logos/hermosillo-dark-logo.svg" class="logo-img logo-night" alt="Hermosillo">
+                <img src="recursos/imagenes/logos/hermosillo-light-logo.svg" class="logo-img logo-day" alt="Hermosillo">
+            </div>
+        </div>
+
+        <div class="titulo-app">
+            <h1>SIM AUTOMATION</h1>
+        </div>
+
+        <div class="controles-tema">
+            <button id="btn-tema" class="toggle-tema" aria-label="Cambiar Tema">
+                <i data-lucide="moon" class="icono-tema-lucide"></i>
+                <span class="texto-tema">NIGHT</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal (Iframe) -->
+    <main class="contenedor-principal">
+        <iframe id="vista-frame" src="vistas/inicio.html" frameborder="0" title="Vista Principal"></iframe>
+    </main>
+
+    <!-- Pie de Página Global -->
+    <footer class="pie-global">
+        <p>DESARROLLADO POR <strong>CORE INNOVATION X VDC</strong></p>
+    </footer>
+
+    <script>
+        // Inicializar iconos Lucide cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+
+        // Escuchar mensajes para actualizar título y contexto
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'ACTUALIZAR_CONTEXTO') {
+                // Actualizar Título
+                const tituloElement = document.querySelector('.titulo-app h1');
+                if (tituloElement) tituloElement.textContent = event.data.titulo;
+
+                // Actualizar Color de Acento para el botón
+                document.body.style.setProperty('--color-acento-actual', event.data.colorAcento);
+            }
+        });
+
+        // Navegación al Dashboard desde el Logo
+        const logoContainer = document.querySelector('.logo-hermosillo');
+        if (logoContainer) {
+            logoContainer.style.cursor = 'pointer';
+            logoContainer.addEventListener('click', () => {
+                const iframe = document.getElementById('vista-frame');
+                if (iframe) {
+                    iframe.src = 'vistas/inicio.html';
+                    // Reset manual del título/contexto
+                    document.querySelector('.titulo-app h1').textContent = 'SIM AUTOMATION';
+                    document.body.style.setProperty('--color-acento-actual', 'var(--color-naranja)');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

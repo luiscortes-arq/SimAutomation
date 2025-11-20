@@ -1,0 +1,163 @@
+/* Estilos específicos para las tarjetas de Inicio */
+
+.dashboard-grid {
+    display: flex;
+    gap: 4rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.tarjeta-accion {
+    position: relative;
+    flex: 1;
+    max-width: 380px;
+    padding: 3rem 2rem;
+    border-radius: 24px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* --- TEMA NIGHT: Neon Minimal --- */
+/* --- TEMA NIGHT: Neon Glass Minimal --- */
+body:not(.tema-claro) .tarjeta-accion {
+    background: rgba(20, 20, 20, 0.6); /* Semi-transparente */
+    backdrop-filter: blur(12px); /* Efecto Glass */
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Borde Gradiente Neon (Pseudo-elemento) */
+body:not(.tema-claro) .tarjeta-accion::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px; 
+    padding: 1px; /* Más fino */
+    background: linear-gradient(135deg, var(--color-acento-tarjeta), transparent 40%); 
+    -webkit-mask: 
+       linear-gradient(#fff 0 0) content-box, 
+       linear-gradient(#fff 0 0);
+    mask: 
+       linear-gradient(#fff 0 0) content-box, 
+       linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 0.4s ease;
+}
+
+body:not(.tema-claro) .tarjeta-accion:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(30, 30, 30, 0.7);
+    box-shadow: 0 0 40px var(--color-acento-tarjeta-alpha, rgba(255,255,255,0.1));
+}
+
+body:not(.tema-claro) .tarjeta-accion:hover::before {
+    opacity: 1;
+    background: linear-gradient(135deg, var(--color-acento-tarjeta), var(--color-acento-tarjeta));
+}
+
+/* --- TEMA DAY: Ultra Soft UI --- */
+body.tema-claro .tarjeta-accion {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 
+        20px 20px 60px #d1d9e6, 
+        -20px -20px 60px #ffffff;
+    color: #2d3436;
+}
+
+body.tema-claro .tarjeta-accion:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 
+        20px 20px 60px #c8d0e7, 
+        -20px -20px 60px #ffffff;
+    border-color: var(--color-acento-tarjeta);
+}
+
+/* --- Variantes de Color --- */
+.tarjeta-purga {
+    --color-acento-tarjeta: var(--color-verde);
+}
+
+.tarjeta-reemplazar {
+    --color-acento-tarjeta: var(--color-azul);
+}
+
+/* --- Iconografía --- */
+.icono-contenedor {
+    color: var(--color-acento-tarjeta);
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+.icono-contenedor svg {
+    width: 80px;
+    height: 80px;
+    stroke-width: 1.5;
+}
+
+/* --- Tipografía --- */
+.titulo-tarjeta {
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--texto-principal);
+    letter-spacing: 1.5px;
+    margin: 0;
+}
+
+.descripcion-tarjeta {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+    line-height: 1.6;
+    max-width: 80%;
+}
+
+/* --- Efectos de Sombreado Dinámico (Glow) --- */
+/* Night Mode Glow */
+body.tema-oscuro .tarjeta-accion::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, var(--color-acento-tarjeta) 0%, transparent 60%);
+    opacity: 0.05;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+body.tema-oscuro .tarjeta-accion:hover::after {
+    opacity: 0.15;
+}
+
+/* Day Mode Subtle Gradient */
+body.tema-claro .tarjeta-accion {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border: 1px solid rgba(0,0,0,0.05); /* Definición sutil */
+}
+
+body.tema-claro .tarjeta-purga:hover {
+    border-color: var(--color-verde);
+}
+
+body.tema-claro .tarjeta-reemplazar:hover {
+    border-color: var(--color-azul);
+}

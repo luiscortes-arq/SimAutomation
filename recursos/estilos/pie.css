@@ -1,0 +1,43 @@
+.pie-global {
+    text-align: center;
+    padding: 1rem;
+    padding-bottom: 2rem; /* Posición ajustada */
+    font-size: 0.75rem;
+    color: #c0c0c0;
+    letter-spacing: 1px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: transparent;
+    pointer-events: none;
+    border: none; /* Sin bordes */
+}
+
+.pie-global p {
+    pointer-events: auto;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.pie-global p:hover {
+    opacity: 1;
+}
+
+.pie-global strong {
+    color: #FFFFFF;
+    font-weight: 700;
+    /* Sutil glow en el texto de la marca */
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* Ajuste específico para Modo Light */
+body.tema-claro .pie-global {
+    color: #3f3f3f; /* Color exacto solicitado */
+}
+
+body.tema-claro .pie-global strong {
+    color: #000000; /* Marca en negro o gris muy oscuro para contraste */
+    text-shadow: none;
+}
