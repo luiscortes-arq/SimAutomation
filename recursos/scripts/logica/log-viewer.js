@@ -396,16 +396,21 @@
   // ============================================================
   window.LogViewer = {
     render: (originalXml, processedXml) => {
-      const diff = buildSideBySideHtml(originalXml, processedXml);
+      return new Promise((resolve) => {
+        // El setTimeout libera el hilo principal para que la UI se actualice (ej. mostrar "cargando").
+        setTimeout(() => {
+          const diff = buildSideBySideHtml(originalXml, processedXml);
 
-      // Inyectar en los contenedores existentes de log.html
-      const panels = document.querySelectorAll(".panel-log .contenido-log");
-      if (panels.length >= 2) {
-        panels[0].innerHTML = `<pre class="log-code-block">${diff.originalHtml}</pre>`;
-        panels[1].innerHTML = `<pre class="log-code-block">${diff.processedHtml}</pre>`;
-      }
+          // Inyectar en los contenedores existentes de log.html
+          const panels = document.querySelectorAll(".panel-log .contenido-log");
+          if (panels.length >= 2) {
+            panels[0].innerHTML = `<pre class="log-code-block">${diff.originalHtml}</pre>`;
+            panels[1].innerHTML = `<pre class="log-code-block">${diff.processedHtml}</pre>`;
+          }
 
-      return diff.stats;
+          resolve(diff.stats);
+        }, 10);
+      });
     },
   };
 })();
