@@ -104,7 +104,23 @@ body.fondo-log .btn-outline {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* Ajuste para Modo Light - Borde visible */
+/* Ajuste para Modo Light - Colores específicos por vista */
+body.tema-claro.fondo-purga .btn-outline {
+    border-color: var(--color-verde);
+    color: var(--color-verde);
+}
+
+body.tema-claro.fondo-reemplazar .btn-outline {
+    border-color: var(--color-azul);
+    color: var(--color-azul);
+}
+
+body.tema-claro.fondo-log .btn-outline {
+    border-color: var(--color-amarillo);
+    color: var(--color-amarillo);
+}
+
+/* Fallback para modo claro sin clase específica */
 body.tema-claro .btn-outline {
     border-color: #3f3f3f;
     color: #3f3f3f;

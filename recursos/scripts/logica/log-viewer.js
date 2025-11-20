@@ -162,7 +162,7 @@
           // So we just need to count the length of 'os'.
           // BUT, 'byName' only groups by the *definition* line. 
           // We need to count the full block.
-          removedLinesCount += countLinesOfTag(oLines, obj.i);
+          removedLinesCount += 1;
         });
       }
     });

@@ -3,7 +3,7 @@
     text-align: center;
     padding: 1rem;
     position: fixed;
-    bottom: 0;
+    bottom: 4rem; /* Movido más arriba */
     left: 0;
     z-index: 100;
     pointer-events: none; /* Para que no bloquee clicks en el fondo si fuera necesario, pero el texto sí debe ser interactivo */

@@ -1,5 +1,6 @@
 /* 
     FONDOS DE ONDA ESTÁTICOS (CSS)
+    Usa mask para colorear el SVG según el acento de cada vista
 */
 
 .fondo-ondas {
@@ -8,20 +9,59 @@
     left: 0;
     width: 100%;
     height: 100vh;
-    z-index: 0; /* Cambiado de -1 a 0 para evitar que quede detrás del body */
+    z-index: 0;
     pointer-events: none;
     overflow: hidden;
     
-    /* Imagen de fondo estática */
-    background-image: url('../imagenes/fondos/wave-background.svg');
-    background-repeat: no-repeat;
-    background-position: bottom center; /* Anclar al fondo */
-    background-size: 100% auto; /* Ancho completo */
-    opacity: 1; /* Máxima visibilidad */
+    /* Color base (naranja por defecto) */
+    background-color: var(--color-naranja, #e95e2d);
+    
+    /* Usar el SVG como máscara */
+    -webkit-mask-image: url('../imagenes/fondos/wave-background.svg');
+    mask-image: url('../imagenes/fondos/wave-background.svg');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: bottom center;
+    mask-position: bottom center;
+    -webkit-mask-size: 100% auto;
+    mask-size: 100% auto;
+    
+    /* Opacidad para tema oscuro */
+    opacity: 0.6;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
-/* Ajustes por tema */
+/* Ajustes por tema claro */
 body.tema-claro .fondo-ondas {
-    opacity: 0.3; /* Un poco más visible en claro */
-    filter: invert(1);
+    opacity: 0.3;
+}
+
+/* Variaciones por color de acento */
+
+/* Naranja (Inicio) */
+body[style*="--color-acento-actual: var(--color-naranja)"] .fondo-ondas,
+body[style*="--color-acento-actual:#e95e2d"] .fondo-ondas,
+body[style*="#e95e2d"] .fondo-ondas {
+    background-color: #e95e2d;
+}
+
+/* Verde (Purga) */
+body[style*="--color-acento-actual: var(--color-verde)"] .fondo-ondas,
+body[style*="--color-acento-actual:#6c7d47"] .fondo-ondas,
+body[style*="#6c7d47"] .fondo-ondas {
+    background-color: #6c7d47;
+}
+
+/* Azul (Reemplazar) */
+body[style*="--color-acento-actual: var(--color-azul)"] .fondo-ondas,
+body[style*="--color-acento-actual:#6990ab"] .fondo-ondas,
+body[style*="#6990ab"] .fondo-ondas {
+    background-color: #6990ab;
+}
+
+/* Amarillo (Log) */
+body[style*="--color-acento-actual: var(--color-amarillo)"] .fondo-ondas,
+body[style*="--color-acento-actual:#efb628"] .fondo-ondas,
+body[style*="#efb628"] .fondo-ondas {
+    background-color: #efb628;
 }

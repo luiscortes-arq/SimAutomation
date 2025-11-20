@@ -70,6 +70,22 @@ body.fondo-reemplazar .num-resaltado { color: var(--color-acento-actual, var(--c
     color: var(--texto-titulo-no-num);
 }
 
+/* LISTO usa font-weight: 800, aplicar color de acento */
+.texto-titulo[style*="font-weight: 800"],
+.texto-titulo[style*="font-weight:800"] {
+    color: var(--color-acento-actual, var(--color-naranja));
+}
+
+body.fondo-purga .texto-titulo[style*="font-weight: 800"],
+body.fondo-purga .texto-titulo[style*="font-weight:800"] {
+    color: var(--color-acento-actual, var(--color-verde));
+}
+
+body.fondo-reemplazar .texto-titulo[style*="font-weight: 800"],
+body.fondo-reemplazar .texto-titulo[style*="font-weight:800"] {
+    color: var(--color-acento-actual, var(--color-azul));
+}
+
 .titulo-con-numero:hover {
     text-shadow: 0 0 10px rgba(255,255,255,0.2);
 }

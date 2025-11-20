@@ -66,18 +66,34 @@ body.fondo-inicio {
     z-index: -1;
 }
 
-/* Mostrar borde animado siempre (tenue) y fuerte en hover */
+/* Mostrar borde animado con efecto pulsing */
 .tarjeta-accion::before {
-    opacity: 0.3;
+    opacity: 0.5;
+    animation: pulso-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes pulso-glow {
+    0%, 100% {
+        opacity: 0.5;
+        box-shadow: 0 0 30px var(--color-acento-tarjeta),
+                    0 0 60px rgba(var(--color-acento-tarjeta), 0.3);
+    }
+    50% {
+        opacity: 0.9;
+        box-shadow: 0 0 50px var(--color-acento-tarjeta),
+                    0 0 100px rgba(var(--color-acento-tarjeta), 0.5);
+    }
 }
 
 .tarjeta-accion:hover::before {
     opacity: 1;
+    animation: none; /* Detener animación en hover */
 }
 
 .tarjeta-accion:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3),
+                0 0 40px var(--color-acento-tarjeta);
 }
 
 /* --- Iconografía --- */
