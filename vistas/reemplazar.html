@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reemplazar - Sim Automation</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../recursos/estilos/base.css">
+    <link rel="stylesheet" href="../recursos/estilos/tema.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/herramientas-botones.css">
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    <style>
+        body {
+            background-color: transparent; /* Vital para ver el fondo de onda (z-index: -1) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            position: relative;
+        }
+        .titulo-vista {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--texto-principal);
+            margin-bottom: 4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .fila-botones {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+        .grupo-accion {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .info-archivo {
+            margin-top: 0.8rem;
+            font-size: 0.8rem;
+            color: var(--texto-principal);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body class="fondo-reemplazar">
+    <!-- Título eliminado (Manejado por Header Global) -->
+
+    <div class="fila-botones">
+        <div class="grupo-accion">
+            <button class="btn btn-azul btn-grande" style="width: 220px;">
+                <span>SORTED</span>
+                <div class="btn-icono-circulo">
+                    <i data-lucide="chevrons-right"></i>
+                </div>
+            </button>
+            <span class="info-archivo">01 ARCHIVOS</span>
+        </div>
+
+        <div class="grupo-accion">
+            <button class="btn btn-azul btn-grande" style="width: 220px;">
+                <span>NEW</span>
+                <div class="btn-icono-circulo">
+                    <i data-lucide="chevrons-right"></i>
+                </div>
+            </button>
+            <span class="info-archivo">01 ARCHIVOS</span>
+        </div>
+    </div>
+
+    <div class="grupo-accion" style="margin-bottom: 2rem;">
+        <button class="btn btn-azul btn-grande">
+            <span>IR</span>
+            <div class="btn-icono-circulo">
+                <i data-lucide="download"></i>
+            </div>
+        </button>
+        <span class="info-archivo">LISTO PARA DESCARGA</span>
+    </div>
+
+    <div class="grupo-accion">
+        <button class="btn btn-outline" onclick="navegar('log.html')">LOG</button>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'CAMBIO_TEMA') {
+                if (event.data.tema === 'claro') {
+                    document.body.classList.add('tema-claro');
+                    document.body.classList.remove('tema-oscuro');
+                } else {
+                    document.body.classList.add('tema-oscuro');
+                    document.body.classList.remove('tema-claro');
+                }
+            }
+        });
+
+        function navegar(ruta) {
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: ruta }, '*');
+        }
+    </script>
+</body>
+</html>

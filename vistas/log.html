@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log - Sim Automation</title>
+    <link rel="stylesheet" href="../recursos/estilos/base.css">
+    <link rel="stylesheet" href="../recursos/estilos/tema.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    <style>
+        body {
+            background-color: transparent; /* Vital para ver el fondo de onda (z-index: -1) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+        .titulo-vista {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--texto-principal);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+        .contenedor-logs {
+            display: flex;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1000px;
+            height: 60vh;
+        }
+        .panel-log {
+            flex: 1;
+            background: var(--bg-tarjeta);
+            border-radius: 20px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--sombra-tarjeta);
+            overflow: hidden;
+        }
+        .titulo-panel {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-decoration: underline;
+            margin-bottom: 1rem;
+            text-align: center;
+            color: var(--texto-principal);
+        }
+        .contenido-log {
+            flex: 1;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--texto-secundario);
+            line-height: 1.6;
+        }
+        /* Estilos específicos del log */
+        .tachado {
+            text-decoration: line-through;
+            color: #E53935; /* Rojo */
+        }
+        .resaltado {
+            color: #FDD835; /* Amarillo */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="fondo-log">
+    <!-- Título eliminado (Manejado por Header Global) -->
+    <!-- Botón Volver eliminado -->
+
+    <div class="contenedor-logs">
+        <div class="panel-log">
+            <h3 class="titulo-panel">ORIGINAL</h3>
+            <div class="contenido-log">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. <span class="tachado">sit amet bibendum enim</span> facilisis. Duis sollicitudin, magna ac ullamcorper faucibus...
+            </div>
+        </div>
+        <div class="panel-log">
+            <h3 class="titulo-panel">PROCESADO</h3>
+            <div class="contenido-log">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. <span class="resaltado">sit amet bibendum enim</span> facilisis. Duis sollicitudin, magna ac ullamcorper faucibus...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'CAMBIO_TEMA') {
+                if (event.data.tema === 'claro') {
+                    document.body.classList.add('tema-claro');
+                    document.body.classList.remove('tema-oscuro');
+                } else {
+                    document.body.classList.add('tema-oscuro');
+                    document.body.classList.remove('tema-claro');
+                }
+            }
+        });
+
+        function navegar(ruta) {
+            window.parent.postMessage({ tipo: 'NAVEGAR', ruta: ruta }, '*');
+        }
+    </script>
+</body>
+</html>

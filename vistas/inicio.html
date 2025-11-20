@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Sim Automation</title>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Estilos Compartidos -->
+    <link rel="stylesheet" href="../recursos/estilos/base.css">
+    <link rel="stylesheet" href="../recursos/estilos/tema.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/contenedores.css">
+    <link rel="stylesheet" href="../recursos/estilos/componentes/home-tarjetas.css">
+    <link rel="stylesheet" href="../recursos/estilos/fondos.css">
+    
+    <style>
+        body {
+            background: transparent; /* El fondo lo pone el padre */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="fondo-inicio">
+
+    <div class="dashboard-grid">
+        <!-- Tarjeta Purga -->
+        <div class="tarjeta-accion tarjeta-purga" onclick="navegar('purga.html')">
+            <div class="icono-contenedor">
+                <!-- Icono Lucide: Hard Hat (Construction) -->
+                <i data-lucide="hard-hat"></i>
+            </div>
+            <h2 class="titulo-tarjeta">PURGA</h2>
+            <p class="descripcion-tarjeta">Organizar el "Phasing Timeliner".</p>
+        </div>
+
+        <!-- Tarjeta Reemplazar -->
+        <div class="tarjeta-accion tarjeta-reemplazar" onclick="navegar('reemplazar.html')">
+            <div class="icono-contenedor">
+                <!-- Icono Lucide: Replace / Refresh-cw -->
+                <i data-lucide="refresh-cw"></i>
+            </div>
+            <h2 class="titulo-tarjeta">REEMPLAZAR</h2>
+            <p class="descripcion-tarjeta">Construir el "Phasing Timeliner".</p>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar iconos
+        lucide.createIcons();
+
+        // Comunicación con el padre
+        window.addEventListener('message', (event) => {
+            if (event.data.tipo === 'CAMBIO_TEMA') {
+                aplicarTema(event.data.tema);
+            }
+        });
+
+        function aplicarTema(tema) {
+            if (tema === 'claro') {
+                document.body.classList.add('tema-claro');
+                document.body.classList.remove('tema-oscuro');
+            } else {
+                document.body.classList.add('tema-oscuro');
+                document.body.classList.remove('tema-claro');
+            }
+        }
+
+        function navegar(ruta) {
+            window.parent.postMessage({ 
+                tipo: 'NAVEGAR', 
+                ruta: ruta 
+            }, '*');
+        }
+    </script>
+</body>
+</html>

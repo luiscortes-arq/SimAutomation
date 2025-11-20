@@ -1,0 +1,24 @@
+.pie-global {
+    text-align: center;
+    padding: 1rem;
+    padding-bottom: 2rem; /* Un poquito más arriba */
+    font-size: 0.75rem;
+    color: #c0c0c0; /* Color solicitado */
+    letter-spacing: 0.5px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: transparent;
+    pointer-events: none;
+}
+
+.pie-global p {
+    pointer-events: auto; /* Reactivar clicks en el texto si fuera necesario */
+}
+
+.pie-global strong {
+    color: var(--texto-principal);
+    font-weight: 700;
+}

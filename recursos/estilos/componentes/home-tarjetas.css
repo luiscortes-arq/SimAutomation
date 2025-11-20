@@ -1,0 +1,111 @@
+/* Estilos específicos para las tarjetas de Inicio */
+
+.dashboard-grid {
+    display: flex;
+    gap: 4rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.tarjeta-accion {
+    background: var(--bg-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 40px; /* Bordes redondeados como en mockups */
+    padding: 4rem 3rem;
+    text-align: center;
+    flex: 1;
+    max-width: 400px;
+    cursor: pointer;
+    transition: var(--transicion-tema), transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: var(--sombra-tarjeta);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.tarjeta-accion:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+/* --- Variantes de Color --- */
+.tarjeta-purga {
+    --color-acento-tarjeta: var(--color-verde);
+}
+
+.tarjeta-reemplazar {
+    --color-acento-tarjeta: var(--color-azul);
+}
+
+/* --- Iconografía --- */
+.icono-contenedor {
+    color: var(--color-acento-tarjeta);
+    margin-bottom: 1rem;
+    transition: color 0.3s ease;
+}
+
+.icono-contenedor svg {
+    width: 80px;
+    height: 80px;
+    stroke-width: 1.5;
+}
+
+/* --- Tipografía --- */
+.titulo-tarjeta {
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--texto-principal);
+    letter-spacing: 1.5px;
+    margin: 0;
+}
+
+.descripcion-tarjeta {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+    line-height: 1.6;
+    max-width: 80%;
+}
+
+/* --- Efectos de Sombreado Dinámico (Glow) --- */
+/* Night Mode Glow */
+body.tema-oscuro .tarjeta-accion::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, var(--color-acento-tarjeta) 0%, transparent 60%);
+    opacity: 0.05;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+body.tema-oscuro .tarjeta-accion:hover::after {
+    opacity: 0.15;
+}
+
+/* Day Mode Subtle Gradient */
+body.tema-claro .tarjeta-accion {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border: 1px solid rgba(0,0,0,0.05); /* Definición sutil */
+}
+
+body.tema-claro .tarjeta-purga:hover {
+    border-color: var(--color-verde);
+}
+
+body.tema-claro .tarjeta-reemplazar:hover {
+    border-color: var(--color-azul);
+}

@@ -1,0 +1,61 @@
+:root {
+    /* --- Paleta Oficial --- */
+    --color-naranja: #e95e2d;
+    --color-verde: #6c7d47;
+    --color-azul: #6990ab;
+    --color-amarillo: #efb628;
+    
+    --color-negro-profundo: #0b0b0b; /* Fondo NIGHT */
+    --color-gris-claro: #c0c0c0;
+    --color-fondo-day: #e5e5e5; /* Fondo DAY */
+    
+    --color-blanco: #FFFFFF;
+
+    /* --- Tipografía --- */
+    --fuente-principal: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    
+    /* --- Transiciones --- */
+    --transicion-tema: background-color 0.5s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* --- Tema NIGHT (Default) --- */
+:root, body.tema-oscuro {
+    --bg-app: var(--color-negro-profundo);
+    --texto-principal: var(--color-blanco);
+    --texto-secundario: var(--color-gris-claro);
+    
+    /* Componentes */
+    --bg-tarjeta: rgba(20, 20, 20, 0.8);
+    --borde-tarjeta: rgba(255, 255, 255, 0.1);
+    --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.7);
+    
+    /* Ondas */
+    --color-onda-primario: rgba(233, 94, 45, 0.2); /* Naranja sutil */
+    --color-onda-secundario: rgba(233, 94, 45, 0.05);
+
+    /* UI Elements */
+    --bg-toggle: rgba(255, 255, 255, 0.1);
+    --texto-toggle: var(--color-blanco);
+    --bg-btn-outline-hover: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Tema DAY --- */
+body.tema-claro {
+    --bg-app: #FFFFFF; /* Blanco puro solicitado */
+    --texto-principal: #111111;
+    --texto-secundario: #555555;
+    
+    /* Componentes */
+    --bg-tarjeta: #FFFFFF;
+    --borde-tarjeta: rgba(0, 0, 0, 0.05);
+    --sombra-tarjeta: 0 15px 35px rgba(0, 0, 0, 0.08); /* Sombra más suave y difusa */
+    
+    /* Ondas - Más vibrantes en Day Mode */
+    --color-onda-primario: rgba(233, 94, 45, 0.1);
+    --color-onda-secundario: rgba(233, 94, 45, 0.02);
+
+    /* UI Elements */
+    --bg-toggle: #e0e0e0;
+    --texto-toggle: #333333;
+    --bg-btn-outline-hover: rgba(0, 0, 0, 0.05);
+}
