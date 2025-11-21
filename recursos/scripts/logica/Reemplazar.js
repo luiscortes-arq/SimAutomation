@@ -32,8 +32,13 @@
     /<ActorMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/ActorMesh>)/gi;
 
   // NOTE FOR DUMMIES:
+  // Localiza cualquier StaticMesh completo (raíz o no).
+  const RE_STATICMESH_GLOBAL =
+    /<StaticMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/StaticMesh>)/gi;
+
+  // NOTE FOR DUMMIES:
   // Los IDs válidos tienen forma PREFIX-### → ejemplo: CO_444 → CO-444
-  const RE_ID = /\b([A-Za-z0-9]+)-(\d+)\b/i;
+  const RE_ID = /\b([A-Za-z0-9]+)[-_](\d+)\b/i;
 
   // NOTE FOR DUMMIES:
   // Se busca cualquier <MetaData ...> completo
@@ -41,7 +46,7 @@
 
   // NOTE FOR DUMMIES:
   // Donde está guardada la referencia Actor.id dentro de Metadata
-  const RE_METADATA_REF = /\breference=(?:"([^"]+)"|'([^']+)')/i;
+  const RE_METADATA_REF = /\breference=(?:"([^"]+)|'([^']+)')/i;
 
   // NOTE FOR DUMMIES:
   // Filtra propiedades <KeyValueProperty name="Element*Type">
@@ -51,7 +56,7 @@
 
   // NOTE FOR DUMMIES:
   // Extrae atributo val="XYZ"
-  const RE_ATTR_VAL = /\bval\s*=\s*(?:"([^"]+)"|'([^']+)')/i;
+  const RE_ATTR_VAL = /\bval\s*=\s*(?:"([^"]+)|'([^']+)')/i;
 
   // NOTE FOR DUMMIES:
   // Devuelve el grupo capturado sin importar si estaba entre " " o ' '
@@ -92,7 +97,7 @@
 
   // NOTE FOR DUMMIES:
   // Recorre la PLANTILLA ORIGINAL y construye mapas.
-  // AHORA TAMBIÉN CAPTURA LABELS DE ACTORS/ROOT ITEMS.
+  // AHORA TAMBIÉN CAPTURA LABELS DE ACTORS/ROOT ITEMS Y StaticMesh EN RAIZ.
   function buildOriginalMaps(origXml) {
     const idToActorId = {};
     const idToActorMeshId = {};
@@ -111,11 +116,20 @@
       // Intentar obtener Label del bloque raíz
       const mLabel = RE_LABEL_ATTR.exec(block);
       if (mLabel) {
-          // Usamos el ID del name como clave para guardar el label
-          // Pero ojo: el ID que usamos para ordenar es el Label mismo?
-          // No, usamos el Label para ordenar, pero necesitamos asociarlo al ID (name) para buscarlo luego.
-          // Espera, el sort se hace sobre la estructura.
           idToRootLabel[rootId] = firstGroup(mLabel);
+      }
+
+      // Si es StaticMesh en la raíz, también lo mapeamos como "mesh"
+      if (/^<StaticMesh\b/i.test(block)) {
+        const nid = extractActorMeshId(block);
+        if (nid) {
+          // Para StaticMesh raíz, el "Actor" es el mismo elemento
+          if (!(nid in idToActorId)) idToActorId[nid] = rootId;
+          if (!(nid in idToActorMeshId)) idToActorMeshId[nid] = rootId;
+          if (mLabel && !(nid in idToActorMeshLabel)) {
+            idToActorMeshLabel[nid] = firstGroup(mLabel);
+          }
+        }
       }
 
       // Buscar hijos (si es Actor)
@@ -149,10 +163,11 @@
   }
 
   // NOTE FOR DUMMIES:
-  // Toma el XML nuevo y reemplaza los name="" de ActorMesh
+  // Toma el XML nuevo y reemplaza los name="" de ActorMesh y StaticMesh
   // por los nombres originales de la plantilla, usando el mapa anterior.
   function replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId) {
-    return newXml.replace(RE_ACTORMESH_GLOBAL, (block) => {
+    // Procesar ActorMesh
+    let result = newXml.replace(RE_ACTORMESH_GLOBAL, (block) => {
       const nid = extractActorMeshId(block);
       if (!nid) return block;
 
@@ -165,6 +180,23 @@
         return `name=${quote}${origName}${quote}`;
       });
     });
+
+    // Procesar StaticMesh en raíz
+    result = result.replace(RE_STATICMESH_GLOBAL, (block) => {
+      const nid = extractActorMeshId(block);
+      if (!nid) return block;
+
+      const origName = idToActorMeshId[nid];
+      if (!origName) return block;
+
+      // Cambia name="xxxx" por name="ORIGINAL"
+      return block.replace(RE_NAME_ATTR, (m, g1, g2) => {
+        const quote = g1 != null ? '"' : "'";
+        return `name=${quote}${origName}${quote}`;
+      });
+    });
+
+    return result;
   }
 
   // NOTE FOR DUMMIES:
@@ -172,8 +204,8 @@
   // Esto es vital para que el Log no muestre cambios falsos de Label
   // y para cumplir con la regla de "respetar sintaxis original".
   function restoreActorMeshLabels(newXml, idToActorMeshLabel) {
-    // Afecta tanto a ActorMesh como StaticMesh (si existieran sueltos, aunque aquí nos enfocamos en ActorMesh)
-    return newXml.replace(RE_ACTORMESH_GLOBAL, (block) => {
+    // Procesar ActorMesh
+    let result = newXml.replace(RE_ACTORMESH_GLOBAL, (block) => {
       const nid = extractActorMeshId(block);
       if (!nid) return block;
 
@@ -188,9 +220,31 @@
         });
       } else {
         // Insertar label antes del cierre
-        return block.replace(/(\/?>)$/, ` label="${origLabel}"$1`);
+        return block.replace(/(\/>)$/, ` label="${origLabel}"$1`);
       }
     });
+
+    // Procesar StaticMesh en raíz
+    result = result.replace(RE_STATICMESH_GLOBAL, (block) => {
+      const nid = extractActorMeshId(block);
+      if (!nid) return block;
+
+      const origLabel = idToActorMeshLabel[nid];
+      if (!origLabel) return block;
+
+      // Si ya tiene label, lo reemplazamos. Si no, lo insertamos.
+      if (RE_LABEL_ATTR.test(block)) {
+        return block.replace(RE_LABEL_ATTR, (m, g1, g2) => {
+            const quote = g1 != null ? '"' : "'";
+            return `label=${quote}${origLabel}${quote}`;
+        });
+      } else {
+        // Insertar label antes del cierre
+        return block.replace(/(\/>)$/, ` label="${origLabel}"$1`);
+      }
+    });
+
+    return result;
   }
 
   // NOTE FOR DUMMIES:
