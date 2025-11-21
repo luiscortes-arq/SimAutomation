@@ -241,10 +241,35 @@
       if (processedActor !== actorBlock) modificados++;
     }
     
-    // 4. Extraer StaticMesh del NUEVO
+    // 4. PRESERVAR StaticMesh del ORIGINAL y actualizar/agregar del NUEVO
     const staticMeshList = [];
+    const origStaticMeshes = [...origXml.matchAll(RE_STATICMESH_BLOCK)];
+    const processedLabels = new Set();
+    
+    // Primero: Procesar StaticMesh del ORIGINAL
+    for (const match of origStaticMeshes) {
+      const origBlock = match[0];
+      const label = extractAttr(origBlock, RE_LABEL_ATTR);
+      
+      if (label) {
+        // Si existe versión nueva, usar la nueva; si no, mantener la original
+        if (staticMeshMap[label]) {
+          staticMeshList.push({ label, block: staticMeshMap[label] });
+          processedLabels.add(label);
+        } else {
+          staticMeshList.push({ label, block: origBlock });
+        }
+      } else {
+        // StaticMesh sin label, mantener original
+        staticMeshList.push({ label: "", block: origBlock });
+      }
+    }
+    
+    // Segundo: Agregar StaticMesh del NUEVO que no estaban en el ORIGINAL
     for (const label in staticMeshMap) {
-      staticMeshList.push({ label, block: staticMeshMap[label] });
+      if (!processedLabels.has(label)) {
+        staticMeshList.push({ label, block: staticMeshMap[label] });
+      }
     }
     
     // 5. Ordenar Actors y StaticMesh por label
@@ -254,7 +279,7 @@
     // 6. Reconstruir XML
     let result = header;
     
-    // Primero: Materials, Textures, etc.
+    // Primero: Materials, Textures, etc. del NUEVO
     for (const element of nonActorElements) {
       result += "\n\t" + element;
     }
@@ -264,7 +289,7 @@
       result += "\n\t" + item.block;
     }
     
-    // Tercero: StaticMesh ordenados
+    // Tercero: StaticMesh ordenados (ORIGINAL + NUEVO)
     for (const item of staticMeshList) {
       result += "\n\t" + item.block;
     }
