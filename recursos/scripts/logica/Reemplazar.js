@@ -184,17 +184,18 @@
     }
     
     // 4. Procesar todos los bloques Actor del original
-    let processedActors = "";
+    const processedActorsList = [];
     const actorMatches = [...origXml.matchAll(RE_ACTOR_BLOCK)];
     
     for (const match of actorMatches) {
       const actorBlock = match[0];
       const processedActor = processActorBlock(actorBlock, staticMeshMap, newXml);
-      processedActors += "\n\t" + processedActor;
+      const label = extractAttr(processedActor, RE_LABEL_ATTR) || "";
+      processedActorsList.push({ label, block: processedActor });
     }
     
     // 5. Procesar StaticMesh del original que no estén dentro de Actor
-    let processedStaticMeshes = "";
+    const processedStaticMeshesList = [];
     const origStaticMeshMatches = [...origXml.matchAll(RE_STATICMESH_BLOCK)];
     
     for (const match of origStaticMeshMatches) {
@@ -203,25 +204,63 @@
       
       // Si existe en newXml, usar el nuevo; si no, mantener el original
       if (label && staticMeshMap[label]) {
-        processedStaticMeshes += "\n\t" + staticMeshMap[label].block;
+        processedStaticMeshesList.push({ label, block: staticMeshMap[label].block });
         // Marcar como procesado para no duplicar
         delete staticMeshMap[label];
-      } else {
-        processedStaticMeshes += "\n\t" + staticMeshBlock;
+      } else if (label) {
+        processedStaticMeshesList.push({ label, block: staticMeshBlock });
       }
     }
     
     // 6. Agregar StaticMesh del newXml que no estaban en el original
     for (const label in staticMeshMap) {
-      processedStaticMeshes += "\n\t" + staticMeshMap[label].block;
+      processedStaticMeshesList.push({ label, block: staticMeshMap[label].block });
     }
     
-    // 7. Reconstruir XML completo
+    // 7. ORDENAR ALFANUMÉRICAMENTE POR LABEL
+    const compareAlphanumeric = (a, b) => {
+      const labelA = a.label || "";
+      const labelB = b.label || "";
+      
+      // Separar prefijo y número (ej: "CO_01" -> ["CO", "01"])
+      const parseLabel = (lbl) => {
+        const match = lbl.match(/^([A-Za-z]+)[-_](\d+)$/);
+        if (match) {
+          return { prefix: match[1].toUpperCase(), num: parseInt(match[2], 10) };
+        }
+        return { prefix: lbl.toUpperCase(), num: Number.POSITIVE_INFINITY };
+      };
+      
+      const parsedA = parseLabel(labelA);
+      const parsedB = parseLabel(labelB);
+      
+      // Primero comparar prefijos
+      if (parsedA.prefix < parsedB.prefix) return -1;
+      if (parsedA.prefix > parsedB.prefix) return 1;
+      
+      // Luego comparar números
+      return parsedA.num - parsedB.num;
+    };
+    
+    processedActorsList.sort(compareAlphanumeric);
+    processedStaticMeshesList.sort(compareAlphanumeric);
+    
+    // 8. Reconstruir XML completo con bloques ordenados
+    let processedActors = "";
+    for (const item of processedActorsList) {
+      processedActors += "\n\t" + item.block;
+    }
+    
+    let processedStaticMeshes = "";
+    for (const item of processedStaticMeshesList) {
+      processedStaticMeshes += "\n\t" + item.block;
+    }
+    
     const result = header + processedActors + processedStaticMeshes + footer;
     
     return {
       xml: result,
-      modificados: actorMatches.length + Object.keys(staticMeshMap).length,
+      modificados: actorMatches.length + processedStaticMeshesList.length,
       purgados: 0
     };
   }
