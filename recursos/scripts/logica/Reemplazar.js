@@ -342,20 +342,45 @@
     };
 
     // NOTE FOR DUMMIES:
-    // Extrae el bloque completo de un Actor/StaticMesh dado su ID (name="ID")
-    function extractBlock(xml, id) {
-      // Busca <Tag ... name="ID" ...> ... </Tag>
-      // Soportamos Actor y StaticMesh
-      const re = new RegExp(`(?:<Actor\\b[^>]*name=["']${id}["'][\\s\\S]*?<\\/Actor>|<StaticMesh\\b[^>]*name=["']${id}["'][\\s\\S]*?(?:\\/>|<\\/StaticMesh>))`, "i");
+    // Extrae el bloque completo de un elemento dado su ID (name="ID").
+    // Busca en TODO el XML, ya sea root o anidado.
+    function findBlockAnywhere(xml, id) {
+      // Soportamos Actor, StaticMesh, ActorMesh
+      // El ID debe ser exacto.
+      const re = new RegExp(`<(?:Actor|StaticMesh|ActorMesh)\\b[^>]*name=["']${id}["'][\\s\\S]*?(?:\\/>|<\\/(?:Actor|StaticMesh|ActorMesh)>)`, "i");
       const m = re.exec(xml);
       return m ? m[0] : null;
     }
 
     // NOTE FOR DUMMIES:
-    // Reconstruye el XML nuevo basándose en la estructura del original,
-    // PERO ordenando los hermanos (siblings) por Label.
+    // Extrae el Transform de un bloque XML.
+    function extractTransform(block) {
+      const re = /<Transform\b[^>]*\/>/i;
+      const m = re.exec(block);
+      return m ? m[0] : null;
+    }
+
+    // NOTE FOR DUMMIES:
+    // Reemplaza el Transform en un bloque XML.
+    function injectTransform(block, newTransform) {
+      if (!newTransform) return block;
+      const re = /<Transform\b[^>]*\/>/i;
+      if (re.test(block)) {
+        return block.replace(re, newTransform);
+      } else {
+        // Si no tiene Transform, lo insertamos al principio del contenido?
+        // Mejor no inventar si no existe. Pero Datasmith suele tenerlo.
+        // Intentamos insertar después de la apertura.
+        return block.replace(/(<[^>]+>)/, `$1\n\t\t${newTransform}`);
+      }
+    }
+
+    // NOTE FOR DUMMIES:
+    // Reconstruye el XML usando los BLOQUES ORIGINALES (Plantilla)
+    // pero actualizando sus TRANSFORMS con los datos del XML Nuevo.
+    // Y ordenando por Label.
     function reconstructAndSort(origXml, newXml, idToRootLabel, idToActorMeshLabel) {
-      // 1. Analizar estructura original
+      // 1. Analizar estructura original para construir el árbol de salida
       const structure = [];
       const rootMatches = origXml.matchAll(RE_ROOT_BLOCK);
       
@@ -364,10 +389,9 @@
         const mName = RE_NAME_ATTR.exec(block);
         if (!mName) continue;
         const rootId = firstGroup(mName);
-        const label = idToRootLabel[rootId] || ""; // Label original
+        const label = idToRootLabel[rootId] || "";
 
         const children = [];
-        // Buscar hijos
         const childrenBlockMatch = RE_CHILDREN.exec(block);
         if (childrenBlockMatch) {
             const childrenBlock = childrenBlockMatch[0];
@@ -400,27 +424,37 @@
       // 4. RECONSTRUIR XML
       let reconstructedXml = "";
       
-      // Header
-      // Buscamos dónde empieza el primer bloque en newXml para salvar el header.
-      const firstBlockMatch = RE_ROOT_BLOCK.exec(newXml);
+      // Header: Usamos el header del ORIGINAL (Plantilla) para preservar todo (versiones, host, etc.)
+      // Buscamos dónde empieza el primer bloque en origXml.
+      const firstBlockMatch = RE_ROOT_BLOCK.exec(origXml);
       const firstIndex = firstBlockMatch ? firstBlockMatch.index : 0;
-      reconstructedXml += newXml.substring(0, firstIndex);
+      reconstructedXml += origXml.substring(0, firstIndex);
 
       // Procesar items ordenados
       for (const item of structure) {
-        // Buscar bloque en NewXML
-        const newBlock = extractBlock(newXml, item.id);
+        // Obtener bloque ORIGINAL (Plantilla)
+        let origBlock = findBlockAnywhere(origXml, item.id);
         
-        if (newBlock) {
-            // Si tiene hijos, hay que reordenarlos también dentro del bloque
+        if (origBlock) {
+            // Buscar bloque NUEVO (Datos) para sacar el Transform
+            // El newXml ya tiene los IDs originales restaurados.
+            const newBlock = findBlockAnywhere(newXml, item.id);
+            if (newBlock) {
+                const newTransform = extractTransform(newBlock);
+                if (newTransform) {
+                    origBlock = injectTransform(origBlock, newTransform);
+                }
+            }
+
+            // Si tiene hijos, procesarlos
             if (item.children.length > 0) {
-                const childrenMatch = RE_CHILDREN.exec(newBlock);
+                const childrenMatch = RE_CHILDREN.exec(origBlock);
                 if (childrenMatch) {
                     const fullChildrenBlock = childrenMatch[0];
                     const openChildrenTag = fullChildrenBlock.match(/^<children\b[^>]*>/i)[0];
                     const closeChildrenTag = "</children>";
                     
-                    // Mapear hijos actuales en newBlock
+                    // Mapa de hijos originales (para poder extraerlos y reordenarlos)
                     const meshMap = {};
                     const meshes = fullChildrenBlock.matchAll(RE_ACTORMESH_GLOBAL);
                     for (const m of meshes) {
@@ -432,45 +466,51 @@
                         }
                     }
 
-                    // Reconstruir children ordenados
+                    // Reconstruir children ordenados y actualizados
                     let sortedChildrenContent = "";
                     for (const child of item.children) {
                         if (meshMap[child.id]) {
-                            sortedChildrenContent += "\n\t\t\t" + meshMap[child.id];
+                            let childBlock = meshMap[child.id];
+                            
+                            // Actualizar Transform del hijo también
+                            const newChildBlock = findBlockAnywhere(newXml, child.id);
+                            if (newChildBlock) {
+                                const newChildTransform = extractTransform(newChildBlock);
+                                if (newChildTransform) {
+                                    childBlock = injectTransform(childBlock, newChildTransform);
+                                }
+                            }
+
+                            sortedChildrenContent += "\n\t\t\t" + childBlock;
                             delete meshMap[child.id];
                         }
                     }
-                    // Sobrantes (si hay)
+                    // Sobrantes
                     for (const remainingId in meshMap) {
                         sortedChildrenContent += "\n\t\t\t" + meshMap[remainingId];
                     }
 
                     const newChildrenBlock = `${openChildrenTag}${sortedChildrenContent}\n\t\t${closeChildrenTag}`;
-                    const blockWithSortedChildren = newBlock.replace(RE_CHILDREN, newChildrenBlock);
-                    reconstructedXml += "\n\t" + blockWithSortedChildren;
-                } else {
-                    reconstructedXml += "\n\t" + newBlock;
+                    origBlock = origBlock.replace(RE_CHILDREN, newChildrenBlock);
                 }
-            } else {
-                reconstructedXml += "\n\t" + newBlock;
             }
+            
+            reconstructedXml += "\n\t" + origBlock;
         }
       }
 
-      // Footer
-      // Recorremos newXml para encontrar el último índice de cierre.
+      // Footer: Usamos el footer del ORIGINAL
       let lastCloseIndex = -1;
       let m;
-      // Reset regex
       const RE_ROOT_BLOCK_LOCAL = new RegExp(RE_ROOT_BLOCK.source, "gi");
-      while ((m = RE_ROOT_BLOCK_LOCAL.exec(newXml)) !== null) {
+      while ((m = RE_ROOT_BLOCK_LOCAL.exec(origXml)) !== null) {
           lastCloseIndex = m.index + m[0].length;
       }
 
       if (lastCloseIndex >= 0) {
-          reconstructedXml += newXml.substring(lastCloseIndex);
+          reconstructedXml += origXml.substring(lastCloseIndex);
       } else {
-          reconstructedXml += "\n</DatasmithUnrealScene>"; // Fallback
+          reconstructedXml += "\n</DatasmithUnrealScene>";
       }
 
       return reconstructedXml;
