@@ -342,119 +342,73 @@
     };
 
     // NOTE FOR DUMMIES:
-    // Ordena los bloques del XML Nuevo por su atributo label.
-    // IMPORTANTE: Usa los bloques del newXml para preservar TODOS los IDs internos
-    // que Twinmotion necesita para mantener la asociación (timeline, materials, etc.)
+    // Reconstruye el XML manteniendo el ORDEN del Template Original
+    // pero inyectando TODO el contenido del XML Nuevo (excepto el name que ya fue restaurado).
+    // Esto preserva la asociación de Twinmotion (IDs) mientras actualiza geometría, materiales, etc.
     function reconstructAndSort(origXml, newXml, idToRootLabel, idToActorMeshLabel) {
-      // 1. Extraer bloques del newXml (ya procesado con IDs originales)
-      const blocks = [];
-      const rootMatches = newXml.matchAll(RE_ROOT_BLOCK);
+      let reconstructedXml = "";
+      
+      // Header del ORIGINAL (preservar versiones, host, etc.)
+      const firstBlockMatch = RE_ROOT_BLOCK.exec(origXml);
+      const firstIndex = firstBlockMatch ? firstBlockMatch.index : 0;
+      reconstructedXml += origXml.substring(0, firstIndex);
+
+      // Procesar bloques en el ORDEN del template original
+      const rootMatches = origXml.matchAll(RE_ROOT_BLOCK);
       
       for (const match of rootMatches) {
-        const block = match[0];
-        const mName = RE_NAME_ATTR.exec(block);
-        if (!mName) continue;
+        const origBlock = match[0];
+        
+        // Extraer el name del bloque original (que es nuestra clave)
+        const mName = RE_NAME_ATTR.exec(origBlock);
+        if (!mName) {
+          // Si no tiene name, usar el bloque original tal cual
+          reconstructedXml += "\n\t" + origBlock;
+          continue;
+        }
+        
         const rootId = firstGroup(mName);
         
-        // Buscar el label en nuestros mapas
-        let label = idToRootLabel[rootId] || "";
+        // Buscar el bloque correspondiente en el newXml (que ya tiene el name restaurado)
+        const newBlock = findBlockAnywhere(newXml, rootId);
         
-        // Si no está en idToRootLabel, intentar extraerlo del bloque directamente
-        if (!label) {
-          const labelMatch = RE_LABEL_ATTR.exec(block);
-          if (labelMatch) {
-            label = firstGroup(labelMatch);
-          }
+        if (newBlock) {
+          // Si encontramos el bloque en el nuevo, INYECTAR TODO SU CONTENIDO
+          // (geometría, materiales, transforms, tags, etc.)
+          // Solo preservamos el orden del template
+          reconstructedXml += "\n\t" + newBlock;
+        } else {
+          // Si no está en el nuevo, mantener el del original
+          reconstructedXml += "\n\t" + origBlock;
         }
-
-        blocks.push({ 
-          id: rootId, 
-          label: label, 
-          content: block 
-        });
       }
 
-      // 2. ORDENAR bloques por label
-      blocks.sort((a, b) => compareAlphanumeric(a.label, b.label));
-
-      // 3. ORDENAR hijos dentro de cada bloque
-      const sortedBlocks = blocks.map(item => {
-        let blockContent = item.content;
-        
-        // Si tiene <children>, ordenar los ActorMesh dentro
-        const childrenMatch = RE_CHILDREN.exec(blockContent);
-        if (childrenMatch) {
-          const childrenBlock = childrenMatch[0];
-          const openTag = childrenBlock.match(/^<children\b[^>]*>/i)[0];
-          const closeTag = "</children>";
-          
-          // Extraer todos los meshes
-          const meshes = [];
-          const meshMatches = childrenBlock.matchAll(RE_ACTORMESH_GLOBAL);
-          for (const meshMatch of meshMatches) {
-            const meshBlock = meshMatch[0];
-            const nm = RE_NAME_ATTR.exec(meshBlock);
-            if (!nm) continue;
-            
-            const meshId = firstGroup(nm);
-            const nid = extractActorMeshId(meshBlock);
-            let meshLabel = nid ? idToActorMeshLabel[nid] : "";
-            
-            // Si no está en el mapa, extraer del bloque
-            if (!meshLabel) {
-              const lbl = RE_LABEL_ATTR.exec(meshBlock);
-              meshLabel = lbl ? firstGroup(lbl) : "";
-            }
-            
-            meshes.push({ 
-              label: meshLabel, 
-              content: meshBlock 
-            });
-          }
-          
-          // Ordenar meshes por label
-          meshes.sort((a, b) => compareAlphanumeric(a.label, b.label));
-          
-          // Reconstruir <children> con meshes ordenados
-          let sortedChildren = openTag;
-          for (const mesh of meshes) {
-            sortedChildren += "\n\t\t\t" + mesh.content;
-          }
-          sortedChildren += "\n\t\t" + closeTag;
-          
-          // Reemplazar <children> en el bloque
-          blockContent = blockContent.replace(RE_CHILDREN, sortedChildren);
-        }
-        
-        return blockContent;
-      });
-
-      // 4. RECONSTRUIR XML completo
-      // Header del newXml
-      const firstBlockMatch = RE_ROOT_BLOCK.exec(newXml);
-      const firstIndex = firstBlockMatch ? firstBlockMatch.index : 0;
-      let result = newXml.substring(0, firstIndex);
-      
-      // Bloques ordenados
-      for (const block of sortedBlocks) {
-        result += "\n\t" + block;
-      }
-      
-      // Footer del newXml
+      // Footer del ORIGINAL
       let lastCloseIndex = -1;
       let m;
       const RE_ROOT_BLOCK_LOCAL = new RegExp(RE_ROOT_BLOCK.source, "gi");
-      while ((m = RE_ROOT_BLOCK_LOCAL.exec(newXml)) !== null) {
+      while ((m = RE_ROOT_BLOCK_LOCAL.exec(origXml)) !== null) {
         lastCloseIndex = m.index + m[0].length;
       }
       
       if (lastCloseIndex >= 0) {
-        result += newXml.substring(lastCloseIndex);
+        reconstructedXml += origXml.substring(lastCloseIndex);
       } else {
-        result += "\n</DatasmithUnrealScene>";
+        reconstructedXml += "\n</DatasmithUnrealScene>";
       }
 
-      return result;
+      return reconstructedXml;
+    }
+
+    // NOTE FOR DUMMIES:
+    // Extrae el bloque completo de un elemento dado su ID (name="ID").
+    // Busca en TODO el XML, ya sea root o anidado.
+    function findBlockAnywhere(xml, id) {
+      // Soportamos Actor, StaticMesh, ActorMesh
+      // El ID debe ser exacto.
+      const re = new RegExp(`<(?:Actor|StaticMesh|ActorMesh)\\b[^>]*name=["']${id}["'][\\s\\S]*?(?:\\/\>|<\\/(?:Actor|StaticMesh|ActorMesh)>)`, "i");
+      const m = re.exec(xml);
+      return m ? m[0] : null;
     }
 
     function applySpecificReplacements(xml) {
