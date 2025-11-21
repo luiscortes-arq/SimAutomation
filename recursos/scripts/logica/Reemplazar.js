@@ -14,8 +14,8 @@
   // Extrae Transform completo
   const RE_TRANSFORM = /<Transform\b[^>]*>[\s\S]*?<\/Transform>/i;
   
-  // Extrae mesh reference
-  const RE_MESH_REF = /<mesh\b[^>]*\/>/i;
+  // Extrae mesh reference o name (Revit usa "name", Twinmotion necesita "reference")
+  const RE_MESH_REF = /<mesh\s+(?:reference|name)=["']([^"']+)["'][^>]*\/>/i;
   
   // Bloques completos
   const RE_ACTOR_BLOCK = /<Actor\b[^>]*>[\s\S]*?<\/Actor>/gi;
@@ -124,7 +124,7 @@
   function updateActorMesh(actorMeshBlock, newMeshRef) {
     let result = actorMeshBlock;
     
-    // SOLO actualizar mesh reference (si existe nuevo)
+    // SOLO actualizar mesh reference (convertir "name" a "reference")
     if (newMeshRef && RE_MESH_REF.test(result)) {
       result = result.replace(RE_MESH_REF, `<mesh reference="${newMeshRef}"/>`);
     }
