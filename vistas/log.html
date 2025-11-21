@@ -52,13 +52,23 @@
     -->
     <div class="resumen-cambios anim-fade-in-up delay-50">
       <div class="card-stat" onclick="mostrarDetalles('modificados')">
-        <span class="stat-number" id="count-mod">0</span>
-        <span class="stat-label">Modificados</span>
+        <div class="stat-icon-container mod">
+          <i data-lucide="file-edit"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number" id="count-mod">0</span>
+          <span class="stat-label">Modificados</span>
+        </div>
       </div>
 
       <div class="card-stat" onclick="mostrarDetalles('eliminados')">
-        <span class="stat-number" id="count-del">0</span>
-        <span class="stat-label">Purgados</span>
+        <div class="stat-icon-container del">
+          <i data-lucide="trash-2"></i>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number" id="count-del">0</span>
+          <span class="stat-label">Purgados</span>
+        </div>
       </div>
     </div>
 

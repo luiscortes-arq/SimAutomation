@@ -101,6 +101,24 @@
   --borde-tarjeta: rgba(255, 255, 255, 0.1);
   --sombra-tarjeta: 0 10px 30px rgba(0, 0, 0, 0.8);
 
+  /* LOG VIEWER (High Contrast Dark Mode) */
+  --log-bg: #1e1e1e; /* VS Code style dark - Standard for terminal */
+  --log-text: #d4d4d4;
+  --log-line-hover: rgba(255, 255, 255, 0.05);
+  /* Use palette colors for semantic diffs where possible or standard terminal colors */
+  --log-added-bg: rgba(108, 125, 71, 0.2); /* Based on --color-verde */
+  --log-added-text: #8bc34a; /* Lighter green for text readability on dark */
+  --log-deleted-bg: rgba(196, 32, 33, 0.2); /* Based on --color-rojo */
+  --log-deleted-text: #ef9a9a;
+  --log-modified-bg: rgba(239, 182, 40, 0.15); /* Based on --color-amarillo */
+  --log-modified-text: #fff59d;
+  --log-context-text: #808080;
+
+  /* BUTTONS (Solid - Mapped to Base Palette) */
+  --btn-solid-bg: rgba(255, 255, 255, 0.1);
+  --btn-purge-bg: var(--color-verde); /* Restore #6c7d47 */
+  --btn-replace-bg: var(--color-azul); /* Restore #6990ab */
+
   /* Glows */
   --glow-color: var(--color-naranja);
   --glow-intensidad: 0 0 15px;
@@ -126,11 +144,16 @@ body.tema-claro {
   --texto-secundario: var(--color-day-text-secondary);
   --texto-titulo-no-num: var(--color-gris-oscuro);
 
-  /* Tarjetas (Neumorphism) */
+  /* Tarjetas (Neumorphism / Depth) */
   --bg-tarjeta: var(--color-blanco);
   --borde-tarjeta: rgba(0, 0, 0, 0.05);
-  --sombra-tarjeta: 8px 8px 16px var(--color-day-card-shadow-dark), -8px -8px 16px var(--color-day-card-shadow-light);
+  --sombra-tarjeta: 0 10px 25px rgba(0,0,0,0.1); /* Restored depth */
 
+  /* LOG VIEWER (Keep Dark for Contrast or adapt?) 
+     User requested "High Fidelity", usually implies Dark Terminal style even in light mode 
+     BUT let's keep it dark for consistency as requested "Terminal Style"
+  */
+  
   /* Glows */
   --glow-intensidad: 0 0 8px;
   --glow-hover: 0 0 12px;

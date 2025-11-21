@@ -249,32 +249,200 @@
     });
   }
 
-  // NOTE FOR DUMMIES:
-  // PROCESO PRINCIPAL DEL MERGE:
-  //
-  // 1) buildOriginalMaps → lee IDs originales
-  // 2) replaceActorMeshNamesWithOriginal → restaura nombres
-  // 3) replaceMetadataReferenceWithOriginal → restaura reference="Actor.xxx"
-  // 4) Devuelve XML final + lista de IDs usados.
-  function runMerge(origXml, newXml) {
-    const { idToActorId, idToActorMeshId } = buildOriginalMaps(origXml);
+    // NOTE FOR DUMMIES:
+    // 4) Devuelve XML final + lista de IDs usados.
+    function runMerge(origXml, newXml) {
+      const { idToActorId, idToActorMeshId } = buildOriginalMaps(origXml);
 
-    // Reemplaza nombres de ActorMesh
-    const step1 = replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId);
+      // Reemplaza nombres de ActorMesh
+      let step1 = replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId);
 
-    // Repara Metadata reference
-    const step2 = replaceMetadataReferenceWithOriginal(step1, idToActorId);
+      // Repara Metadata reference
+      let step2 = replaceMetadataReferenceWithOriginal(step1, idToActorId);
 
-    // Arma lista de IDs
-    const usedIdsSet = new Set([
-      ...Object.keys(idToActorId),
-      ...Object.keys(idToActorMeshId),
-    ]);
+      // ======================================================================
+      // NUEVO PASO CRÍTICO: REORDENAR SEGÚN ORIGINAL
+      // ======================================================================
+      // NOTE FOR DUMMIES:
+      // El usuario reportó que se pierde el orden y rompe Twinmotion.
+      // Aquí forzamos que el XML resultante tenga EXACTAMENTE la misma secuencia
+      // de <Actor> y <ActorMesh> que el original.
+      step2 = reorderToMatchOriginal(origXml, step2);
 
-    const usedIds = sortIds(Array.from(usedIdsSet));
+      // Arma lista de IDs
+      const usedIdsSet = new Set([
+        ...Object.keys(idToActorId),
+        ...Object.keys(idToActorMeshId),
+      ]);
 
-    return { xml: step2, usedIds };
-  }
+      const usedIds = sortIds(Array.from(usedIdsSet));
+
+      return { xml: step2, usedIds };
+    }
+
+    // NOTE FOR DUMMIES:
+    // Extrae el bloque completo de un Actor dado su ID (buscando por name="PREFIX-###")
+    function extractActorBlock(xml, actorId) {
+      // Regex para buscar <Actor ... name="ID" ...> ... </Actor>
+      // Se asume que el ID está normalizado o tal cual viene en el XML nuevo.
+      // El XML nuevo ya pasó por replaceActorMeshNamesWithOriginal, así que los nombres deberían coincidir.
+      // Pero ojo: los Actors en el nuevo XML tienen el ID en el name.
+      
+      // Buscamos <Actor ... name="ACTOR_ID" ...>
+      // Usamos una regex dinámica con cuidado.
+      const re = new RegExp(`<Actor\\b[^>]*name=["']${actorId}["'][\\s\\S]*?<\\/Actor>`, "i");
+      const m = re.exec(xml);
+      return m ? m[0] : null;
+    }
+
+    // NOTE FOR DUMMIES:
+    // Extrae el bloque completo de un ActorMesh dado su ID (name="ID")
+    function extractActorMeshBlock(xml, meshId) {
+      const re = new RegExp(`<ActorMesh\\b[^>]*name=["']${meshId}["'][\\s\\S]*?(?:\\/>|<\\/ActorMesh>)`, "i");
+      const m = re.exec(xml);
+      return m ? m[0] : null;
+    }
+
+    // NOTE FOR DUMMIES:
+    // Reconstruye el XML nuevo siguiendo la estructura del original.
+    function reorderToMatchOriginal(origXml, newXml) {
+      // 1. Analizar estructura original (Orden de Actors y sus hijos)
+      const structure = [];
+      const actorMatches = origXml.matchAll(RE_ACTOR_BLOCK);
+      
+      for (const actorMatch of actorMatches) {
+        const actorBlock = actorMatch[0];
+        const mName = RE_ACTOR_NAME.exec(actorBlock);
+        if (!mName) continue;
+        const actorId = firstGroup(mName); // ID original (ej: CO-444)
+
+        const children = [];
+        // Buscar hijos dentro de este actor original
+        const childrenBlockMatch = RE_CHILDREN.exec(actorBlock);
+        if (childrenBlockMatch) {
+            const childrenBlock = childrenBlockMatch[0];
+            const meshMatches = childrenBlock.matchAll(RE_ACTORMESH_GLOBAL);
+            for (const meshMatch of meshMatches) {
+                const meshBlock = meshMatch[0];
+                // Aquí necesitamos el ID. En el original, el ID puede estar en label o name.
+                // Usamos extractActorMeshId que ya tenemos.
+                const meshId = extractActorMeshId(meshBlock);
+                if (meshId) children.push(meshId);
+            }
+        }
+        structure.push({ actorId, children });
+      }
+
+      // 2. Crear mapa de bloques del XML NUEVO para acceso rápido
+      // Esto es para no hacer regex search por cada elemento (lento).
+      // Mejor extraemos todo lo que hay en el nuevo y lo guardamos.
+      
+      // Mapa: ActorID -> BloqueCompleto (sin children)
+      // Mapa: ActorID -> Lista de Hijos (bloques)
+      // Pero el XML nuevo tiene la estructura <Actor><children><ActorMesh>...</children></Actor>
+      // Lo más fácil es "desarmar" el nuevo XML en objetos y luego rearmar string.
+      
+      // Estrategia simplificada:
+      // Iterar la estructura original.
+      // Para cada ActorID original:
+      //    Buscar ese Actor en el NewXML.
+      //    Si existe:
+      //       Tomar su encabezado <Actor ...> y pie </Actor>.
+      //       Tomar su bloque <children>.
+      //       Dentro de children, reordenar los ActorMesh según la lista 'children' original.
+      //       Si hay ActorMesh nuevos que no estaban en el original, ponerlos al final (o ignorarlos si es estricto).
+      //       El usuario dijo "al original no le mueves nada", así que el orden manda.
+      //    Si no existe en NewXML: ¿Lo ignoramos o lo copiamos del original?
+      //       Normalmente en un merge, si no está en el nuevo es que se borró.
+      //       Pero si es "Reemplazar", asumimos que el nuevo trae la info actualizada.
+      //       Si falta en el nuevo, asumimos que se borró.
+      
+      let reconstructedXml = "";
+      
+      // Header del archivo (todo lo que está antes del primer Actor)
+      // Asumimos que empieza con <Scene> o similar.
+      const firstActorIndex = newXml.search(/<Actor\b/i);
+      const header = firstActorIndex >= 0 ? newXml.substring(0, firstActorIndex) : "";
+      reconstructedXml += header;
+
+      // Procesar cada Actor en el orden original
+      for (const item of structure) {
+        const actorId = item.actorId;
+        const originalChildrenIds = item.children;
+
+        // Buscar este Actor en el NewXML
+        const newActorBlock = extractActorBlock(newXml, actorId);
+        
+        if (newActorBlock) {
+            // Tenemos el bloque del actor nuevo. Ahora hay que ordenar sus hijos.
+            // Extraer partes del Actor nuevo
+            const childrenMatch = RE_CHILDREN.exec(newActorBlock);
+            
+            if (childrenMatch) {
+                const fullChildrenBlock = childrenMatch[0];
+                const openChildrenTag = fullChildrenBlock.match(/^<children\b[^>]*>/i)[0];
+                const closeChildrenTag = "</children>";
+                
+                // Extraer todos los meshes del nuevo actor
+                const meshMap = {}; // ID -> Bloque HTML
+                const meshes = fullChildrenBlock.matchAll(RE_ACTORMESH_GLOBAL);
+                for (const m of meshes) {
+                    const mb = m[0];
+                    // En el newXml, los nombres YA fueron reemplazados por los IDs originales en el paso 1
+                    // Así que buscamos name="ID"
+                    const nm = RE_NAME_ATTR.exec(mb);
+                    if (nm) {
+                        const id = firstGroup(nm);
+                        meshMap[id] = mb;
+                    }
+                }
+
+                // Reconstruir bloque children ordenado
+                let sortedChildrenContent = "";
+                
+                // 1. Poner los que coinciden con el orden original
+                for (const childId of originalChildrenIds) {
+                    if (meshMap[childId]) {
+                        sortedChildrenContent += "\n\t\t\t" + meshMap[childId]; // Indentación básica
+                        delete meshMap[childId]; // Marcar como usado
+                    }
+                }
+                
+                // 2. (Opcional) Poner los que sobran (nuevos en el XML nuevo)
+                // El usuario dijo "respetar orden original". Si hay nuevos, ¿dónde van?
+                // Lo lógico es al final.
+                for (const remainingId in meshMap) {
+                    sortedChildrenContent += "\n\t\t\t" + meshMap[remainingId];
+                }
+
+                // Reemplazar el bloque children dentro del actor block
+                const newChildrenBlock = `${openChildrenTag}${sortedChildrenContent}\n\t\t${closeChildrenTag}`;
+                const actorWithSortedChildren = newActorBlock.replace(RE_CHILDREN, newChildrenBlock);
+                
+                reconstructedXml += "\n\t" + actorWithSortedChildren;
+            } else {
+                // Actor sin hijos (raro pero posible), se agrega tal cual
+                reconstructedXml += "\n\t" + newActorBlock;
+            }
+        } else {
+            // El actor estaba en el original pero NO en el nuevo.
+            // Significa que fue eliminado o filtrado. No lo agregamos.
+        }
+      }
+
+      // Footer (todo lo que está después del último Actor)
+      const lastActorMatch = newXml.match(/<\/Actor>([\s\S]*)$/i);
+      // Esto es riesgoso si hay múltiples cierres. Mejor buscar el último </Actor>
+      const lastActorIndex = newXml.lastIndexOf("</Actor>");
+      if (lastActorIndex >= 0) {
+          const footer = newXml.substring(lastActorIndex + 8);
+          reconstructedXml += footer;
+      } else {
+          reconstructedXml += "</Scene>"; // Fallback
+      }
+
+      return reconstructedXml;
+    }
 
     // NOTE FOR DUMMIES:
     // Reemplazos específicos solicitados por el usuario.

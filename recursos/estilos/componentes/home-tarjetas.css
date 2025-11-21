@@ -50,6 +50,34 @@ body.fondo-inicio {
   background: var(--bg-tarjeta);
   box-shadow: var(--sombra-tarjeta);
   border: 1px solid transparent; /* Previene movimientos raros */
+  animation: glow-pulse 3s infinite alternate;
+}
+
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 255, 128, 0.05);
+    border-color: rgba(0, 255, 128, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 255, 128, 0.2);
+    border-color: rgba(0, 255, 128, 0.3);
+  }
+}
+
+/* Ajuste específico para tarjeta azul (Reemplazar) */
+.tarjeta-accion:nth-child(2) {
+  animation-name: glow-pulse-blue;
+}
+
+@keyframes glow-pulse-blue {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 128, 255, 0.05);
+    border-color: rgba(0, 128, 255, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 128, 255, 0.2);
+    border-color: rgba(0, 128, 255, 0.3);
+  }
 }
 
 /* ... */
@@ -96,8 +124,12 @@ body.fondo-inicio {
 /* NOTE FOR DUMMIES:
    En modo claro se define un borde visible.
 */
+/* NOTE FOR DUMMIES:
+   En modo claro se define un borde visible y sombra restaurada.
+*/
 body.tema-claro .tarjeta-accion {
   border: 1px solid var(--borde-tarjeta);
+  box-shadow: var(--sombra-tarjeta); /* Depth restored */
 }
 
 /* NOTE FOR DUMMIES:
@@ -111,5 +143,6 @@ body.tema-claro .tarjeta-accion::before {
    Hover más suave en modo claro (menos sombra negra).
 */
 body.tema-claro .tarjeta-accion:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px); /* Restore lift */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
 }
