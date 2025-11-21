@@ -459,8 +459,9 @@
     // Busca en TODO el XML, ya sea root o anidado.
     function findBlockAnywhere(xml, id) {
       // Soportamos Actor, StaticMesh, ActorMesh
-      // El ID debe ser exacto.
-      const re = new RegExp(`<(?:Actor|StaticMesh|ActorMesh)\\b[^>]*name=["']${id}["'][\\s\\S]*?(?:\\/\>|<\\/(?:Actor|StaticMesh|ActorMesh)>)`, "i");
+      // El ID debe ser exacto. Escapamos caracteres especiales del ID.
+      const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`<(?:Actor|StaticMesh|ActorMesh)\\b[^>]*name=["']${escapedId}["'][\\s\\S]*?(?:\\/>|<\\/(?:Actor|StaticMesh|ActorMesh)>)`, "i");
       const m = re.exec(xml);
       return m ? m[0] : null;
     }

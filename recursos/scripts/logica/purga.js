@@ -52,7 +52,9 @@
     if (!s) return "";
     const parts = getRootPart(s).split("_").filter(Boolean);
     const [prev, last] = parts.slice(-2);
-    return /^\d+$/.test(last) && prev ? `${prev}_${last}` : parts.pop() || "";
+    const result = /^\d+$/.test(last) && prev ? `${prev}_${last}` : parts.pop() || "";
+    // Normalizar guiones a underscores para que coincida con origXml
+    return result.replace(/-/g, "_");
   };
 
   // NOTA FOR DUMMIES:
