@@ -1,5 +1,5 @@
 // js/Reemplazar.js
-// REEMPLAZAR: Usa el NUEVO como base, inyecta IDs del ORIGINAL, purga y ordena
+// REEMPLAZAR: Usa la PLANTILLA como base, actualiza mesh ref + transform del NUEVO
 
 (function () {
   "use strict";
@@ -8,25 +8,22 @@
   // REGEX PATTERNS
   // ============================================================
   
-  const RE_ACTOR_BLOCK = /<Actor\b[^>]*>[\s\S]*?<\/Actor>/gi;
-  const RE_ACTOR_NAME = /\bname=(?:"([^"]+)|'([^']+)')/i;
-  const RE_NAME_ATTR = /\bname=(?:"([^"]+)|'([^']+)')/i;
   const RE_LABEL_ATTR = /\blabel=(?:"([^"]+)|'([^']+)')/i;
-  const RE_CHILDREN = /<children\b[^>]*>[\s\S]*?<\/children>/gi;
-  const RE_ACTORMESH_GLOBAL = /<ActorMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/ActorMesh>)/gi;
-  const RE_STATICMESH_GLOBAL = /<StaticMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/StaticMesh>)/gi;
-
-  // ID pattern: CO_01, SC_12, etc. (underscore o guión)
-  const RE_ID = /\b([A-Za-z0-9]+)[-_](\d+)\b/i;
-
-  const RE_METADATA_BLOCK = /<MetaData\b[^>]*?(?:\/>|>[\s\S]*?<\/MetaData>)/gi;
-  const RE_METADATA_REF = /\breference=(?:"([^"]+)|'([^']+)')/i;
+  const RE_NAME_ATTR = /\bname=(?:"([^"]+)|'([^']+)')/i;
   
-  // KeyValueProperty con Element*Type
-  const RE_KVP_TYPE_TAG_GLOBAL =
-    /<KeyValueProperty\b(?=[^>]*\bname\s*=\s*(?:"Element\*Type"|'Element\*Type'))[^>]*?(?:\/>|>[\s\S]*?<\/KeyValueProperty\s*>)/gi;
+  // Extrae Transform completo
+  const RE_TRANSFORM = /<Transform\b[^>]*>[\s\S]*?<\/Transform>/i;
   
-  const RE_ATTR_VAL = /\bval\s*=\s*(?:"([^"]+)|'([^']+)')/i;
+  // Extrae mesh reference
+  const RE_MESH_REF = /<mesh\b[^>]*\/>/i;
+  
+  // Bloques completos
+  const RE_ACTOR_BLOCK = /<Actor\b[^>]*>[\s\S]*?<\/Actor>/gi;
+  const RE_STATICMESH_BLOCK = /<StaticMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/StaticMesh>)/gi;
+  const RE_ACTORMESH_BLOCK = /<ActorMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/ActorMesh>)/gi;
+  const RE_MATERIAL_BLOCK = /<Material\b[^>]*?(?:\/>|>[\s\S]*?<\/Material>)/gi;
+  const RE_MATERIALINSTANCE_BLOCK = /<MaterialInstance\b[^>]*?(?:\/>|>[\s\S]*?<\/MaterialInstance>)/gi;
+  const RE_TEXTURE_BLOCK = /<Texture\b[^>]*?(?:\/>|>[\s\S]*?<\/Texture>)/gi;
 
   // ============================================================
   // HELPER FUNCTIONS
@@ -36,271 +33,255 @@
     return m[idx1] != null ? m[idx1] : m[idx2];
   }
 
-  function parseIdFromText(t) {
-    if (!t) return null;
-    const m = RE_ID.exec(t);
-    if (!m) return null;
-    const prefix = String(m[1]).toUpperCase();
-    const num = String(m[2]);
-    // Normalizar a 2 dígitos mínimo
-    const numNorm = num.length > 2 ? num : num.padStart(2, "0");
-    return `${prefix}_${numNorm}`;  // Usar underscore
-  }
-
-  function extractActorMeshId(block) {
-    let lab = RE_LABEL_ATTR.exec(block);
-    if (lab) {
-      const nid = parseIdFromText(firstGroup(lab));
-      if (nid) return nid;
-    }
-    let nm = RE_NAME_ATTR.exec(block);
-    if (nm) {
-      const nid = parseIdFromText(firstGroup(nm));
-      if (nid) return nid;
-    }
-    return null;
+  // Extrae el atributo de un match de regex
+  function extractAttr(text, regex) {
+    const m = regex.exec(text);
+    return m ? firstGroup(m) : null;
   }
 
   // ============================================================
-  // BUILD MAPS FROM ORIGINAL
+  // MAPEO DEL NUEVO XML
   // ============================================================
 
-  function buildOriginalMaps(origXml) {
-    const idToActorId = {};
-    const idToActorMeshId = {};
+  /**
+   * Construye mapas del NUEVO XML por label:
+   * - label -> StaticMesh completo
+   * - label -> mesh reference (hash)
+   * - label -> Transform
+   */
+  function buildNewXmlMaps(newXml) {
+    const staticMeshMap = {};
+    const meshRefMap = {};
+    const transformMap = {};
+    
+    // Mapear StaticMesh
+    const staticMeshes = [...newXml.matchAll(RE_STATICMESH_BLOCK)];
+    for (const match of staticMeshes) {
+      const block = match[0];
+      const label = extractAttr(block, RE_LABEL_ATTR);
+      const name = extractAttr(block, RE_NAME_ATTR);
+      const transform = block.match(RE_TRANSFORM);
+      
+      if (label) {
+        staticMeshMap[label] = block;
+        if (name) meshRefMap[label] = name;
+        if (transform) transformMap[label] = transform[0];
+      }
+    }
+    
+    // Mapear ActorMesh (por si hay transforms ahí)
+    const actorMeshes = [...newXml.matchAll(RE_ACTORMESH_BLOCK)];
+    for (const match of actorMeshes) {
+      const block = match[0];
+      const label = extractAttr(block, RE_LABEL_ATTR);
+      const transform = block.match(RE_TRANSFORM);
+      
+      if (label && transform && !transformMap[label]) {
+        transformMap[label] = transform[0];
+      }
+    }
+    
+    return { staticMeshMap, meshRefMap, transformMap };
+  }
 
-    let actorMatch;
-    RE_ACTOR_BLOCK.lastIndex = 0;
-    while ((actorMatch = RE_ACTOR_BLOCK.exec(origXml)) !== null) {
-      const actorBlock = actorMatch[0];
-      const mName = RE_ACTOR_NAME.exec(actorBlock);
-      if (!mName) continue;
-      const actorId = firstGroup(mName);
+  /**
+   * Extrae Materials, Textures, etc. del NUEVO
+   */
+  function extractNonActorElements(newXml) {
+    const elements = [];
+    
+    // Materials
+    const materials = [...newXml.matchAll(RE_MATERIAL_BLOCK)];
+    for (const match of materials) {
+      elements.push(match[0]);
+    }
+    
+    // MaterialInstance
+    const materialInstances = [...newXml.matchAll(RE_MATERIALINSTANCE_BLOCK)];
+    for (const match of materialInstances) {
+      elements.push(match[0]);
+    }
+    
+    // Textures
+    const textures = [...newXml.matchAll(RE_TEXTURE_BLOCK)];
+    for (const match of textures) {
+      elements.push(match[0]);
+    }
+    
+    return elements;
+  }
 
-      // Buscar children dentro del Actor
-      let childrenMatch;
-      RE_CHILDREN.lastIndex = 0;
-      while ((childrenMatch = RE_CHILDREN.exec(actorBlock)) !== null) {
-        const inner = childrenMatch[0];
-        const actormeshRegex = /<ActorMesh\b[^>]*?(?:\/>|>[\s\S]*?<\/ActorMesh>)/gi;
-        let amMatch;
-        while ((amMatch = actormeshRegex.exec(inner)) !== null) {
-          const amBlock = amMatch[0];
-          const nid = extractActorMeshId(amBlock);
-          if (!nid) continue;
-          const nm = RE_NAME_ATTR.exec(amBlock);
-          if (!nm) continue;
-          const actormeshId = firstGroup(nm);
-          if (!(nid in idToActorId)) idToActorId[nid] = actorId;
-          if (!(nid in idToActorMeshId)) idToActorMeshId[nid] = actormeshId;
+  // ============================================================
+  // ACTUALIZACIÓN DE ACTORMESH
+  // ============================================================
+
+  /**
+   * Actualiza un bloque ActorMesh:
+   * PRESERVA TODO del original (name, label, MetaData, etc.)
+   * SOLO actualiza:
+   * 1. <mesh reference="..."/> -> nuevo hash
+   * 2. <Transform>...</Transform> -> nuevo transform
+   */
+  function updateActorMesh(actorMeshBlock, newMeshRef, newTransform) {
+    let result = actorMeshBlock;
+    
+    // 1. Actualizar mesh reference (si existe nuevo)
+    if (newMeshRef && RE_MESH_REF.test(result)) {
+      result = result.replace(RE_MESH_REF, `<mesh reference="${newMeshRef}"/>`);
+    }
+    
+    // 2. Actualizar Transform (si existe nuevo)
+    if (newTransform) {
+      if (RE_TRANSFORM.test(result)) {
+        // Si ya existe Transform, reemplazarlo
+        result = result.replace(RE_TRANSFORM, newTransform);
+      } else {
+        // Si no existe, insertarlo antes del cierre de ActorMesh
+        if (result.includes('</ActorMesh>')) {
+          result = result.replace('</ActorMesh>', `\t${newTransform}\n\t</ActorMesh>`);
         }
       }
     }
-
-    RE_ACTOR_BLOCK.lastIndex = 0;
-    return { idToActorId, idToActorMeshId };
-  }
-
-  // ============================================================
-  // INJECT IDs FROM ORIGINAL INTO NEW
-  // ============================================================
-
-  function replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId) {
-    return newXml.replace(RE_ACTORMESH_GLOBAL, (block) => {
-      const nid = extractActorMeshId(block);
-      if (!nid) return block;
-      const origName = idToActorMeshId[nid];
-      if (!origName) return block;
-
-      // Reemplazar name, preservando tipo de comillas
-      return block.replace(RE_NAME_ATTR, (m, g1, g2) => {
-        const quote = g1 != null ? '"' : "'";
-        return `name=${quote}${origName}${quote}`;
-      });
-    });
-  }
-
-  function idFromMetadataBlock(block) {
-    let m;
-    RE_KVP_TYPE_TAG_GLOBAL.lastIndex = 0;
-    while ((m = RE_KVP_TYPE_TAG_GLOBAL.exec(block)) !== null) {
-      const kvText = m[0];
-      const mv = RE_ATTR_VAL.exec(kvText);
-      if (mv) {
-        const val = firstGroup(mv);
-        const nid = parseIdFromText(val);
-        if (nid) return nid;
-      }
-    }
-    return null;
-  }
-
-  function injectOrReplaceReference(block, actorId) {
-    const target = `Actor.${actorId}`;
-
-    // Si ya existe reference, reemplazarlo
-    if (RE_METADATA_REF.test(block)) {
-      RE_METADATA_REF.lastIndex = 0;
-      return block.replace(RE_METADATA_REF, (m, g1, g2) => {
-        const quote = g1 != null ? '"' : "'";
-        return `reference=${quote}${target}${quote}`;
-      });
-    }
-
-    // Si no existe, inyectarlo
-    // Caso autocontenido: <MetaData ... />
-    if (/<MetaData\b[^>]*?\/>/i.test(block)) {
-      return block.replace(
-        /(<MetaData\b)([^>]*?)\/>/i,
-        (m, g1, g2) => `${g1} reference="Actor.${actorId}"${g2}/>`
-      );
-    }
-
-    // Caso emparejado: <MetaData ...>...</MetaData>
-    return block.replace(
-      /(<MetaData\b)([^>]*?)>/i,
-      (m, g1, g2) => `${g1} reference="Actor.${actorId}"${g2}>`
-    );
-  }
-
-  function replaceMetadataReferenceWithOriginal(newXml, idToActorId) {
-    return newXml.replace(RE_METADATA_BLOCK, (block) => {
-      const nid = idFromMetadataBlock(block);
-      if (!nid) return block;
-      const actorId = idToActorId[nid];
-      if (!actorId) return block;
-      return injectOrReplaceReference(block, actorId);
-    });
-  }
-
-  // ============================================================
-  // SORTING
-  // ============================================================
-
-  function sortByLabel(xml) {
-    // NO ordenar, preservar TODAS las partes del XML
-    // Solo ordenar Actor y StaticMesh, pero mantener Materials, Textures, etc.
     
-    // Extraer header (hasta el primer elemento de nivel raíz)
-    const firstRootMatch = xml.match(/<(?:Actor|StaticMesh|Material|Texture|LevelSequence)\b/);
-    const headerEndIndex = firstRootMatch ? firstRootMatch.index : 0;
-    const header = xml.substring(0, headerEndIndex);
+    return result;
+  }
 
-    // Extraer footer (después del último elemento de nivel raíz)
-    const bodySection = xml.substring(headerEndIndex);
-    const footerMatch = bodySection.match(/\n<\/DatasmithUnrealScene>/);
+  /**
+   * Procesa un bloque Actor completo:
+   * - Extrae todos los ActorMesh
+   * - Actualiza cada ActorMesh con datos del newXml
+   * - Reconstruye el Actor
+   */
+  function processActorBlock(actorBlock, meshRefMap, transformMap) {
+    let result = actorBlock;
     
-    let body = bodySection;
-    let footer = "";
-    if (footerMatch) {
-      body = bodySection.substring(0, footerMatch.index);
-      footer = bodySection.substring(footerMatch.index);
-    }
-
-    // Extraer TODOS los elementos de nivel raíz con su posición
-    const allElements = [];
+    // Buscar todos los ActorMesh dentro de este Actor
+    const actorMeshMatches = [...actorBlock.matchAll(RE_ACTORMESH_BLOCK)];
     
-    // Regex para TODOS los posibles elementos de nivel raíz
-    const RE_ROOT_ELEMENT = /<(Actor|StaticMesh|Material|MaterialInstance|Texture|LevelSequence|LevelVariantSets|Environment)\b[^>]*?(?:\/>|>[\s\S]*?<\/\1>)/gi;
-    
-    let match;
-    RE_ROOT_ELEMENT.lastIndex = 0;
-    while ((match = RE_ROOT_ELEMENT.exec(body)) !== null) {
-      const block = match[0];
-      const tagName = match[1];
-      const label = extractLabel(block);
-      const isActorOrMesh = tagName === 'Actor' || tagName === 'StaticMesh';
+    for (const match of actorMeshMatches) {
+      const originalActorMesh = match[0];
+      const label = extractAttr(originalActorMesh, RE_LABEL_ATTR);
       
-      allElements.push({ 
-        label, 
-        block, 
-        type: tagName,
-        sortable: isActorOrMesh,
-        position: match.index
-      });
-    }
-
-    // Separar elementos ordenables de no-ordenables
-    const sortableElements = allElements.filter(e => e.sortable);
-    const nonSortableElements = allElements.filter(e => !e.sortable);
-
-    // Ordenar solo los Actor y StaticMesh
-    sortableElements.sort(compareAlphanumeric);
-
-    // Reconstruir: primero no-ordenables (Materials, etc.), luego ordenables (Actor/StaticMesh)
-    let result = "";
-    
-    // Primero Materials, Textures, etc. (en su orden original)
-    for (const item of nonSortableElements) {
-      result += "\n\t" + item.block;
+      if (!label) continue;
+      
+      // Buscar datos correspondientes en newXml
+      const newMeshRef = meshRefMap[label];
+      const newTransform = transformMap[label];
+      
+      // Actualizar el ActorMesh
+      const updatedActorMesh = updateActorMesh(
+        originalActorMesh,
+        newMeshRef,
+        newTransform
+      );
+      
+      // Reemplazar en el resultado
+      result = result.replace(originalActorMesh, updatedActorMesh);
     }
     
-    // Luego Actor y StaticMesh ordenados
-    for (const item of sortableElements) {
-      result += "\n\t" + item.block;
-    }
-
-    return header + result + footer;
-  }
-
-  function extractLabel(block) {
-    const m = RE_LABEL_ATTR.exec(block);
-    return m ? firstGroup(m) : "";
-  }
-
-  function compareAlphanumeric(a, b) {
-    const labelA = a.label || "";
-    const labelB = b.label || "";
-
-    // Parsear label: "CO_01" -> { prefix: "CO", num: 1 }
-    const parseLabel = (lbl) => {
-      const match = lbl.match(/^([A-Za-z0-9]+)[-_](\d+)$/);
-      if (match) {
-        return { prefix: match[1].toUpperCase(), num: parseInt(match[2], 10) };
-      }
-      return { prefix: lbl.toUpperCase(), num: Number.POSITIVE_INFINITY };
-    };
-
-    const parsedA = parseLabel(labelA);
-    const parsedB = parseLabel(labelB);
-
-    // Comparar prefijos
-    if (parsedA.prefix < parsedB.prefix) return -1;
-    if (parsedA.prefix > parsedB.prefix) return 1;
-
-    // Comparar números
-    return parsedA.num - parsedB.num;
+    return result;
   }
 
   // ============================================================
-  // MAIN PIPELINE
+  // ORDENAMIENTO
+  // ============================================================
+
+  function sortByLabel(blocks) {
+    return blocks.sort((a, b) => {
+      const labelA = a.label || "";
+      const labelB = b.label || "";
+
+      // Parsear label: "CO_01" -> { prefix: "CO", num: 1 }
+      const parseLabel = (lbl) => {
+        const match = lbl.match(/^([A-Za-z0-9]+)[-_](\d+)$/);
+        if (match) {
+          return { prefix: match[1].toUpperCase(), num: parseInt(match[2], 10) };
+        }
+        return { prefix: lbl.toUpperCase(), num: Number.POSITIVE_INFINITY };
+      };
+
+      const parsedA = parseLabel(labelA);
+      const parsedB = parseLabel(labelB);
+
+      // Comparar prefijos
+      if (parsedA.prefix < parsedB.prefix) return -1;
+      if (parsedA.prefix > parsedB.prefix) return 1;
+
+      // Comparar números
+      return parsedA.num - parsedB.num;
+    });
+  }
+
+  // ============================================================
+  // FUNCIÓN PRINCIPAL DE FUSIÓN
   // ============================================================
 
   function runMerge(origXml, newXml) {
-    // Mapas del ORIGINAL
-    const { idToActorId, idToActorMeshId } = buildOriginalMaps(origXml);
-
-    // 1) En el NUEVO, fijar ActorMesh name con los del ORIGINAL
-    let step1 = replaceActorMeshNamesWithOriginal(newXml, idToActorMeshId);
-
-    // 2) En el NUEVO, fijar MetaData reference="Actor.<id>" con los del ORIGINAL
-    let step2 = replaceMetadataReferenceWithOriginal(step1, idToActorId);
-
-    // 3) Ordenar por label
-    let step3 = sortByLabel(step2);
-
-    const usedIdsSet = new Set([
-      ...Object.keys(idToActorId),
-      ...Object.keys(idToActorMeshId)
-    ]);
-
+    // 1. Construir mapas del NUEVO
+    const { staticMeshMap, meshRefMap, transformMap } = buildNewXmlMaps(newXml);
+    const nonActorElements = extractNonActorElements(newXml);
+    
+    // 2. Extraer header del original
+    const firstBlockMatch = origXml.match(/<(?:Actor|StaticMesh)\b/);
+    const headerEndIndex = firstBlockMatch ? firstBlockMatch.index : 0;
+    const header = origXml.substring(0, headerEndIndex);
+    
+    // 3. Procesar todos los bloques Actor del ORIGINAL
+    const processedActorsList = [];
+    const actorMatches = [...origXml.matchAll(RE_ACTOR_BLOCK)];
+    
+    let modificados = 0;
+    for (const match of actorMatches) {
+      const actorBlock = match[0];
+      const processedActor = processActorBlock(actorBlock, meshRefMap, transformMap);
+      const label = extractAttr(processedActor, RE_LABEL_ATTR) || "";
+      processedActorsList.push({ label, block: processedActor });
+      
+      // Contar modificados si hubo cambio
+      if (processedActor !== actorBlock) modificados++;
+    }
+    
+    // 4. Extraer StaticMesh del NUEVO
+    const staticMeshList = [];
+    for (const label in staticMeshMap) {
+      staticMeshList.push({ label, block: staticMeshMap[label] });
+    }
+    
+    // 5. Ordenar Actors y StaticMesh por label
+    sortByLabel(processedActorsList);
+    sortByLabel(staticMeshList);
+    
+    // 6. Reconstruir XML
+    let result = header;
+    
+    // Primero: Materials, Textures, etc.
+    for (const element of nonActorElements) {
+      result += "\n\t" + element;
+    }
+    
+    // Segundo: Actors ordenados
+    for (const item of processedActorsList) {
+      result += "\n\t" + item.block;
+    }
+    
+    // Tercero: StaticMesh ordenados
+    for (const item of staticMeshList) {
+      result += "\n\t" + item.block;
+    }
+    
+    // Footer
+    result += "\n</DatasmithUnrealScene>";
+    
     return {
-      xml: step3,
-      modificados: usedIdsSet.size,
+      xml: result,
+      modificados: modificados,
       purgados: 0
     };
   }
 
+  /**
+   * Reemplazos específicos del proyecto
+   */
   function applySpecificReplacements(xml) {
     return xml.replace(/Level_8mm_Head_L1/g, "VDC MTY - 4D");
   }
@@ -308,13 +289,13 @@
   // ============================================================
   // API GLOBAL
   // ============================================================
-
+  
   window.Reemplazar = {
     run: function (origXml, newXml) {
       // A & B: Ordenar y Purgar el NUEVO
       let cleanXml = window.Purga.run(newXml);
 
-      // C: Merge (inyectar IDs del ORIGINAL al NUEVO limpio)
+      // C: Merge (usar ORIGINAL como base, actualizar con NUEVO)
       let mergedXml = runMerge(origXml, cleanXml);
 
       // D: Reemplazos específicos
