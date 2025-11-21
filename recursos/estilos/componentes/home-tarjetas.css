@@ -55,12 +55,12 @@ body.fondo-inicio {
 
 @keyframes glow-pulse {
   0% {
-    box-shadow: 0 0 10px rgba(0, 255, 128, 0.05);
-    border-color: rgba(0, 255, 128, 0.1);
+    box-shadow: 0 0 15px rgba(108, 125, 71, 0.15), 0 0 5px rgba(108, 125, 71, 0.1);
+    border-color: rgba(108, 125, 71, 0.2);
   }
   100% {
-    box-shadow: 0 0 20px rgba(0, 255, 128, 0.2);
-    border-color: rgba(0, 255, 128, 0.3);
+    box-shadow: 0 0 30px rgba(108, 125, 71, 0.35), 0 0 10px rgba(108, 125, 71, 0.2);
+    border-color: rgba(108, 125, 71, 0.5);
   }
 }
 
@@ -71,12 +71,12 @@ body.fondo-inicio {
 
 @keyframes glow-pulse-blue {
   0% {
-    box-shadow: 0 0 10px rgba(0, 128, 255, 0.05);
-    border-color: rgba(0, 128, 255, 0.1);
+    box-shadow: 0 0 15px rgba(105, 144, 171, 0.15), 0 0 5px rgba(105, 144, 171, 0.1);
+    border-color: rgba(105, 144, 171, 0.2);
   }
   100% {
-    box-shadow: 0 0 20px rgba(0, 128, 255, 0.2);
-    border-color: rgba(0, 128, 255, 0.3);
+    box-shadow: 0 0 30px rgba(105, 144, 171, 0.35), 0 0 10px rgba(105, 144, 171, 0.2);
+    border-color: rgba(105, 144, 171, 0.5);
   }
 }
 
@@ -145,4 +145,28 @@ body.tema-claro .tarjeta-accion::before {
 body.tema-claro .tarjeta-accion:hover {
   transform: translateY(-5px); /* Restore lift */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+/* ------------------------------------------------------------- */
+/* MODO OSCURO (DARK MODE)                                       */
+/* ------------------------------------------------------------- */
+
+/* NOTE FOR DUMMIES:
+   Hover en modo oscuro con glow más intenso.
+*/
+body.tema-oscuro .tarjeta-accion:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Intensificar el glow verde en hover (Purga) */
+body.tema-oscuro .tarjeta-accion:nth-child(1):hover {
+  box-shadow: 0 0 30px rgba(108, 125, 71, 0.4), 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-color: rgba(108, 125, 71, 0.5);
+}
+
+/* Intensificar el glow azul en hover (Reemplazar) */
+body.tema-oscuro .tarjeta-accion:nth-child(2):hover {
+  box-shadow: 0 0 30px rgba(105, 144, 171, 0.4), 0 10px 30px rgba(0, 0, 0, 0.4);
+  border-color: rgba(105, 144, 171, 0.5);
 }

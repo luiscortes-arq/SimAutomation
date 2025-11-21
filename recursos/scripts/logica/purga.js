@@ -131,14 +131,20 @@
 
       // name reducido, excepto Levels
       if (nm && layer !== "Levels") {
-        el.setAttribute("name", getMeshSuffix(nm));
+        // PROTECTED: No renombrar si es uno de los protegidos
+        if (!["Site_Location", "Survey_Point", "Base_Point"].includes(nm)) {
+             el.setAttribute("name", getMeshSuffix(nm));
+        }
       }
 
       // label reducido, excepto Levels
       if (layer === "Levels") {
         el.setAttribute("label", "VDC MTY - 4D");
       } else if (lbl) {
-        el.setAttribute("label", getMeshSuffix(lbl));
+        // PROTECTED: No renombrar si es uno de los protegidos
+        if (!["Site_Location", "Survey_Point", "Base_Point"].includes(lbl)) {
+            el.setAttribute("label", getMeshSuffix(lbl));
+        }
       }
     });
 

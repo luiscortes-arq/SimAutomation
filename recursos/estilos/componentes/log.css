@@ -134,13 +134,13 @@ body {
 }
 
 .stat-icon-container.mod {
-  background: rgba(0, 255, 128, 0.1);
-  color: var(--color-verde);
+  background: rgba(0, 128, 255, 0.1);
+  color: var(--color-azul);
 }
 
 .stat-icon-container.del {
-  background: rgba(255, 80, 80, 0.1);
-  color: var(--color-rojo);
+  background: rgba(0, 255, 128, 0.1);
+  color: var(--color-verde);
 }
 
 .stat-info {
