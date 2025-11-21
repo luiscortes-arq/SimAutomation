@@ -178,54 +178,69 @@
   // ============================================================
 
   function sortByLabel(xml) {
-    // Extraer header (hasta el primer <Actor> o <StaticMesh>)
-    const firstBlockMatch = xml.match(/<(?:Actor|StaticMesh)\b/);
-    const headerEndIndex = firstBlockMatch ? firstBlockMatch.index : 0;
+    // NO ordenar, preservar TODAS las partes del XML
+    // Solo ordenar Actor y StaticMesh, pero mantener Materials, Textures, etc.
+    
+    // Extraer header (hasta el primer elemento de nivel raíz)
+    const firstRootMatch = xml.match(/<(?:Actor|StaticMesh|Material|Texture|LevelSequence)\b/);
+    const headerEndIndex = firstRootMatch ? firstRootMatch.index : 0;
     const header = xml.substring(0, headerEndIndex);
 
-    // Extraer footer (desde el último </Actor> o </StaticMesh>)
-    const lastActorClose = xml.lastIndexOf("</Actor>");
-    const lastStaticMeshClose = xml.lastIndexOf("</StaticMesh>");
-    const lastCloseIndex = Math.max(lastActorClose, lastStaticMeshClose);
-
+    // Extraer footer (después del último elemento de nivel raíz)
+    const bodySection = xml.substring(headerEndIndex);
+    const footerMatch = bodySection.match(/\n<\/DatasmithUnrealScene>/);
+    
+    let body = bodySection;
     let footer = "";
-    if (lastCloseIndex > 0) {
-      const footerStartIndex = lastActorClose > lastStaticMeshClose
-        ? lastActorClose + "</Actor>".length
-        : lastStaticMeshClose + "</StaticMesh>".length;
-      footer = xml.substring(footerStartIndex);
-    } else {
-      footer = "\n</DatasmithUnrealScene>";
+    if (footerMatch) {
+      body = bodySection.substring(0, footerMatch.index);
+      footer = bodySection.substring(footerMatch.index);
     }
 
-    // Extraer todos los bloques Actor y StaticMesh
-    const blocks = [];
-
-    RE_ACTOR_BLOCK.lastIndex = 0;
+    // Extraer TODOS los elementos de nivel raíz con su posición
+    const allElements = [];
+    
+    // Regex para TODOS los posibles elementos de nivel raíz
+    const RE_ROOT_ELEMENT = /<(Actor|StaticMesh|Material|MaterialInstance|Texture|LevelSequence|LevelVariantSets|Environment)\b[^>]*?(?:\/>|>[\s\S]*?<\/\1>)/gi;
+    
     let match;
-    while ((match = RE_ACTOR_BLOCK.exec(xml)) !== null) {
+    RE_ROOT_ELEMENT.lastIndex = 0;
+    while ((match = RE_ROOT_ELEMENT.exec(body)) !== null) {
       const block = match[0];
+      const tagName = match[1];
       const label = extractLabel(block);
-      blocks.push({ label, block, type: 'Actor' });
+      const isActorOrMesh = tagName === 'Actor' || tagName === 'StaticMesh';
+      
+      allElements.push({ 
+        label, 
+        block, 
+        type: tagName,
+        sortable: isActorOrMesh,
+        position: match.index
+      });
     }
 
-    RE_STATICMESH_GLOBAL.lastIndex = 0;
-    while ((match = RE_STATICMESH_GLOBAL.exec(xml)) !== null) {
-      const block = match[0];
-      const label = extractLabel(block);
-      blocks.push({ label, block, type: 'StaticMesh' });
+    // Separar elementos ordenables de no-ordenables
+    const sortableElements = allElements.filter(e => e.sortable);
+    const nonSortableElements = allElements.filter(e => !e.sortable);
+
+    // Ordenar solo los Actor y StaticMesh
+    sortableElements.sort(compareAlphanumeric);
+
+    // Reconstruir: primero no-ordenables (Materials, etc.), luego ordenables (Actor/StaticMesh)
+    let result = "";
+    
+    // Primero Materials, Textures, etc. (en su orden original)
+    for (const item of nonSortableElements) {
+      result += "\n\t" + item.block;
+    }
+    
+    // Luego Actor y StaticMesh ordenados
+    for (const item of sortableElements) {
+      result += "\n\t" + item.block;
     }
 
-    // Ordenar alfanuméricamente por label
-    blocks.sort(compareAlphanumeric);
-
-    // Reconstruir XML
-    let body = "";
-    for (const item of blocks) {
-      body += "\n\t" + item.block;
-    }
-
-    return header + body + footer;
+    return header + result + footer;
   }
 
   function extractLabel(block) {
