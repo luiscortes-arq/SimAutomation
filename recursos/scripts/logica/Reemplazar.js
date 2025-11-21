@@ -117,30 +117,16 @@
 
   /**
    * Actualiza un bloque ActorMesh:
-   * PRESERVA TODO del original (name, label, MetaData, etc.)
+   * PRESERVA TODO del original (name, label, MetaData, Transform, tags, etc.)
    * SOLO actualiza:
-   * 1. <mesh reference="..."/> -> nuevo hash
-   * 2. <Transform>...</Transform> -> nuevo transform
+   * 1. <mesh reference="..."/> -> nuevo hash del NUEVO
    */
-  function updateActorMesh(actorMeshBlock, newMeshRef, newTransform) {
+  function updateActorMesh(actorMeshBlock, newMeshRef) {
     let result = actorMeshBlock;
     
-    // 1. Actualizar mesh reference (si existe nuevo)
+    // SOLO actualizar mesh reference (si existe nuevo)
     if (newMeshRef && RE_MESH_REF.test(result)) {
       result = result.replace(RE_MESH_REF, `<mesh reference="${newMeshRef}"/>`);
-    }
-    
-    // 2. Actualizar Transform (si existe nuevo)
-    if (newTransform) {
-      if (RE_TRANSFORM.test(result)) {
-        // Si ya existe Transform, reemplazarlo
-        result = result.replace(RE_TRANSFORM, newTransform);
-      } else {
-        // Si no existe, insertarlo antes del cierre de ActorMesh
-        if (result.includes('</ActorMesh>')) {
-          result = result.replace('</ActorMesh>', `\t${newTransform}\n\t</ActorMesh>`);
-        }
-      }
     }
     
     return result;
@@ -149,10 +135,10 @@
   /**
    * Procesa un bloque Actor completo:
    * - Extrae todos los ActorMesh
-   * - Actualiza cada ActorMesh con datos del newXml
+   * - Actualiza cada ActorMesh SOLO con mesh reference del newXml
    * - Reconstruye el Actor
    */
-  function processActorBlock(actorBlock, meshRefMap, transformMap) {
+  function processActorBlock(actorBlock, meshRefMap) {
     let result = actorBlock;
     
     // Buscar todos los ActorMesh dentro de este Actor
@@ -164,16 +150,11 @@
       
       if (!label) continue;
       
-      // Buscar datos correspondientes en newXml
+      // Buscar mesh reference correspondiente en newXml
       const newMeshRef = meshRefMap[label];
-      const newTransform = transformMap[label];
       
-      // Actualizar el ActorMesh
-      const updatedActorMesh = updateActorMesh(
-        originalActorMesh,
-        newMeshRef,
-        newTransform
-      );
+      // Actualizar el ActorMesh (SOLO mesh reference)
+      const updatedActorMesh = updateActorMesh(originalActorMesh, newMeshRef);
       
       // Reemplazar en el resultado
       result = result.replace(originalActorMesh, updatedActorMesh);
@@ -217,8 +198,8 @@
   // ============================================================
 
   function runMerge(origXml, newXml) {
-    // 1. Construir mapas del NUEVO
-    const { staticMeshMap, meshRefMap, transformMap } = buildNewXmlMaps(newXml);
+    // 1. Construir mapas del NUEVO (SOLO mesh references y StaticMesh)
+    const { staticMeshMap, meshRefMap } = buildNewXmlMaps(newXml);
     const nonActorElements = extractNonActorElements(newXml);
     
     // 2. Extraer header del original
@@ -233,7 +214,7 @@
     let modificados = 0;
     for (const match of actorMatches) {
       const actorBlock = match[0];
-      const processedActor = processActorBlock(actorBlock, meshRefMap, transformMap);
+      const processedActor = processActorBlock(actorBlock, meshRefMap);
       const label = extractAttr(processedActor, RE_LABEL_ATTR) || "";
       processedActorsList.push({ label, block: processedActor });
       
@@ -241,35 +222,10 @@
       if (processedActor !== actorBlock) modificados++;
     }
     
-    // 4. PRESERVAR StaticMesh del ORIGINAL y actualizar/agregar del NUEVO
+    // 4. Usar SOLO StaticMesh del NUEVO (geometría actualizada)
     const staticMeshList = [];
-    const origStaticMeshes = [...origXml.matchAll(RE_STATICMESH_BLOCK)];
-    const processedLabels = new Set();
-    
-    // Primero: Procesar StaticMesh del ORIGINAL
-    for (const match of origStaticMeshes) {
-      const origBlock = match[0];
-      const label = extractAttr(origBlock, RE_LABEL_ATTR);
-      
-      if (label) {
-        // Si existe versión nueva, usar la nueva; si no, mantener la original
-        if (staticMeshMap[label]) {
-          staticMeshList.push({ label, block: staticMeshMap[label] });
-          processedLabels.add(label);
-        } else {
-          staticMeshList.push({ label, block: origBlock });
-        }
-      } else {
-        // StaticMesh sin label, mantener original
-        staticMeshList.push({ label: "", block: origBlock });
-      }
-    }
-    
-    // Segundo: Agregar StaticMesh del NUEVO que no estaban en el ORIGINAL
     for (const label in staticMeshMap) {
-      if (!processedLabels.has(label)) {
-        staticMeshList.push({ label, block: staticMeshMap[label] });
-      }
+      staticMeshList.push({ label, block: staticMeshMap[label] });
     }
     
     // 5. Ordenar Actors y StaticMesh por label
