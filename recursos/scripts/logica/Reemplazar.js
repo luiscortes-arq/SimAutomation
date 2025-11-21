@@ -95,25 +95,30 @@
 
   /**
    * Actualiza un bloque ActorMesh:
-   * 1. Cambia <mesh reference="old"/> por <mesh reference="new"/>
-   * 2. Reemplaza <Transform> con el del newXml
+   * PRESERVA TODO del original (name, label, MetaData, etc.)
+   * SOLO actualiza:
+   * 1. <mesh reference="..."/> → nuevo hash
+   * 2. <Transform>...</Transform> → nuevo transform
    */
   function updateActorMesh(actorMeshBlock, newMeshName, newTransform) {
     let result = actorMeshBlock;
     
-    // 1. Actualizar mesh reference
-    if (newMeshName) {
+    // 1. Actualizar mesh reference (si existe nuevo)
+    if (newMeshName && RE_MESH_REF.test(result)) {
       result = result.replace(RE_MESH_REF, `<mesh reference="${newMeshName}"/>`);
     }
     
-    // 2. Actualizar Transform
+    // 2. Actualizar Transform (si existe nuevo)
     if (newTransform) {
       if (RE_TRANSFORM.test(result)) {
         // Si ya existe Transform, reemplazarlo
         result = result.replace(RE_TRANSFORM, newTransform);
       } else {
-        // Si no existe, insertarlo antes del cierre
-        result = result.replace(/(<\/ActorMesh>)/, `\n\t\t${newTransform}\n\t$1`);
+        // Si no existe, insertarlo antes del cierre de ActorMesh
+        // Buscar dónde insertar (antes de </ActorMesh> o antes de />)
+        if (result.includes('</ActorMesh>')) {
+          result = result.replace('</ActorMesh>', `\t${newTransform}\n\t</ActorMesh>`);
+        }
       }
     }
     
